@@ -1,8 +1,8 @@
 import { config } from './config.js';
 
 const STYLE = `
-  :root{--brand:#5b4bff;--brand2:#00c2a8;--ink:#0d1224;--soft:#4a5372;--line:#e7e9f2;--cream:#FFF6E1;
-    --grad:linear-gradient(120deg,#6a5bff,#8a52ff 45%,#00c2a8);--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  :root{--brand:#cf0000;--brand2:#a30000;--ink:#0d1224;--soft:#4a5372;--line:#e7e9f2;--cream:#FFF6E1;
+    --grad:linear-gradient(120deg,#e11a1a,#cf0000 55%,#a30000);--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:var(--font);color:var(--ink);background:var(--cream);line-height:1.55}
   .bar{background:var(--cream);padding:8px 0;border-bottom:1px solid #ece3ca}
@@ -22,7 +22,7 @@ const STYLE = `
   th{color:var(--soft);font-size:12.5px;text-transform:uppercase;letter-spacing:.05em}
   .tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700}
   .t-booked{background:#e6fbf4;color:#067a63}.t-qualified{background:#e6fbf4;color:#067a63}
-  .t-new{background:#eef0ff;color:#4a3fd6}.t-callback_requested{background:#fff5e6;color:#9a6b00}
+  .t-new{background:#fdeaea;color:#b00000}.t-callback_requested{background:#fff5e6;color:#9a6b00}
   .t-booking_failed{background:#ffe9e9;color:#b02020}.t-canceled{background:#f1f2f7;color:#6b7390;text-decoration:line-through}
   .muted{color:var(--soft)}
 `;
@@ -75,7 +75,7 @@ export function testChatPage(greeting) {
   </div>
   <style>
     .b{padding:11px 14px;border-radius:14px;max-width:85%;font-size:15px}
-    .them{background:#eef0ff;color:#0d1224;border-bottom-left-radius:4px;align-self:flex-start}
+    .them{background:#f2ede1;color:#0d1224;border-bottom-left-radius:4px;align-self:flex-start}
     .me{background:var(--grad);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
   </style>
   <script>
