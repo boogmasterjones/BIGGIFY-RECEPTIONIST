@@ -1,0 +1,13 @@
+# Netlify auto-deploys the Biggify marketing site (static HTML).
+# It publishes ONLY the site folder; the voice server lives in /server and
+# deploys separately (Render/Railway/Fly — it needs a persistent WebSocket).
+
+[build]
+  publish = "BIGGIFY WEBSITE"
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"

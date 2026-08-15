@@ -1,0 +1,21 @@
+{
+  "name": "biggify-receptionist",
+  "version": "0.1.0",
+  "description": "Biggify AI voice receptionist for home-services businesses (Twilio ConversationRelay + Claude + Cal.com).",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "twilio": "^5.10.2",
+    "ws": "^8.18.0"
+  }
+}
