@@ -101,7 +101,7 @@ async function runTool(name, input, leadId) {
       booked: result.ok,
       when: result.humanTime,
       message: result.ok
-        ? 'Callback scheduled. Now ask for their name, then the kind of work, then their area.'
+        ? 'Callback scheduled. Now ask for all three in one message: their name, the kind of work, and their area. Follow up only for anything they leave out.'
         : 'Booking hiccup — tell the caller the team will confirm the time shortly, then ask for their name, job, and area.',
     });
   }
