@@ -1,6 +1,10 @@
 import http from 'node:http';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import { WebSocketServer } from 'ws';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import { config, isCalcomLive, isSmsLive } from './config.js';
 import { WELCOME_GREETING } from './prompt.js';
@@ -12,6 +16,7 @@ import { surveyPage, thankYouPage, dashboardPage, testChatPage } from './pages.j
 const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '..', 'public'))); // serves /logo.png
 
 // --- Health check ---
 app.get('/', (_req, res) => {

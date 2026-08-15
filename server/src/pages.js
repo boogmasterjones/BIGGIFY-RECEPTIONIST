@@ -1,11 +1,12 @@
 import { config } from './config.js';
 
 const STYLE = `
-  :root{--brand:#5b4bff;--brand2:#00c2a8;--ink:#0d1224;--soft:#4a5372;--line:#e7e9f2;
+  :root{--brand:#5b4bff;--brand2:#00c2a8;--ink:#0d1224;--soft:#4a5372;--line:#e7e9f2;--cream:#FFF6E1;
     --grad:linear-gradient(120deg,#6a5bff,#8a52ff 45%,#00c2a8);--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:var(--font);color:var(--ink);background:#f6f7fb;line-height:1.55}
-  .bar{background:#0b1020;padding:16px 0}
+  body{font-family:var(--font);color:var(--ink);background:var(--cream);line-height:1.55}
+  .bar{background:var(--cream);padding:8px 0;border-bottom:1px solid #ece3ca}
+  .bar img{height:50px;display:block}
   .wrap{width:min(720px,92vw);margin:0 auto;padding:0 4px}
   .logo{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:20px}
   .logo .m{width:28px;height:28px;border-radius:8px;background:var(--grad);display:grid;place-items:center;font-size:15px}
@@ -30,7 +31,7 @@ function shell(title, inner) {
   return `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>${title} — Biggify</title><style>${STYLE}</style></head><body>
-  <div class="bar"><div class="wrap"><span class="logo"><span class="m">⚡</span> Biggify</span></div></div>
+  <div class="bar"><div class="wrap"><a href="/dashboard"><img src="/logo.png" alt="Biggify" /></a></div></div>
   <div class="wrap">${inner}</div></body></html>`;
 }
 
