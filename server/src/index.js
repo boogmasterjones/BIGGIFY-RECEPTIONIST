@@ -101,8 +101,14 @@ wss.on('connection', (ws) => {
     if (msg.type === 'prompt' && msg.last && session && !busy) {
       busy = true;
       try {
-        const reply = await session.handleUtterance(msg.voicePrompt || '');
-        ws.send(JSON.stringify({ type: 'text', token: reply, last: true }));
+        // Stream the reply token-by-token so speech starts almost immediately.
+        await session.handleUtterance(msg.voicePrompt || '', (token) => {
+          ws.send(JSON.stringify({ type: 'text', token, last: false }));
+        });
+        ws.send(JSON.stringify({ type: 'text', token: '', last: true }));
+        if (session.ended) {
+          ws.send(JSON.stringify({ type: 'end', handoffData: 'completed' }));
+        }
       } catch (err) {
         console.error('[call] error:', err.message);
         ws.send(JSON.stringify({ type: 'text', token: 'Sorry, I hit a snag. One moment.', last: true }));

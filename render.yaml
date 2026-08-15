@@ -19,7 +19,7 @@ services:
       - key: ANTHROPIC_API_KEY
         sync: false            # Render will prompt you to paste this (kept secret)
       - key: CLAUDE_MODEL
-        value: claude-opus-5
+        value: claude-sonnet-5   # fast enough for live voice; use claude-haiku-4-5 for even lower latency
       - key: BUSINESS_NAME
         value: Bob's HVAC
       - key: BUSINESS_TRADE

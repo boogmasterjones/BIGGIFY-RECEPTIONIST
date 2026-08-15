@@ -62,6 +62,12 @@ const tools = [
       additionalProperties: false,
     },
   },
+  {
+    name: 'end_call',
+    description:
+      'Hang up the call. Call this ONLY when the conversation is fully complete — after you have said a brief goodbye in the SAME message. Always include the goodbye words in your text; end_call just disconnects after you finish speaking.',
+    input_schema: { type: 'object', properties: {}, additionalProperties: false },
+  },
 ];
 
 // Runs one tool and returns the string result to feed back to Claude.
@@ -135,27 +141,37 @@ export class CallSession {
   constructor(leadId) {
     this.leadId = leadId;
     this.messages = [];
+    this.ended = false; // set true when the AI decides to hang up
   }
 
-  // Takes the caller's transcribed utterance, returns the receptionist's spoken reply.
-  async handleUtterance(text) {
+  // Takes the caller's transcribed utterance. Streams the reply text through
+  // onToken(delta) as it's generated (for low-latency voice), and also returns
+  // the full reply string (used by the browser test, which isn't streamed).
+  async handleUtterance(text, onToken) {
     this.messages.push({ role: 'user', content: text });
+    let spoken = '';
 
     // Tool loop: keep going until the model produces a final spoken reply.
-    for (let i = 0; i < 5; i++) {
-      const res = await client.messages.create({
+    for (let i = 0; i < 6; i++) {
+      const stream = client.messages.stream({
         model: config.claudeModel,
-        max_tokens: 1024,
+        max_tokens: 512,
         system: systemPrompt(),
-        thinking: { type: 'adaptive' },
-        output_config: { effort: 'low' },
+        thinking: { type: 'disabled' }, // no thinking = much faster for voice
         tools,
         messages: this.messages,
       });
-
+      stream.on('text', (delta) => {
+        spoken += delta;
+        if (onToken) onToken(delta); // speak it as it comes
+      });
+      const res = await stream.finalMessage();
       this.messages.push({ role: 'assistant', content: res.content });
 
-      if (res.stop_reason === 'tool_use') {
+      const endCall = res.content.some((b) => b.type === 'tool_use' && b.name === 'end_call');
+
+      // If the model called tools (other than end_call), run them and continue.
+      if (res.stop_reason === 'tool_use' && !endCall) {
         const toolResults = [];
         for (const block of res.content) {
           if (block.type === 'tool_use') {
@@ -164,17 +180,18 @@ export class CallSession {
           }
         }
         this.messages.push({ role: 'user', content: toolResults });
-        continue; // let the model respond to the tool results
+        continue;
       }
 
-      // Final answer — collect spoken text.
-      const spoken = res.content
-        .filter((b) => b.type === 'text')
-        .map((b) => b.text)
-        .join(' ')
-        .trim();
-      return spoken || 'Sorry, could you say that again?';
+      if (endCall) this.ended = true;
+      break;
     }
-    return 'Let me get someone to help you — one moment.';
+
+    let finalText = spoken.trim();
+    if (!finalText) {
+      finalText = this.ended ? 'Thanks for calling — have a great day!' : 'Sorry, could you say that again?';
+      if (onToken) onToken(finalText); // make sure the fallback is spoken too
+    }
+    return finalText;
   }
 }

@@ -8,7 +8,10 @@ export const config = {
   port: Number(process.env.PORT) || 8080,
 
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
-  claudeModel: process.env.CLAUDE_MODEL || 'claude-opus-5',
+  // Fast model for real-time voice. claude-haiku-4-5 is even faster if you
+  // want to trade a little polish for speed; claude-opus-5 is most capable but
+  // noticeably slower on a live call.
+  claudeModel: process.env.CLAUDE_MODEL || 'claude-sonnet-5',
 
   twilio: {
     accountSid: process.env.TWILIO_ACCOUNT_SID || '',
