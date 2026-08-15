@@ -61,6 +61,41 @@ export function thankYouPage() {
   </div>`);
 }
 
+export function testChatPage(greeting) {
+  return shell('Test the receptionist', `<div class="card">
+    <h1>Talk to your AI receptionist</h1>
+    <p class="sub">Type to it like you're a customer calling ${config.business.name}. It'll book an appointment and (in this demo) pretend to text the survey. Check <a href="/dashboard">the dashboard</a> after to see the lead.</p>
+    <div id="log" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px"></div>
+    <form id="f" style="display:flex;gap:8px;margin:0">
+      <input id="in" placeholder="Type your message..." autocomplete="off" style="flex:1" />
+      <button type="submit" style="width:auto;margin:0;padding:12px 20px">Send</button>
+    </form>
+  </div>
+  <style>
+    .b{padding:11px 14px;border-radius:14px;max-width:85%;font-size:15px}
+    .them{background:#eef0ff;color:#0d1224;border-bottom-left-radius:4px;align-self:flex-start}
+    .me{background:var(--grad);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+  </style>
+  <script>
+    const id = 'test-' + Math.random().toString(36).slice(2);
+    const log = document.getElementById('log');
+    const input = document.getElementById('in');
+    function bubble(text, who){ const d=document.createElement('div'); d.className='b '+who; d.textContent=text; log.appendChild(d); d.scrollIntoView(); }
+    bubble(${JSON.stringify(greeting)}, 'them');
+    document.getElementById('f').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const text = input.value.trim(); if(!text) return;
+      bubble(text,'me'); input.value=''; input.disabled=true;
+      const wait=document.createElement('div'); wait.className='b them'; wait.textContent='…'; log.appendChild(wait);
+      try{
+        const r = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,text})});
+        const j = await r.json(); wait.remove(); bubble(j.reply || '(no reply)','them');
+      }catch(err){ wait.remove(); bubble('Error: '+err.message,'them'); }
+      input.disabled=false; input.focus();
+    });
+  </script>`);
+}
+
 export function dashboardPage(leads) {
   const rows = leads.map((l) => {
     const appt = l.appointment ? l.appointment.humanTime : '<span class="muted">—</span>';

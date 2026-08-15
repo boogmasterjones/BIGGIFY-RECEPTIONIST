@@ -7,7 +7,7 @@ import { WELCOME_GREETING } from './prompt.js';
 import { CallSession } from './claude.js';
 import { createLead, updateLead, getLead, allLeads } from './store.js';
 import { alertOwner } from './twilioSms.js';
-import { surveyPage, thankYouPage, dashboardPage } from './pages.js';
+import { surveyPage, thankYouPage, dashboardPage, testChatPage } from './pages.js';
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
@@ -57,6 +57,27 @@ app.post('/api/survey/:id', async (req, res) => {
 
 // --- Branded dashboard ---
 app.get('/dashboard', (_req, res) => res.send(dashboardPage(allLeads())));
+
+// --- Browser test chat (talk to the receptionist by typing; no phone needed) ---
+const chatSessions = new Map(); // browser id -> CallSession
+app.get('/test', (_req, res) => res.send(testChatPage(WELCOME_GREETING)));
+app.post('/api/chat', async (req, res) => {
+  const { id, text } = req.body || {};
+  if (!id || !text) return res.status(400).json({ error: 'id and text required' });
+  let session = chatSessions.get(id);
+  if (!session) {
+    const lead = createLead({ callSid: id, from: '+15555550123', to: config.twilio.phoneNumber || 'test-line' });
+    session = new CallSession(lead.id);
+    chatSessions.set(id, session);
+  }
+  try {
+    const reply = await session.handleUtterance(text);
+    res.json({ reply });
+  } catch (err) {
+    console.error('[chat] error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // --- HTTP server + WebSocket for ConversationRelay ---
 const server = http.createServer(app);

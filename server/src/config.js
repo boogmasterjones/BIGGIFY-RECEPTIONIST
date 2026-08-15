@@ -3,7 +3,8 @@ import 'dotenv/config';
 // Central config, read once. Anything missing falls back to a safe default
 // so the demo can run before every integration is wired up.
 export const config = {
-  publicUrl: (process.env.PUBLIC_URL || '').replace(/\/$/, ''),
+  // PUBLIC_URL wins; on Render, RENDER_EXTERNAL_URL is injected automatically.
+  publicUrl: (process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || '').replace(/\/$/, ''),
   port: Number(process.env.PORT) || 8080,
 
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',

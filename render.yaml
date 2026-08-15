@@ -1,0 +1,34 @@
+# Render Blueprint — deploys the Biggify voice receptionist (server/).
+# In Render: New → Blueprint → connect this repo. Render reads this file,
+# then prompts you for the one secret it needs (ANTHROPIC_API_KEY).
+#
+# Note: the "free" plan sleeps after inactivity and cold-starts in ~30s — fine
+# for the browser chat test, but upgrade to a paid instance before taking real
+# phone calls (a cold start would drop an incoming call).
+
+services:
+  - type: web
+    name: biggify-receptionist
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false            # Render will prompt you to paste this (kept secret)
+      - key: CLAUDE_MODEL
+        value: claude-opus-5
+      - key: BUSINESS_NAME
+        value: Bob's HVAC
+      - key: BUSINESS_TRADE
+        value: HVAC and heating/cooling
+      - key: BUSINESS_HOURS
+        value: Monday to Friday, 8am to 6pm
+      - key: BUSINESS_SERVICE_AREA
+        value: the greater Tampa area
+      - key: RECEPTIONIST_VOICE
+        value: en-US-Journey-O
+      # Twilio + Cal.com left unset on purpose → SMS/booking run in mock mode.
+      # Add them in the Render dashboard once you have a number / Cal.com / 10DLC.
