@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 
 export type JobInput = {
+  title?: string;
   contact_id?: string;
   service?: string;
   description?: string;
@@ -16,6 +17,7 @@ export type Result = { ok: boolean; error?: string };
 function parse(input: JobInput) {
   const dollars = parseFloat((input.value || '').replace(/[^0-9.]/g, ''));
   return {
+    title: input.title?.trim() || null,
     contact_id: input.contact_id ? input.contact_id : null,
     service: input.service?.trim() || null,
     description: input.description?.trim() || null,

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createJob, updateJob, setJobStage, deleteJob } from './actions';
@@ -8,6 +9,7 @@ export type Stage = { id: string; name: string; color: string; position: number 
 export type ContactOption = { id: string; name: string | null };
 export type Job = {
   id: string;
+  title: string | null;
   contact_id: string | null;
   service: string | null;
   description: string | null;
@@ -59,6 +61,7 @@ export default function JobsClient({
     setBusy(true);
     setError(null);
     const payload = {
+      title: String(form.get('title') || ''),
       contact_id: String(form.get('contact_id') || ''),
       service: String(form.get('service') || ''),
       description: String(form.get('description') || ''),
@@ -126,9 +129,12 @@ export default function JobsClient({
                 return (
                   <tr key={j.id} className="border-b border-neutral-50 hover:bg-[#FFFBF0]">
                     <td className="px-5 py-3">
-                      <button onClick={() => startEdit(j)} className="font-semibold hover:text-[#CF0000]">
-                        {j.contact?.name || 'No contact'}
-                      </button>
+                      <Link href={`/jobs/${j.id}`} className="font-semibold hover:text-[#CF0000]">
+                        {j.title || j.contact?.name || 'Open job'}
+                      </Link>
+                      {j.title && j.contact?.name && (
+                        <div className="text-neutral-400 text-xs">{j.contact.name}</div>
+                      )}
                     </td>
                     <td className="px-5 py-3 text-neutral-600">{j.service || '—'}</td>
                     <td className="px-5 py-3 text-neutral-600">{money(j.value_cents)}</td>
@@ -146,7 +152,10 @@ export default function JobsClient({
                         ))}
                       </select>
                     </td>
-                    <td className="px-5 py-3 text-right">
+                    <td className="px-5 py-3 text-right whitespace-nowrap">
+                      <button onClick={() => startEdit(j)} className="text-neutral-400 hover:text-[#CF0000] text-sm mr-3">
+                        Edit
+                      </button>
                       <button onClick={() => remove(j)} className="text-neutral-300 hover:text-[#CF0000] text-sm">
                         Delete
                       </button>
@@ -170,6 +179,7 @@ export default function JobsClient({
               </button>
             </div>
             <form action={save} className="space-y-3">
+              <input name="title" defaultValue={editing?.title ?? ''} placeholder="Project / job title (optional)" className={input} />
               <label className="block text-sm font-semibold">Customer</label>
               <select name="contact_id" defaultValue={editing?.contact_id ?? ''} className={input}>
                 <option value="">— No contact —</option>
