@@ -20,8 +20,9 @@ const STYLE = `
   th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
   th{color:var(--soft);font-size:12.5px;text-transform:uppercase;letter-spacing:.05em}
   .tag{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:700}
-  .t-booked{background:#e6fbf4;color:#067a63}.t-new{background:#eef0ff;color:#4a3fd6}
-  .t-callback_requested{background:#fff5e6;color:#9a6b00}.t-booking_failed{background:#ffe9e9;color:#b02020}
+  .t-booked{background:#e6fbf4;color:#067a63}.t-qualified{background:#e6fbf4;color:#067a63}
+  .t-new{background:#eef0ff;color:#4a3fd6}.t-callback_requested{background:#fff5e6;color:#9a6b00}
+  .t-booking_failed{background:#ffe9e9;color:#b02020}.t-canceled{background:#f1f2f7;color:#6b7390;text-decoration:line-through}
   .muted{color:var(--soft)}
 `;
 
@@ -64,7 +65,7 @@ export function thankYouPage() {
 export function testChatPage(greeting) {
   return shell('Test the receptionist', `<div class="card">
     <h1>Talk to your AI receptionist</h1>
-    <p class="sub">Type to it like you're a customer calling ${config.business.name}. It'll book an appointment and (in this demo) pretend to text the survey. Check <a href="/dashboard">the dashboard</a> after to see the lead.</p>
+    <p class="sub">Type to it like you're a customer calling ${config.business.name}. It'll schedule a callback, ask a couple of qualifying questions, and — if the job's outside what the business offers or its service area — offer to cancel. Check <a href="/dashboard">the dashboard</a> after to see the lead. Try an out-of-scope job (like "I need my roof replaced") to see it catch that.</p>
     <div id="log" style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px"></div>
     <form id="f" style="display:flex;gap:8px;margin:0">
       <input id="in" placeholder="Type your message..." autocomplete="off" style="flex:1" />
@@ -100,8 +101,8 @@ export function dashboardPage(leads) {
   const rows = leads.map((l) => {
     const appt = l.appointment ? l.appointment.humanTime : '<span class="muted">—</span>';
     const survey = l.survey
-      ? `<div><strong>${l.survey.address}</strong><br/>${l.survey.issue}<br/><span class="muted">${l.survey.urgency}${l.survey.notes ? ' · ' + l.survey.notes : ''}</span></div>`
-      : (l.surveySent ? '<span class="muted">sent, awaiting reply</span>' : '<span class="muted">—</span>');
+      ? `<div><strong>${l.survey.issue || '—'}</strong><br/><span class="muted">${l.survey.address || ''}</span></div>`
+      : (l.cancelReason ? `<span class="muted">${l.cancelReason}</span>` : '<span class="muted">—</span>');
     return `<tr>
       <td>${new Date(l.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</td>
       <td><strong>${l.name || 'Caller'}</strong><br/><span class="muted">${l.phone || ''}</span></td>
@@ -116,7 +117,7 @@ export function dashboardPage(leads) {
     <h1>${config.business.name} — Leads</h1>
     <p class="sub">Every call Biggify answered, with the appointment and the survey details your team needs to show up prepared.</p>
     <div style="overflow-x:auto">
-    <table><thead><tr><th>When</th><th>Caller</th><th>Service</th><th>Appointment</th><th>Survey</th><th>Status</th></tr></thead>
+    <table><thead><tr><th>When</th><th>Caller</th><th>Service</th><th>Appointment</th><th>Job / Area</th><th>Status</th></tr></thead>
     <tbody>${rows || '<tr><td colspan="6" class="muted">No leads yet. Make a test call to see one appear here.</td></tr>'}</tbody></table>
     </div></div>`);
 }

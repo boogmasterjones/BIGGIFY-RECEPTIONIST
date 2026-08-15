@@ -3,7 +3,7 @@ import { config } from './config.js';
 import { systemPrompt } from './prompt.js';
 import { getAvailableSlots, createBooking } from './calcom.js';
 import { updateLead, getLead } from './store.js';
-import { sendSurvey, alertOwner } from './twilioSms.js';
+import { alertOwner } from './twilioSms.js';
 
 const client = new Anthropic({ apiKey: config.anthropicApiKey });
 
@@ -17,22 +17,48 @@ const tools = [
   {
     name: 'book_appointment',
     description:
-      "Book the appointment once the caller has chosen a time, OR record a callback request if they aren't ready to book. Provide the caller's name and the service reason.",
+      "Schedule the callback time the caller chose. Call this as soon as they pick a time — you do NOT need their name or the job details yet (those come after). Or set callback_only if they won't pick a firm time.",
     input_schema: {
       type: 'object',
       properties: {
-        name: { type: 'string', description: "Caller's full name" },
-        service: { type: 'string', description: 'Short description of the service/issue' },
         starts_at: {
           type: 'string',
           description: 'The ISO 8601 start time the caller chose (from check_availability). Omit if callback_only.',
         },
+        name: { type: 'string', description: "Caller's name, if you already have it (optional)" },
         callback_only: {
           type: 'boolean',
-          description: 'True if the caller is not booking a firm time and just wants a callback.',
+          description: 'True if the caller is not booking a firm time and just wants a callback whenever.',
         },
       },
-      required: ['name', 'service'],
+      required: [],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'record_details',
+    description:
+      "Save the details you collect AFTER booking: the caller's name, the kind of work they need, and the area they're in. Call this once you have all three.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: "Caller's name" },
+        work_type: { type: 'string', description: 'The kind of work the caller needs done' },
+        location: { type: 'string', description: 'The area / part of town / city the caller is located in' },
+      },
+      required: ['work_type', 'location'],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'cancel_appointment',
+    description:
+      "Cancel the appointment you just booked for this caller — use when the job is outside what the business offers or outside the service area and the caller agrees to cancel.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        reason: { type: 'string', description: 'Short reason, e.g. "out of service area" or "service not offered"' },
+      },
       additionalProperties: false,
     },
   },
@@ -50,43 +76,55 @@ async function runTool(name, input, leadId) {
 
   if (name === 'book_appointment') {
     const lead = getLead(leadId);
-    updateLead(leadId, {
-      name: input.name || lead?.name || null,
-      service: input.service || lead?.service || null,
-    });
+    if (input.name) updateLead(leadId, { name: input.name });
 
     if (input.callback_only || !input.starts_at) {
-      const updated = updateLead(leadId, { status: 'callback_requested' });
-      await sendSurvey(updated);
-      updateLead(leadId, { surveySent: true });
-      await alertOwner(updated);
+      updateLead(leadId, { status: 'callback_requested' });
       return JSON.stringify({
         booked: false,
         callback: true,
-        message: 'Callback recorded. Survey text sent to the caller and owner alerted.',
+        message: 'Callback request recorded. Now ask for their name, the job, and their area.',
       });
     }
 
     const result = await createBooking({
       startsAt: input.starts_at,
-      name: input.name,
+      name: input.name || lead?.name || 'Caller',
       phone: lead?.phone,
-      service: input.service,
+      service: lead?.service,
     });
-    const updated = updateLead(leadId, {
+    updateLead(leadId, {
       status: result.ok ? 'booked' : 'booking_failed',
       appointment: { startsAt: input.starts_at, humanTime: result.humanTime, calBookingId: result.calBookingId },
     });
-    await sendSurvey(updated);
-    updateLead(leadId, { surveySent: true });
-    await alertOwner(updated);
     return JSON.stringify({
       booked: result.ok,
       when: result.humanTime,
       message: result.ok
-        ? 'Appointment booked. Survey text sent to the caller and owner alerted.'
-        : 'Booking system hiccup — tell the caller the team will confirm the time by text shortly.',
+        ? 'Callback scheduled. Now ask for their name, then the kind of work, then their area.'
+        : 'Booking hiccup — tell the caller the team will confirm the time shortly, then ask for their name, job, and area.',
     });
+  }
+
+  if (name === 'record_details') {
+    const current = getLead(leadId);
+    const updated = updateLead(leadId, {
+      name: input.name || current?.name || null,
+      service: input.work_type || current?.service || null,
+      survey: {
+        issue: input.work_type || null,
+        address: input.location || null,
+        completedAt: new Date().toISOString(),
+      },
+      status: current?.status === 'callback_requested' ? 'callback_requested' : 'qualified',
+    });
+    await alertOwner(updated); // owner now has the full picture
+    return JSON.stringify({ recorded: true });
+  }
+
+  if (name === 'cancel_appointment') {
+    updateLead(leadId, { status: 'canceled', cancelReason: input.reason || 'out of scope' });
+    return JSON.stringify({ canceled: true, message: 'Appointment canceled. Let the caller know politely.' });
   }
 
   return JSON.stringify({ error: `unknown tool ${name}` });

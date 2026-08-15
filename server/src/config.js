@@ -27,6 +27,9 @@ export const config = {
     trade: process.env.BUSINESS_TRADE || 'home services',
     hours: process.env.BUSINESS_HOURS || 'Monday to Friday, 8am to 6pm',
     serviceArea: process.env.BUSINESS_SERVICE_AREA || 'the local area',
+    // What the business actually offers — used to qualify callers on the call.
+    services: process.env.BUSINESS_SERVICES ||
+      'AC repair, heating repair, HVAC system installation and replacement, and routine maintenance/tune-ups',
     ownerAlertPhone: process.env.OWNER_ALERT_PHONE || '',
     ownerAlertEmail: process.env.OWNER_ALERT_EMAIL || '',
   },
