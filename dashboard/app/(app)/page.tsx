@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
 import { getUserAndBusiness } from '@/lib/data';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function count(table: string, businessId: string, extra?: (q: any) => any) {
   const supabase = await createClient();
-  let q = supabase.from(table).select('*', { count: 'exact', head: true }).eq('business_id', businessId);
+  let q: any = supabase.from(table).select('*', { count: 'exact', head: true }).eq('business_id', businessId);
   if (extra) q = extra(q);
   const { count } = await q;
   return count ?? 0;
@@ -13,23 +14,23 @@ export default async function Home() {
   const { business } = await getUserAndBusiness();
   if (!business) return null;
 
-  const [contacts, openJobs, upcoming] = await Promise.all([
+  const [contacts, jobs, upcoming] = await Promise.all([
     count('contacts', business.id),
-    count('jobs', business.id, (q) => q.in('status', ['new', 'scheduled', 'in_progress'])),
+    count('jobs', business.id),
     count('appointments', business.id, (q) => q.gte('starts_at', new Date().toISOString())),
   ]);
 
   const supabase = await createClient();
   const { data: recentJobs } = await supabase
     .from('jobs')
-    .select('id, service, status, created_at, contact:contacts(name)')
+    .select('id, service, created_at, contact:contacts(name), stage:job_stages(name, color)')
     .eq('business_id', business.id)
     .order('created_at', { ascending: false })
     .limit(6);
 
   const tiles = [
     { label: 'Contacts', value: contacts, show: !!business.features.contacts },
-    { label: 'Open jobs', value: openJobs, show: !!business.features.jobs },
+    { label: 'Jobs', value: jobs, show: !!business.features.jobs },
     { label: 'Upcoming appointments', value: upcoming, show: !!business.features.appointments || !!business.features.calendar },
   ].filter((t) => t.show);
 
@@ -57,9 +58,14 @@ export default async function Home() {
                   <span className="font-semibold">{j.contact?.name || 'Caller'}</span>
                   <span className="text-neutral-500"> — {j.service || 'Job'}</span>
                 </div>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-[#FFF6E1] text-neutral-600">
-                  {j.status}
-                </span>
+                {j.stage?.name && (
+                  <span
+                    className="text-xs px-2 py-0.5 rounded-full text-white"
+                    style={{ backgroundColor: j.stage.color || '#9aa0b4' }}
+                  >
+                    {j.stage.name}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

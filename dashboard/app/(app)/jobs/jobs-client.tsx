@@ -2,44 +2,20 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  createJob,
-  updateJob,
-  setJobStatus,
-  deleteJob,
-  type JobStatus,
-} from './actions';
+import { createJob, updateJob, setJobStage, deleteJob } from './actions';
 
+export type Stage = { id: string; name: string; color: string; position: number };
+export type ContactOption = { id: string; name: string | null };
 export type Job = {
   id: string;
   contact_id: string | null;
   service: string | null;
   description: string | null;
-  status: JobStatus;
+  stage_id: string | null;
   value_cents: number | null;
   source: string;
   created_at: string;
   contact: { id: string; name: string | null } | null;
-};
-
-export type ContactOption = { id: string; name: string | null };
-
-const STATUSES: { value: JobStatus; label: string }[] = [
-  { value: 'new', label: 'New' },
-  { value: 'scheduled', label: 'Scheduled' },
-  { value: 'in_progress', label: 'In progress' },
-  { value: 'done', label: 'Done' },
-  { value: 'canceled', label: 'Canceled' },
-  { value: 'lost', label: 'Lost' },
-];
-
-const statusColor: Record<JobStatus, string> = {
-  new: 'bg-[#eef0ff] text-[#4a3fd6]',
-  scheduled: 'bg-[#fff5e6] text-[#9a6b00]',
-  in_progress: 'bg-[#e6f3ff] text-[#0369a1]',
-  done: 'bg-[#e6fbf4] text-[#067a63]',
-  canceled: 'bg-neutral-100 text-neutral-500',
-  lost: 'bg-[#ffe9e9] text-[#b02020]',
 };
 
 const input =
@@ -54,16 +30,19 @@ export default function JobsClient({
   businessId,
   initial,
   contacts,
+  stages,
 }: {
   businessId: string;
   initial: Job[];
   contacts: ContactOption[];
+  stages: Stage[];
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Job | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const stageById = new Map(stages.map((s) => [s.id, s]));
 
   function startAdd() {
     setEditing(null);
@@ -83,7 +62,7 @@ export default function JobsClient({
       contact_id: String(form.get('contact_id') || ''),
       service: String(form.get('service') || ''),
       description: String(form.get('description') || ''),
-      status: String(form.get('status') || 'new') as JobStatus,
+      stage_id: String(form.get('stage_id') || ''),
       value: String(form.get('value') || ''),
     };
     const res = editing ? await updateJob(editing.id, payload) : await createJob(businessId, payload);
@@ -96,8 +75,8 @@ export default function JobsClient({
     router.refresh();
   }
 
-  async function changeStatus(id: string, status: JobStatus) {
-    await setJobStatus(id, status);
+  async function changeStage(id: string, stageId: string) {
+    await setJobStage(id, stageId);
     router.refresh();
   }
 
@@ -112,7 +91,13 @@ export default function JobsClient({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">Jobs</h1>
-          <p className="text-neutral-500">Your lead &amp; work pipeline — new to done.</p>
+          <p className="text-neutral-500">
+            Your pipeline — customize the stages in{' '}
+            <a href="/settings" className="text-[#CF0000] underline">
+              Settings
+            </a>
+            .
+          </p>
         </div>
         <button onClick={startAdd} className="rounded-full bg-[#CF0000] text-white font-bold px-5 py-2.5">
           + Add job
@@ -131,40 +116,44 @@ export default function JobsClient({
                 <th className="px-5 py-3 font-semibold">Customer</th>
                 <th className="px-5 py-3 font-semibold">Service</th>
                 <th className="px-5 py-3 font-semibold">Value</th>
-                <th className="px-5 py-3 font-semibold">Status</th>
+                <th className="px-5 py-3 font-semibold">Stage</th>
                 <th className="px-5 py-3"></th>
               </tr>
             </thead>
             <tbody>
-              {initial.map((j) => (
-                <tr key={j.id} className="border-b border-neutral-50 hover:bg-[#FFFBF0]">
-                  <td className="px-5 py-3">
-                    <button onClick={() => startEdit(j)} className="font-semibold hover:text-[#CF0000]">
-                      {j.contact?.name || 'No contact'}
-                    </button>
-                  </td>
-                  <td className="px-5 py-3 text-neutral-600">{j.service || '—'}</td>
-                  <td className="px-5 py-3 text-neutral-600">{money(j.value_cents)}</td>
-                  <td className="px-5 py-3">
-                    <select
-                      value={j.status}
-                      onChange={(e) => changeStatus(j.id, e.target.value as JobStatus)}
-                      className={`text-[12px] font-semibold rounded-full px-2.5 py-1 border-0 outline-none cursor-pointer ${statusColor[j.status]}`}
-                    >
-                      {STATUSES.map((s) => (
-                        <option key={s.value} value={s.value}>
-                          {s.label}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <button onClick={() => remove(j)} className="text-neutral-300 hover:text-[#CF0000] text-sm">
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {initial.map((j) => {
+                const stage = j.stage_id ? stageById.get(j.stage_id) : null;
+                return (
+                  <tr key={j.id} className="border-b border-neutral-50 hover:bg-[#FFFBF0]">
+                    <td className="px-5 py-3">
+                      <button onClick={() => startEdit(j)} className="font-semibold hover:text-[#CF0000]">
+                        {j.contact?.name || 'No contact'}
+                      </button>
+                    </td>
+                    <td className="px-5 py-3 text-neutral-600">{j.service || '—'}</td>
+                    <td className="px-5 py-3 text-neutral-600">{money(j.value_cents)}</td>
+                    <td className="px-5 py-3">
+                      <select
+                        value={j.stage_id ?? ''}
+                        onChange={(e) => changeStage(j.id, e.target.value)}
+                        className="text-[12px] font-semibold rounded-full px-2.5 py-1 outline-none cursor-pointer text-white"
+                        style={{ backgroundColor: stage?.color ?? '#9aa0b4' }}
+                      >
+                        {stages.map((s) => (
+                          <option key={s.id} value={s.id} className="text-neutral-900 bg-white">
+                            {s.name}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      <button onClick={() => remove(j)} className="text-neutral-300 hover:text-[#CF0000] text-sm">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
@@ -197,11 +186,11 @@ export default function JobsClient({
                 placeholder="Value ($)"
                 className={input}
               />
-              <label className="block text-sm font-semibold">Status</label>
-              <select name="status" defaultValue={editing?.status ?? 'new'} className={input}>
-                {STATUSES.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
+              <label className="block text-sm font-semibold">Stage</label>
+              <select name="stage_id" defaultValue={editing?.stage_id ?? stages[0]?.id ?? ''} className={input}>
+                {stages.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
                   </option>
                 ))}
               </select>
