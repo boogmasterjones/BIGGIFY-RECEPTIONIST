@@ -93,7 +93,47 @@ const wss = new WebSocketServer({ server, path: '/ws' });
 
 wss.on('connection', (ws) => {
   let session = null;
-  let busy = false;
+  let inflight = null; // { controller, promise } for the reply being spoken
+
+  // Cancel the in-flight reply (used on barge-in) and wait for it to unwind so
+  // the next turn starts from a clean state.
+  async function cancelInflight() {
+    if (!inflight) return;
+    const cur = inflight;
+    cur.controller.abort();
+    try { await cur.promise; } catch { /* aborted */ }
+    if (inflight === cur) inflight = null;
+  }
+
+  async function runPrompt(text) {
+    await cancelInflight(); // if the caller interrupted, drop the old reply
+    const controller = new AbortController();
+    const promise = (async () => {
+      await session.handleUtterance(
+        text,
+        (chunk) => {
+          if (controller.signal.aborted) return;
+          ws.send(JSON.stringify({ type: 'text', token: chunk, last: false }));
+        },
+        controller.signal
+      );
+      if (!controller.signal.aborted) {
+        ws.send(JSON.stringify({ type: 'text', token: '', last: true }));
+        if (session.ended) ws.send(JSON.stringify({ type: 'end', handoffData: 'completed' }));
+      }
+    })();
+    inflight = { controller, promise };
+    try {
+      await promise;
+    } catch (err) {
+      if (!controller.signal.aborted) {
+        console.error('[call] error:', err.message);
+        ws.send(JSON.stringify({ type: 'text', token: 'Sorry, I hit a snag. One moment.', last: true }));
+      }
+    } finally {
+      if (inflight?.controller === controller) inflight = null;
+    }
+  }
 
   ws.on('message', async (raw) => {
     let msg;
@@ -110,23 +150,15 @@ wss.on('connection', (ws) => {
       return;
     }
 
-    if (msg.type === 'prompt' && msg.last && session && !busy) {
-      busy = true;
-      try {
-        // Stream the reply token-by-token so speech starts almost immediately.
-        await session.handleUtterance(msg.voicePrompt || '', (token) => {
-          ws.send(JSON.stringify({ type: 'text', token, last: false }));
-        });
-        ws.send(JSON.stringify({ type: 'text', token: '', last: true }));
-        if (session.ended) {
-          ws.send(JSON.stringify({ type: 'end', handoffData: 'completed' }));
-        }
-      } catch (err) {
-        console.error('[call] error:', err.message);
-        ws.send(JSON.stringify({ type: 'text', token: 'Sorry, I hit a snag. One moment.', last: true }));
-      } finally {
-        busy = false;
-      }
+    // Caller barged in — stop talking immediately. A follow-up 'prompt' with
+    // their words (if any) arrives right after and gets handled below.
+    if (msg.type === 'interrupt') {
+      await cancelInflight();
+      return;
+    }
+
+    if (msg.type === 'prompt' && msg.last && session) {
+      await runPrompt(msg.voicePrompt || '');
       return;
     }
 
@@ -135,7 +167,7 @@ wss.on('connection', (ws) => {
     }
   });
 
-  ws.on('close', () => console.log('[call] connection closed'));
+  ws.on('close', () => { cancelInflight(); console.log('[call] connection closed'); });
 });
 
 function escapeXml(s = '') {

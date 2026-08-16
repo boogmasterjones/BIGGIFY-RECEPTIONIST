@@ -138,7 +138,8 @@ async function runTool(name, input, leadId) {
       },
       status: current?.status === 'callback_requested' ? 'callback_requested' : 'qualified',
     });
-    await alertOwner(updated); // owner now has the full picture
+    // Fire-and-forget: never block the live call on an email/SMS send.
+    alertOwner(updated).catch((e) => console.error('[alert] record_details:', e.message));
     return JSON.stringify({ recorded: true });
   }
 
@@ -150,7 +151,8 @@ async function runTool(name, input, leadId) {
       message: input.message || null,
       survey: { notes: input.message || null, completedAt: new Date().toISOString() },
     });
-    await alertOwner(updated); // email the message to the owner
+    // Fire-and-forget: never block the live call on an email/SMS send.
+    alertOwner(updated).catch((e) => console.error('[alert] take_message:', e.message));
     return JSON.stringify({
       recorded: true,
       message: 'Message saved and sent to the team. Confirm to the caller that someone will get it, then wrap up.',
@@ -177,25 +179,54 @@ export class CallSession {
   // Takes the caller's transcribed utterance. Streams the reply text through
   // onToken(delta) as it's generated (for low-latency voice), and also returns
   // the full reply string (used by the browser test, which isn't streamed).
-  async handleUtterance(text, onToken) {
+  async handleUtterance(text, onToken, signal) {
     this.messages.push({ role: 'user', content: text });
     let spoken = '';
+    let buffer = '';
+    const aborted = () => signal?.aborted;
+
+    // Speak in complete clauses instead of raw tokens: flush only at sentence /
+    // clause boundaries (. ! ? … — :) — NOT at commas — so a spoken date like
+    // "Monday, August 18, at 9 AM" is sent as one piece and TTS never pauses
+    // mid-phrase waiting for the next token.
+    const flush = (force) => {
+      if (!onToken) return;
+      if (force) {
+        if (buffer) { onToken(buffer); buffer = ''; }
+        return;
+      }
+      const re = /[.!?…—:][)"']?(\s|$)/g;
+      let end = -1;
+      let m;
+      while ((m = re.exec(buffer)) !== null) end = m.index + m[0].length;
+      if (end > 0) {
+        onToken(buffer.slice(0, end));
+        buffer = buffer.slice(end);
+      }
+    };
 
     // Tool loop: keep going until the model produces a final spoken reply.
+    try {
     for (let i = 0; i < 6; i++) {
-      const stream = client.messages.stream({
-        model: config.claudeModel,
-        max_tokens: 512,
-        // Cache the (static) system prompt so time-to-first-token drops on every
-        // follow-up turn in the call — and on later calls within the cache window.
-        system: [{ type: 'text', text: systemPrompt(this.slots), cache_control: { type: 'ephemeral' } }],
-        thinking: { type: 'disabled' }, // no thinking = much faster for voice
-        tools,
-        messages: this.messages,
-      });
+      if (aborted()) break;
+      const stream = client.messages.stream(
+        {
+          model: config.claudeModel,
+          max_tokens: 512,
+          // Cache the (static) system prompt so time-to-first-token drops on every
+          // follow-up turn in the call — and on later calls within the cache window.
+          system: [{ type: 'text', text: systemPrompt(this.slots), cache_control: { type: 'ephemeral' } }],
+          thinking: { type: 'disabled' }, // no thinking = much faster for voice
+          tools,
+          messages: this.messages,
+        },
+        signal ? { signal } : undefined
+      );
       stream.on('text', (delta) => {
+        if (aborted()) return; // caller barged in — stop emitting
         spoken += delta;
-        if (onToken) onToken(delta); // speak it as it comes
+        buffer += delta;
+        flush(false); // speak complete clauses as they finish
       });
       const res = await stream.finalMessage();
       this.messages.push({ role: 'assistant', content: res.content });
@@ -204,6 +235,7 @@ export class CallSession {
 
       // If the model called tools (other than end_call), run them and continue.
       if (res.stop_reason === 'tool_use' && !endCall) {
+        flush(true); // speak any lead-in text before running tools
         const toolResults = [];
         for (const block of res.content) {
           if (block.type === 'tool_use') {
@@ -218,7 +250,19 @@ export class CallSession {
       if (endCall) this.ended = true;
       break;
     }
+    } catch (err) {
+      // An interrupt aborts the stream — that's expected, not an error. Record
+      // whatever was spoken so the history stays coherent, then bail quietly.
+      if (aborted() || err?.name === 'APIUserAbortError' || err?.name === 'AbortError') {
+        if (spoken.trim() && this.messages[this.messages.length - 1]?.role !== 'assistant') {
+          this.messages.push({ role: 'assistant', content: spoken });
+        }
+        return spoken.trim();
+      }
+      throw err;
+    }
 
+    flush(true); // speak whatever's left in the buffer
     let finalText = spoken.trim();
     if (!finalText) {
       finalText = this.ended ? 'Thanks for calling — have a great day!' : 'Sorry, could you say that again?';

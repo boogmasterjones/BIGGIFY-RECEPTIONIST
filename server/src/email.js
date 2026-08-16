@@ -17,6 +17,9 @@ const smtpPort = Number(process.env.SMTP_PORT) || 0;
 
 export const isEmailLive = Boolean(smtpUser && smtpPass);
 
+// Fail fast instead of hanging if SMTP is slow/misconfigured.
+const timeouts = { connectionTimeout: 8000, greetingTimeout: 8000, socketTimeout: 10000 };
+
 let transporter = null;
 if (isEmailLive) {
   transporter = smtpHost
@@ -25,8 +28,9 @@ if (isEmailLive) {
         port: smtpPort || 587,
         secure: smtpPort === 465,
         auth: { user: smtpUser, pass: smtpPass },
+        ...timeouts,
       })
-    : nodemailer.createTransport({ service: 'gmail', auth: { user: smtpUser, pass: smtpPass } });
+    : nodemailer.createTransport({ service: 'gmail', auth: { user: smtpUser, pass: smtpPass }, ...timeouts });
 }
 
 // Sends a plain-text email. Returns { ok, ... }. Never throws.
