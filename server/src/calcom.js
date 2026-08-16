@@ -9,12 +9,25 @@ import { config, isCalcomLive } from './config.js';
 
 const CAL_BASE = 'https://api.cal.com/v2';
 
+function ordinal(n) {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+// TTS-friendly, comma-free time phrase: "Monday August 18th at 9 AM".
+// Commas make the voice pause mid-phrase, so we avoid them entirely.
 function humanizeSlot(iso) {
   const d = new Date(iso);
-  return d.toLocaleString('en-US', {
-    weekday: 'long', month: 'long', day: 'numeric',
-    hour: 'numeric', minute: '2-digit',
-  });
+  const weekday = d.toLocaleString('en-US', { weekday: 'long' });
+  const month = d.toLocaleString('en-US', { month: 'long' });
+  const day = ordinal(d.getDate());
+  let h = d.getHours();
+  const min = d.getMinutes();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  const time = min === 0 ? `${h} ${ampm}` : `${h}:${String(min).padStart(2, '0')} ${ampm}`;
+  return `${weekday} ${month} ${day} at ${time}`;
 }
 
 // Returns up to `count` upcoming slots as [{ startsAt, humanTime }].

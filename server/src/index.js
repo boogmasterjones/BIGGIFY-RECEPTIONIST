@@ -7,7 +7,7 @@ import { WebSocketServer } from 'ws';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import { config, isCalcomLive, isSmsLive } from './config.js';
-import { isEmailLive } from './email.js';
+import { isEmailLive, sendEmail } from './email.js';
 import { WELCOME_GREETING } from './prompt.js';
 import { CallSession } from './claude.js';
 import { getAvailableSlots } from './calcom.js';
@@ -25,8 +25,23 @@ app.get('/', (_req, res) => {
   res.type('text').send(
     `Biggify AI receptionist is running.\n` +
     `Cal.com: ${isCalcomLive ? 'live' : 'MOCK'} | SMS: ${isSmsLive ? 'live' : 'MOCK'} | Email: ${isEmailLive ? 'live' : 'MOCK'}\n` +
+    `Alert email: ${config.business.ownerAlertEmail || '(not set)'}\n` +
     `Dashboard: /dashboard`
   );
+});
+
+// --- Email diagnostic: visit /test-email to send yourself a test alert ---
+app.get('/test-email', async (_req, res) => {
+  const to = config.business.ownerAlertEmail;
+  if (!to) return res.type('text').send('OWNER_ALERT_EMAIL is not set. Add it in your env vars.');
+  if (!isEmailLive) {
+    return res.type('text').send(
+      'Email is in MOCK mode (not actually sending). Set SMTP_USER and SMTP_PASS ' +
+      '(Gmail app password) in your env vars, then redeploy.'
+    );
+  }
+  const result = await sendEmail(to, 'Biggify test email', 'This is a test from your Biggify receptionist. If you got this, email alerts work.');
+  res.type('text').send(result.ok ? `Sent to ${to}. Check your inbox (and spam).` : `Failed: ${result.error}`);
 });
 
 // --- Twilio voice webhook: returns TwiML that connects the call to ConversationRelay ---

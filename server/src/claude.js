@@ -185,24 +185,12 @@ export class CallSession {
     let buffer = '';
     const aborted = () => signal?.aborted;
 
-    // Speak in complete clauses instead of raw tokens: flush only at sentence /
-    // clause boundaries (. ! ? … — :) — NOT at commas — so a spoken date like
-    // "Monday, August 18, at 9 AM" is sent as one piece and TTS never pauses
-    // mid-phrase waiting for the next token.
-    const flush = (force) => {
-      if (!onToken) return;
-      if (force) {
-        if (buffer) { onToken(buffer); buffer = ''; }
-        return;
-      }
-      const re = /[.!?…—:][)"']?(\s|$)/g;
-      let end = -1;
-      let m;
-      while ((m = re.exec(buffer)) !== null) end = m.index + m[0].length;
-      if (end > 0) {
-        onToken(buffer.slice(0, end));
-        buffer = buffer.slice(end);
-      }
+    // Send the reply in as few pieces as possible — ideally the whole thing at
+    // once — so ConversationRelay's TTS reads it as one smooth phrase instead of
+    // pausing between streamed fragments. We only flush at tool boundaries and at
+    // the very end, not on every token.
+    const flush = () => {
+      if (onToken && buffer) { onToken(buffer); buffer = ''; }
     };
 
     // Tool loop: keep going until the model produces a final spoken reply.
@@ -225,8 +213,7 @@ export class CallSession {
       stream.on('text', (delta) => {
         if (aborted()) return; // caller barged in — stop emitting
         spoken += delta;
-        buffer += delta;
-        flush(false); // speak complete clauses as they finish
+        buffer += delta; // accumulate; we send it as one piece below
       });
       const res = await stream.finalMessage();
       this.messages.push({ role: 'assistant', content: res.content });
@@ -235,7 +222,7 @@ export class CallSession {
 
       // If the model called tools (other than end_call), run them and continue.
       if (res.stop_reason === 'tool_use' && !endCall) {
-        flush(true); // speak any lead-in text before running tools
+        flush(); // speak any lead-in text before running tools
         const toolResults = [];
         for (const block of res.content) {
           if (block.type === 'tool_use') {
@@ -262,7 +249,7 @@ export class CallSession {
       throw err;
     }
 
-    flush(true); // speak whatever's left in the buffer
+    flush(); // send the whole reply as one piece
     let finalText = spoken.trim();
     if (!finalText) {
       finalText = this.ended ? 'Thanks for calling — have a great day!' : 'Sorry, could you say that again?';
