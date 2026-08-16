@@ -3,6 +3,7 @@
 
 import twilio from 'twilio';
 import { config, isSmsLive } from './config.js';
+import { sendEmail } from './email.js';
 
 let client = null;
 if (isSmsLive) {
@@ -40,14 +41,46 @@ export async function sendSurvey(lead) {
   return sendSms(lead.phone, body);
 }
 
-// Alerts the business owner that a new lead came in.
+// Alerts the business owner that a new lead came in — by email (primary) and,
+// if an owner phone is set, by SMS too. Best-effort: never throws.
 export async function alertOwner(lead) {
-  if (!config.business.ownerAlertPhone) return { ok: false, reason: 'no owner phone' };
-  const body =
-    `New Biggify lead for ${config.business.name}:\n` +
-    `${lead.name || 'Caller'} (${lead.phone})\n` +
-    `Service: ${lead.service || 'n/a'}\n` +
-    (lead.appointment ? `Booked: ${lead.appointment.humanTime}\n` : '') +
-    `Dashboard: ${config.publicUrl}/dashboard`;
-  return sendSms(config.business.ownerAlertPhone, body);
+  const survey = lead.survey || {};
+  const isMessage = lead.status === 'message' || Boolean(lead.message);
+
+  let lines;
+  let subject;
+  if (isMessage) {
+    lines = [
+      `A caller left a message with your Biggify receptionist:`,
+      ``,
+      `Name:    ${lead.name || 'Caller'}`,
+      `Phone:   ${lead.phone || 'n/a'}`,
+      ``,
+      `Message: ${lead.message || survey.notes || 'n/a'}`,
+    ];
+    subject = `New message — ${lead.name || 'Caller'}`;
+  } else {
+    lines = [
+      `New lead from your Biggify receptionist:`,
+      ``,
+      `Name:     ${lead.name || 'Caller'}`,
+      `Phone:    ${lead.phone || 'n/a'}`,
+      `Work:     ${lead.service || survey.issue || 'n/a'}`,
+      `Area:     ${survey.address || 'n/a'}`,
+      lead.appointment ? `Callback: ${lead.appointment.humanTime}` : `Callback: (not scheduled — callback requested)`,
+      survey.notes ? `Notes:    ${survey.notes}` : '',
+    ].filter(Boolean);
+    subject = `New lead — ${lead.name || 'Caller'}${lead.service ? ` (${lead.service})` : ''}`;
+  }
+  const body = lines.join('\n');
+
+  const results = {};
+  if (config.business.ownerAlertEmail) {
+    results.email = await sendEmail(config.business.ownerAlertEmail, subject, body);
+  }
+  if (config.business.ownerAlertPhone) {
+    results.sms = await sendSms(config.business.ownerAlertPhone, body);
+  }
+  if (!results.email && !results.sms) return { ok: false, reason: 'no owner email or phone set' };
+  return { ok: true, ...results };
 }

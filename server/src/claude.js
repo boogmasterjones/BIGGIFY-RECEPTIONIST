@@ -51,6 +51,20 @@ const tools = [
     },
   },
   {
+    name: 'take_message',
+    description:
+      "Take a message from the caller INSTEAD of booking a callback — use when the caller would rather just leave a message, doesn't want to schedule a time, or declines the times offered. Collect what they want to say and their name; you already have their phone number.",
+    input_schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: "Caller's name, if you have it" },
+        message: { type: 'string', description: 'What the caller wants to pass along to the team' },
+      },
+      required: ['message'],
+      additionalProperties: false,
+    },
+  },
+  {
     name: 'cancel_appointment',
     description:
       "Cancel the appointment you just booked for this caller — use when the job is outside what the business offers or outside the service area and the caller agrees to cancel.",
@@ -128,6 +142,21 @@ async function runTool(name, input, leadId) {
     return JSON.stringify({ recorded: true });
   }
 
+  if (name === 'take_message') {
+    const current = getLead(leadId);
+    const updated = updateLead(leadId, {
+      name: input.name || current?.name || null,
+      status: 'message',
+      message: input.message || null,
+      survey: { notes: input.message || null, completedAt: new Date().toISOString() },
+    });
+    await alertOwner(updated); // email the message to the owner
+    return JSON.stringify({
+      recorded: true,
+      message: 'Message saved and sent to the team. Confirm to the caller that someone will get it, then wrap up.',
+    });
+  }
+
   if (name === 'cancel_appointment') {
     updateLead(leadId, { status: 'canceled', cancelReason: input.reason || 'out of scope' });
     return JSON.stringify({ canceled: true, message: 'Appointment canceled. Let the caller know politely.' });
@@ -138,8 +167,9 @@ async function runTool(name, input, leadId) {
 
 // Holds the conversation for a single phone call.
 export class CallSession {
-  constructor(leadId) {
+  constructor(leadId, slots = null) {
     this.leadId = leadId;
+    this.slots = slots; // pre-fetched availability, injected into the prompt
     this.messages = [];
     this.ended = false; // set true when the AI decides to hang up
   }
@@ -156,7 +186,9 @@ export class CallSession {
       const stream = client.messages.stream({
         model: config.claudeModel,
         max_tokens: 512,
-        system: systemPrompt(),
+        // Cache the (static) system prompt so time-to-first-token drops on every
+        // follow-up turn in the call — and on later calls within the cache window.
+        system: [{ type: 'text', text: systemPrompt(this.slots), cache_control: { type: 'ephemeral' } }],
         thinking: { type: 'disabled' }, // no thinking = much faster for voice
         tools,
         messages: this.messages,

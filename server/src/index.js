@@ -7,8 +7,10 @@ import { WebSocketServer } from 'ws';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import { config, isCalcomLive, isSmsLive } from './config.js';
+import { isEmailLive } from './email.js';
 import { WELCOME_GREETING } from './prompt.js';
 import { CallSession } from './claude.js';
+import { getAvailableSlots } from './calcom.js';
 import { createLead, updateLead, getLead, allLeads } from './store.js';
 import { alertOwner } from './twilioSms.js';
 import { surveyPage, thankYouPage, dashboardPage, testChatPage } from './pages.js';
@@ -22,7 +24,7 @@ app.use(express.static(path.join(__dirname, '..', 'public'))); // serves /logo.p
 app.get('/', (_req, res) => {
   res.type('text').send(
     `Biggify AI receptionist is running.\n` +
-    `Cal.com: ${isCalcomLive ? 'live' : 'MOCK'} | SMS: ${isSmsLive ? 'live' : 'MOCK'}\n` +
+    `Cal.com: ${isCalcomLive ? 'live' : 'MOCK'} | SMS: ${isSmsLive ? 'live' : 'MOCK'} | Email: ${isEmailLive ? 'live' : 'MOCK'}\n` +
     `Dashboard: /dashboard`
   );
 });
@@ -31,11 +33,12 @@ app.get('/', (_req, res) => {
 app.post('/incoming-call', (req, res) => {
   const wsUrl = (config.publicUrl.replace(/^http/, 'ws') || 'ws://localhost:' + config.port) + '/ws';
   const greeting = escapeXml(WELCOME_GREETING);
+  const ttsAttr = config.ttsProvider ? ` ttsProvider="${escapeXml(config.ttsProvider)}"` : '';
   const twiml =
     `<?xml version="1.0" encoding="UTF-8"?>` +
     `<Response>` +
     `<Connect>` +
-    `<ConversationRelay url="${wsUrl}" welcomeGreeting="${greeting}" voice="${escapeXml(config.voice)}" />` +
+    `<ConversationRelay url="${wsUrl}" welcomeGreeting="${greeting}" voice="${escapeXml(config.voice)}"${ttsAttr} interruptible="true" />` +
     `</Connect>` +
     `</Response>`;
   res.type('text/xml').send(twiml);
@@ -98,7 +101,11 @@ wss.on('connection', (ws) => {
 
     if (msg.type === 'setup') {
       const lead = createLead({ callSid: msg.callSid, from: msg.from, to: msg.to });
-      session = new CallSession(lead.id);
+      // Pre-fetch availability now so the AI can offer times on its first reply
+      // without a Cal.com + extra model round-trip mid-call.
+      let slots = null;
+      try { slots = await getAvailableSlots(2); } catch (e) { console.error('[call] slot prefetch:', e.message); }
+      session = new CallSession(lead.id, slots);
       console.log(`[call] setup ${msg.callSid} from ${msg.from} -> lead ${lead.id}`);
       return;
     }
@@ -137,6 +144,6 @@ function escapeXml(s = '') {
 
 server.listen(config.port, () => {
   console.log(`Biggify receptionist listening on :${config.port}`);
-  console.log(`  Cal.com: ${isCalcomLive ? 'LIVE' : 'mock'} | SMS: ${isSmsLive ? 'LIVE' : 'mock'}`);
+  console.log(`  Cal.com: ${isCalcomLive ? 'LIVE' : 'mock'} | SMS: ${isSmsLive ? 'LIVE' : 'mock'} | Email: ${isEmailLive ? 'LIVE' : 'mock'}`);
   if (!config.publicUrl) console.log('  ⚠ PUBLIC_URL not set — set it to your ngrok/deploy URL for Twilio + survey links.');
 });

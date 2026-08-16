@@ -8,10 +8,10 @@ export const config = {
   port: Number(process.env.PORT) || 8080,
 
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
-  // Fast model for real-time voice. claude-haiku-4-5 is even faster if you
-  // want to trade a little polish for speed; claude-opus-5 is most capable but
-  // noticeably slower on a live call.
-  claudeModel: process.env.CLAUDE_MODEL || 'claude-sonnet-5',
+  // Fastest model for real-time voice — lowest latency / most natural back-and-
+  // forth on a live call. Override with CLAUDE_MODEL (claude-sonnet-5 = a bit
+  // smarter but slower; claude-opus-5 = smartest but noticeably slower).
+  claudeModel: process.env.CLAUDE_MODEL || 'claude-haiku-4-5',
 
   twilio: {
     accountSid: process.env.TWILIO_ACCOUNT_SID || '',
@@ -38,6 +38,10 @@ export const config = {
   },
 
   voice: process.env.RECEPTIONIST_VOICE || 'en-US-Journey-O',
+  // Optional TTS provider for ConversationRelay: "ElevenLabs" (most natural,
+  // needs an ElevenLabs key connected in the Twilio console), "Amazon", or
+  // "Google" (default). Leave blank to use Twilio's default for the voice.
+  ttsProvider: process.env.RECEPTIONIST_TTS_PROVIDER || '',
 };
 
 export const isCalcomLive = Boolean(config.calcom.apiKey && config.calcom.eventTypeId);
