@@ -10,32 +10,43 @@ import nodemailer from 'nodemailer';
 import dns from 'node:dns';
 import { config } from './config.js';
 
-// Render (and many container hosts) have no outbound IPv6. Gmail's SMTP often
-// resolves to an IPv6 address first, which then fails with ENETUNREACH. Prefer
-// IPv4 globally so name lookups return reachable addresses.
-dns.setDefaultResultOrder('ipv4first');
+const dnsp = dns.promises;
 
 const smtpUser = process.env.SMTP_USER || '';
 const smtpPass = process.env.SMTP_PASS || '';
 // Optional overrides for non-Gmail SMTP.
 const smtpHost = process.env.SMTP_HOST || '';
 const smtpPort = Number(process.env.SMTP_PORT) || 0;
+const HOST = smtpHost || 'smtp.gmail.com';
+const PORT = smtpPort || 587;
 
 export const isEmailLive = Boolean(smtpUser && smtpPass);
 
-// Fail fast instead of hanging if SMTP is slow/misconfigured, and force IPv4
-// (family: 4) so we never try an unreachable IPv6 route.
-const base = { family: 4, connectionTimeout: 8000, greetingTimeout: 8000, socketTimeout: 10000 };
+const base = { connectionTimeout: 8000, greetingTimeout: 8000, socketTimeout: 10000 };
 
+// Render (and many container hosts) have NO outbound IPv6, yet Gmail's SMTP
+// resolves to an IPv6 address first (ENETUNREACH). Setting family:4 wasn't
+// enough, so we resolve the host to an IPv4 address ourselves and connect to
+// that IP directly — validating TLS against the real hostname via `servername`.
 let transporter = null;
-if (isEmailLive) {
+async function getTransporter() {
+  if (transporter) return transporter;
+  let connectHost = HOST;
+  try {
+    const [ipv4] = await dnsp.resolve4(HOST);
+    if (ipv4) connectHost = ipv4;
+  } catch (e) {
+    console.error('[email] resolve4 failed, using hostname:', e.message);
+  }
   transporter = nodemailer.createTransport({
-    host: smtpHost || 'smtp.gmail.com',
-    port: smtpPort || 587,
-    secure: (smtpPort || 587) === 465, // 587 uses STARTTLS
+    host: connectHost,
+    port: PORT,
+    secure: PORT === 465, // 587 uses STARTTLS
     auth: { user: smtpUser, pass: smtpPass },
+    tls: { servername: HOST }, // cert is for the hostname, not the raw IP
     ...base,
   });
+  return transporter;
 }
 
 // Sends a plain-text email. Returns { ok, ... }. Never throws.
@@ -46,7 +57,8 @@ export async function sendEmail(to, subject, text) {
     return { ok: true, mocked: true };
   }
   try {
-    const info = await transporter.sendMail({
+    const tx = await getTransporter();
+    const info = await tx.sendMail({
       from: `"${config.business.name} via Biggify" <${smtpUser}>`,
       to,
       subject,
