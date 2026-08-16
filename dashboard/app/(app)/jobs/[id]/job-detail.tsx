@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   updateJobMeta,
@@ -13,11 +13,26 @@ import {
   setMaterialStatus,
   deleteMaterial,
   aiExtractMaterial,
+  addRoom,
+  updateRoom,
+  deleteRoom,
+  uploadJobFiles,
+  deleteJobFile,
   type MaterialInput,
+  type RoomInput,
 } from './actions';
 
 export type Stage = { id: string; name: string; color: string; position: number };
 export type Task = { id: string; title: string; done: boolean; position: number };
+export type Room = {
+  id: string;
+  name: string;
+  sqft: number | null;
+  dimensions: string | null;
+  budget_cents: number | null;
+  notes: string | null;
+  position: number;
+};
 export type Material = {
   id: string;
   name: string | null;
@@ -30,9 +45,19 @@ export type Material = {
   quantity: number | null;
   lead_time: string | null;
   room: string | null;
+  room_id: string | null;
   status: string;
   notes: string | null;
   position: number;
+};
+export type JobFile = {
+  id: string;
+  name: string | null;
+  storage_path: string;
+  mime: string | null;
+  size_bytes: number | null;
+  created_at: string;
+  url: string | null;
 };
 export type Job = {
   id: string;
@@ -59,10 +84,25 @@ function money(cents: number | null) {
   return '$' + (cents / 100).toLocaleString('en-US', { minimumFractionDigits: 0 });
 }
 
+function fileSize(bytes: number | null) {
+  if (bytes == null) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+/** Total sourced cost of a material line (price × qty). */
+function lineTotal(m: Material) {
+  if (m.price_cents == null) return 0;
+  return m.price_cents * (m.quantity && m.quantity > 0 ? m.quantity : 1);
+}
+
 const emptyMat: MaterialInput = {
   name: '', vendor: '', url: '', image_url: '', price: '', sku: '', dimensions: '',
-  quantity: '', lead_time: '', room: '', status: 'proposed', notes: '',
+  quantity: '', lead_time: '', room: '', room_id: '', status: 'proposed', notes: '',
 };
+
+const emptyRoom: RoomInput = { name: '', sqft: '', dimensions: '', budget: '', notes: '' };
 
 export default function JobDetail({
   businessId,
@@ -70,18 +110,28 @@ export default function JobDetail({
   stages,
   tasks,
   materials,
+  rooms,
+  files,
 }: {
   businessId: string;
   job: Job;
   stages: Stage[];
   tasks: Task[];
   materials: Material[];
+  rooms: Room[];
+  files: JobFile[];
 }) {
   const router = useRouter();
   const [taskTitle, setTaskTitle] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadBusy, setUploadBusy] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [matOpen, setMatOpen] = useState(false);
   const [matEditingId, setMatEditingId] = useState<string | null>(null);
   const [mat, setMat] = useState<MaterialInput>(emptyMat);
+  const [roomOpen, setRoomOpen] = useState(false);
+  const [roomEditingId, setRoomEditingId] = useState<string | null>(null);
+  const [room, setRoom] = useState<RoomInput>(emptyRoom);
   const [busy, setBusy] = useState(false);
   const [autofillBusy, setAutofillBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -89,6 +139,15 @@ export default function JobDetail({
   async function refresh() {
     router.refresh();
   }
+
+  const roomById = new Map(rooms.map((r) => [r.id, r]));
+  const roomLabel = (m: Material) => (m.room_id ? roomById.get(m.room_id)?.name : null) || m.room || null;
+  const materialsInRoom = (roomId: string) => materials.filter((m) => m.room_id === roomId);
+  const sourcedForRoom = (roomId: string) =>
+    materialsInRoom(roomId).reduce((sum, m) => sum + lineTotal(m), 0);
+
+  const totalPlanned = rooms.reduce((s, r) => s + (r.budget_cents ?? 0), 0);
+  const totalSourced = materials.reduce((s, m) => s + lineTotal(m), 0);
 
   // --- stage / title ---
   async function setStage(stageId: string) {
@@ -110,10 +169,67 @@ export default function JobDetail({
     refresh();
   }
 
+  // --- files ---
+  async function onFilesChosen(e: React.ChangeEvent<HTMLInputElement>) {
+    const list = e.target.files;
+    if (!list || list.length === 0) return;
+    const fd = new FormData();
+    Array.from(list).forEach((f) => fd.append('files', f));
+    setUploadBusy(true);
+    setUploadError(null);
+    const res = await uploadJobFiles(job.id, businessId, fd);
+    setUploadBusy(false);
+    e.target.value = '';
+    if (!res.ok) {
+      setUploadError(res.error || 'Upload failed');
+      return;
+    }
+    refresh();
+  }
+  async function removeFile(f: JobFile) {
+    if (!confirm(`Delete "${f.name || 'this file'}"?`)) return;
+    await deleteJobFile(f.id, job.id, f.storage_path);
+    refresh();
+  }
+
+  // --- rooms ---
+  function openAddRoom() {
+    setRoomEditingId(null);
+    setRoom(emptyRoom);
+    setError(null);
+    setRoomOpen(true);
+  }
+  function openEditRoom(r: Room) {
+    setRoomEditingId(r.id);
+    setRoom({
+      name: r.name,
+      sqft: r.sqft != null ? String(r.sqft) : '',
+      dimensions: r.dimensions ?? '',
+      budget: r.budget_cents != null ? String(r.budget_cents / 100) : '',
+      notes: r.notes ?? '',
+    });
+    setError(null);
+    setRoomOpen(true);
+  }
+  async function saveRoom() {
+    setBusy(true);
+    setError(null);
+    const res = roomEditingId
+      ? await updateRoom(roomEditingId, job.id, room)
+      : await addRoom(job.id, businessId, room);
+    setBusy(false);
+    if (!res.ok) {
+      setError(res.error || 'Something went wrong');
+      return;
+    }
+    setRoomOpen(false);
+    refresh();
+  }
+
   // --- materials ---
-  function openAdd() {
+  function openAdd(roomId?: string) {
     setMatEditingId(null);
-    setMat(emptyMat);
+    setMat({ ...emptyMat, room_id: roomId ?? '' });
     setError(null);
     setMatOpen(true);
   }
@@ -123,7 +239,7 @@ export default function JobDetail({
       name: m.name ?? '', vendor: m.vendor ?? '', url: m.url ?? '', image_url: m.image_url ?? '',
       price: m.price_cents != null ? String(m.price_cents / 100) : '',
       sku: m.sku ?? '', dimensions: m.dimensions ?? '', quantity: m.quantity != null ? String(m.quantity) : '',
-      lead_time: m.lead_time ?? '', room: m.room ?? '', status: m.status, notes: m.notes ?? '',
+      lead_time: m.lead_time ?? '', room: m.room ?? '', room_id: m.room_id ?? '', status: m.status, notes: m.notes ?? '',
     });
     setError(null);
     setMatOpen(true);
@@ -168,6 +284,7 @@ export default function JobDetail({
   }
 
   const doneCount = tasks.filter((t) => t.done).length;
+  const unassigned = materials.filter((m) => !m.room_id);
 
   return (
     <div>
@@ -191,7 +308,7 @@ export default function JobDetail({
       </div>
 
       {/* Process bar */}
-      <div className="flex flex-wrap gap-1.5 mb-6">
+      <div className="flex flex-wrap gap-1.5 mb-5">
         {stages.map((s) => {
           const active = s.id === job.stage_id;
           return (
@@ -209,6 +326,81 @@ export default function JobDetail({
             </button>
           );
         })}
+      </div>
+
+      {/* Budget roll-up */}
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="rounded-2xl bg-white border border-[#ece3ca] px-4 py-3">
+          <div className="text-[11px] uppercase tracking-wide text-neutral-400 font-semibold">Planned budget</div>
+          <div className="text-xl font-extrabold mt-0.5">{money(totalPlanned) || '—'}</div>
+        </div>
+        <div className="rounded-2xl bg-white border border-[#ece3ca] px-4 py-3">
+          <div className="text-[11px] uppercase tracking-wide text-neutral-400 font-semibold">Sourced so far</div>
+          <div className="text-xl font-extrabold mt-0.5">{money(totalSourced) || '—'}</div>
+        </div>
+        <div className="rounded-2xl bg-white border border-[#ece3ca] px-4 py-3">
+          <div className="text-[11px] uppercase tracking-wide text-neutral-400 font-semibold">Remaining</div>
+          <div
+            className="text-xl font-extrabold mt-0.5"
+            style={{ color: totalPlanned && totalSourced > totalPlanned ? '#CF0000' : undefined }}
+          >
+            {totalPlanned ? money(totalPlanned - totalSourced) : '—'}
+          </div>
+        </div>
+      </div>
+
+      {/* Rooms & planning */}
+      <div className="rounded-2xl bg-white border border-[#ece3ca] p-5 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="font-bold">Rooms &amp; planning</div>
+          <button onClick={openAddRoom} className="rounded-full bg-[#CF0000] text-white font-bold px-4 py-2 text-sm">
+            + Add room
+          </button>
+        </div>
+        {rooms.length === 0 ? (
+          <p className="text-sm text-neutral-300 py-6 text-center">
+            No rooms yet. Add a room to plan footage, budget, and materials for each space.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+            {rooms.map((r) => {
+              const count = materialsInRoom(r.id).length;
+              const sourced = sourcedForRoom(r.id);
+              const over = r.budget_cents != null && sourced > r.budget_cents;
+              return (
+                <div key={r.id} className="border border-neutral-100 rounded-xl p-4">
+                  <div className="flex items-start justify-between">
+                    <button onClick={() => openEditRoom(r)} className="font-semibold hover:text-[#CF0000] text-left">
+                      {r.name}
+                    </button>
+                    <button
+                      onClick={() => openAdd(r.id)}
+                      title="Add material to this room"
+                      className="text-neutral-300 hover:text-[#CF0000] text-lg leading-none"
+                    >
+                      +
+                    </button>
+                  </div>
+                  <div className="text-xs text-neutral-400 mt-0.5">
+                    {[r.dimensions, r.sqft != null ? `${r.sqft} sq ft` : null].filter(Boolean).join(' · ') || '—'}
+                  </div>
+                  <div className="mt-3 flex items-end justify-between">
+                    <div>
+                      <div className="text-[11px] text-neutral-400">Sourced</div>
+                      <div className="text-sm font-semibold" style={{ color: over ? '#CF0000' : undefined }}>
+                        {money(sourced) || '$0'}
+                        {r.budget_cents != null && (
+                          <span className="text-neutral-400 font-normal"> / {money(r.budget_cents)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-xs text-neutral-400">{count} item{count === 1 ? '' : 's'}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -260,7 +452,7 @@ export default function JobDetail({
         <div className="lg:col-span-2 rounded-2xl bg-white border border-[#ece3ca] p-5">
           <div className="flex items-center justify-between mb-4">
             <div className="font-bold">Materials &amp; sourcing</div>
-            <button onClick={openAdd} className="rounded-full bg-[#CF0000] text-white font-bold px-4 py-2 text-sm">
+            <button onClick={() => openAdd()} className="rounded-full bg-[#CF0000] text-white font-bold px-4 py-2 text-sm">
               + Add material
             </button>
           </div>
@@ -272,6 +464,7 @@ export default function JobDetail({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {materials.map((m) => {
                 const st = MAT_STATUS.find((s) => s.value === m.status) || MAT_STATUS[0];
+                const label = roomLabel(m);
                 return (
                   <div key={m.id} className="border border-neutral-100 rounded-xl p-3 flex gap-3">
                     {m.image_url ? (
@@ -285,7 +478,7 @@ export default function JobDetail({
                         {m.name || 'Untitled item'}
                       </button>
                       <div className="text-xs text-neutral-400 truncate">
-                        {[m.vendor, m.room].filter(Boolean).join(' · ') || '—'}
+                        {[m.vendor, label].filter(Boolean).join(' · ') || '—'}
                       </div>
                       <div className="flex items-center justify-between mt-1.5">
                         <span className="text-sm font-semibold">{money(m.price_cents) || '—'}</span>
@@ -308,7 +501,77 @@ export default function JobDetail({
               })}
             </div>
           )}
+          {rooms.length > 0 && unassigned.length > 0 && (
+            <p className="text-xs text-neutral-400 mt-3">
+              {unassigned.length} item{unassigned.length === 1 ? '' : 's'} not assigned to a room.
+            </p>
+          )}
         </div>
+      </div>
+
+      {/* Files & photos */}
+      <div className="rounded-2xl bg-white border border-[#ece3ca] p-5 mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="font-bold">Files &amp; photos</div>
+          <div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              onChange={onFilesChosen}
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadBusy}
+              className="rounded-full bg-[#CF0000] text-white font-bold px-4 py-2 text-sm disabled:opacity-60"
+            >
+              {uploadBusy ? 'Uploading…' : '+ Upload'}
+            </button>
+          </div>
+        </div>
+        {uploadError && <p className="text-sm text-[#b00000] mb-3">{uploadError}</p>}
+        {files.length === 0 ? (
+          <p className="text-sm text-neutral-300 py-6 text-center">
+            No files yet. Upload plans, site photos, and design assets — up to 25 MB each.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {files.map((f) => {
+              const isImg = (f.mime || '').startsWith('image/') && f.url;
+              return (
+                <div key={f.id} className="group relative">
+                  <a
+                    href={f.url || '#'}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block border border-neutral-100 rounded-xl overflow-hidden hover:border-[#CF0000]"
+                  >
+                    {isImg ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={f.url!} alt={f.name || ''} className="w-full aspect-square object-cover bg-neutral-50" />
+                    ) : (
+                      <div className="w-full aspect-square bg-[#FFF6E1] flex items-center justify-center text-2xl">
+                        📄
+                      </div>
+                    )}
+                    <div className="p-2">
+                      <div className="text-xs font-semibold truncate">{f.name || 'File'}</div>
+                      <div className="text-[10px] text-neutral-400">{fileSize(f.size_bytes)}</div>
+                    </div>
+                  </a>
+                  <button
+                    onClick={() => removeFile(f)}
+                    title="Delete"
+                    className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 border border-neutral-200 text-neutral-400 hover:text-[#CF0000] opacity-0 group-hover:opacity-100 text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Material slide-over */}
@@ -349,7 +612,12 @@ export default function JobDetail({
                 <input value={mat.quantity} onChange={(e) => setMat({ ...mat, quantity: e.target.value })} placeholder="Qty" className={input} />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <input value={mat.room} onChange={(e) => setMat({ ...mat, room: e.target.value })} placeholder="Room" className={input} />
+                <select value={mat.room_id} onChange={(e) => setMat({ ...mat, room_id: e.target.value })} className={input}>
+                  <option value="">— No room —</option>
+                  {rooms.map((r) => (
+                    <option key={r.id} value={r.id}>{r.name}</option>
+                  ))}
+                </select>
                 <input value={mat.sku} onChange={(e) => setMat({ ...mat, sku: e.target.value })} placeholder="SKU / model" className={input} />
               </div>
               <input value={mat.dimensions} onChange={(e) => setMat({ ...mat, dimensions: e.target.value })} placeholder="Dimensions" className={input} />
@@ -369,6 +637,42 @@ export default function JobDetail({
                 {matEditingId && (
                   <button
                     onClick={() => { if (confirm('Delete this material?')) deleteMaterial(matEditingId, job.id).then(() => { setMatOpen(false); refresh(); }); }}
+                    className="rounded-full border border-neutral-200 text-neutral-500 px-4 hover:text-[#CF0000]"
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Room slide-over */}
+      {roomOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end" role="dialog">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setRoomOpen(false)} />
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl p-6 overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-extrabold">{roomEditingId ? 'Edit room' : 'Add room'}</h2>
+              <button onClick={() => setRoomOpen(false)} className="text-neutral-400 hover:text-neutral-700">✕</button>
+            </div>
+            <div className="space-y-3">
+              <input value={room.name} onChange={(e) => setRoom({ ...room, name: e.target.value })} placeholder="Room name (e.g. Primary bedroom)" className={input} />
+              <div className="grid grid-cols-2 gap-3">
+                <input value={room.dimensions} onChange={(e) => setRoom({ ...room, dimensions: e.target.value })} placeholder={`Dimensions (12' x 15')`} className={input} />
+                <input value={room.sqft} onChange={(e) => setRoom({ ...room, sqft: e.target.value })} placeholder="Sq ft" className={input} />
+              </div>
+              <input value={room.budget} onChange={(e) => setRoom({ ...room, budget: e.target.value })} placeholder="Budget ($)" className={input} />
+              <textarea value={room.notes} onChange={(e) => setRoom({ ...room, notes: e.target.value })} placeholder="Notes" rows={3} className={input} />
+              {error && <p className="text-sm text-[#b00000]">{error}</p>}
+              <div className="flex gap-2">
+                <button onClick={saveRoom} disabled={busy} className="flex-1 rounded-full bg-[#CF0000] text-white font-bold py-2.5 disabled:opacity-60">
+                  {busy ? 'Saving…' : roomEditingId ? 'Save' : 'Add room'}
+                </button>
+                {roomEditingId && (
+                  <button
+                    onClick={() => { if (confirm('Delete this room? Materials stay but lose their room.')) deleteRoom(roomEditingId, job.id).then(() => { setRoomOpen(false); refresh(); }); }}
                     className="rounded-full border border-neutral-200 text-neutral-500 px-4 hover:text-[#CF0000]"
                   >
                     Delete

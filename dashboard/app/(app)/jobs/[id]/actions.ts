@@ -62,6 +62,107 @@ export async function deleteTask(id: string, jobId: string): Promise<Result> {
   return { ok: true };
 }
 
+// ---- Files (Supabase Storage: 'job-files' bucket) ----
+export async function uploadJobFiles(
+  jobId: string,
+  businessId: string,
+  formData: FormData
+): Promise<Result> {
+  const supabase = await createClient();
+  const files = formData
+    .getAll('files')
+    .filter((f): f is File => f instanceof File && f.size > 0);
+  if (files.length === 0) return { ok: false, error: 'No files selected' };
+
+  for (const file of files) {
+    if (file.size > 25 * 1024 * 1024) {
+      return { ok: false, error: `"${file.name}" is over the 25 MB limit.` };
+    }
+    const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const path = `${businessId}/${jobId}/${crypto.randomUUID()}-${safe}`;
+    const { error: upErr } = await supabase.storage
+      .from('job-files')
+      .upload(path, file, { contentType: file.type || undefined, upsert: false });
+    if (upErr) return { ok: false, error: upErr.message };
+    const { error: insErr } = await supabase.from('job_files').insert({
+      job_id: jobId,
+      business_id: businessId,
+      name: file.name,
+      storage_path: path,
+      mime: file.type || null,
+      size_bytes: file.size,
+    });
+    if (insErr) return { ok: false, error: insErr.message };
+  }
+  touch(jobId);
+  return { ok: true };
+}
+
+export async function deleteJobFile(id: string, jobId: string, storagePath: string): Promise<Result> {
+  const supabase = await createClient();
+  await supabase.storage.from('job-files').remove([storagePath]);
+  const { error } = await supabase.from('job_files').delete().eq('id', id);
+  if (error) return { ok: false, error: error.message };
+  touch(jobId);
+  return { ok: true };
+}
+
+// ---- Rooms ----
+export type RoomInput = {
+  name?: string;
+  sqft?: string;
+  dimensions?: string;
+  budget?: string; // dollars
+  notes?: string;
+};
+
+function parseRoom(input: RoomInput) {
+  const sqft = parseFloat((input.sqft || '').replace(/[^0-9.]/g, ''));
+  const budget = parseFloat((input.budget || '').replace(/[^0-9.]/g, ''));
+  return {
+    name: input.name?.trim() || 'Untitled room',
+    sqft: Number.isFinite(sqft) ? sqft : null,
+    dimensions: input.dimensions?.trim() || null,
+    budget_cents: Number.isFinite(budget) ? Math.round(budget * 100) : null,
+    notes: input.notes?.trim() || null,
+  };
+}
+
+export async function addRoom(jobId: string, businessId: string, input: RoomInput): Promise<Result> {
+  if (!input.name?.trim()) return { ok: false, error: 'Room needs a name' };
+  const supabase = await createClient();
+  const { data: max } = await supabase
+    .from('job_rooms')
+    .select('position')
+    .eq('job_id', jobId)
+    .order('position', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const position = (max?.position ?? -1) + 1;
+  const { error } = await supabase
+    .from('job_rooms')
+    .insert({ job_id: jobId, business_id: businessId, position, ...parseRoom(input) });
+  if (error) return { ok: false, error: error.message };
+  touch(jobId);
+  return { ok: true };
+}
+
+export async function updateRoom(id: string, jobId: string, input: RoomInput): Promise<Result> {
+  const supabase = await createClient();
+  const { error } = await supabase.from('job_rooms').update(parseRoom(input)).eq('id', id);
+  if (error) return { ok: false, error: error.message };
+  touch(jobId);
+  return { ok: true };
+}
+
+export async function deleteRoom(id: string, jobId: string): Promise<Result> {
+  const supabase = await createClient();
+  const { error } = await supabase.from('job_rooms').delete().eq('id', id);
+  if (error) return { ok: false, error: error.message };
+  touch(jobId);
+  return { ok: true };
+}
+
 // ---- Materials ----
 export type MaterialInput = {
   name?: string;
@@ -74,6 +175,7 @@ export type MaterialInput = {
   quantity?: string;
   lead_time?: string;
   room?: string;
+  room_id?: string;
   status?: string;
   notes?: string;
 };
@@ -92,6 +194,7 @@ function parseMaterial(input: MaterialInput) {
     quantity: Number.isFinite(qty) ? qty : null,
     lead_time: input.lead_time?.trim() || null,
     room: input.room?.trim() || null,
+    room_id: input.room_id ? input.room_id : null,
     status: input.status?.trim() || 'proposed',
     notes: input.notes?.trim() || null,
   };

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getUserAndBusiness } from '@/lib/data';
-import JobDetail, { type Job, type Stage, type Task, type Material } from './job-detail';
+import JobDetail, { type Job, type Stage, type Task, type Material, type Room, type JobFile } from './job-detail';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,11 +17,22 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     .maybeSingle();
   if (!job) notFound();
 
-  const [{ data: stages }, { data: tasks }, { data: materials }] = await Promise.all([
-    supabase.from('job_stages').select('id, name, color, position').eq('business_id', business.id).order('position'),
-    supabase.from('job_tasks').select('*').eq('job_id', id).order('position'),
-    supabase.from('job_materials').select('*').eq('job_id', id).order('position'),
-  ]);
+  const [{ data: stages }, { data: tasks }, { data: materials }, { data: rooms }, { data: fileRows }] =
+    await Promise.all([
+      supabase.from('job_stages').select('id, name, color, position').eq('business_id', business.id).order('position'),
+      supabase.from('job_tasks').select('*').eq('job_id', id).order('position'),
+      supabase.from('job_materials').select('*').eq('job_id', id).order('position'),
+      supabase.from('job_rooms').select('*').eq('job_id', id).order('position'),
+      supabase.from('job_files').select('*').eq('job_id', id).order('created_at', { ascending: false }),
+    ]);
+
+  // Sign URLs for the private bucket so thumbnails/links work.
+  let files: JobFile[] = [];
+  if (fileRows && fileRows.length > 0) {
+    const paths = fileRows.map((f) => f.storage_path as string);
+    const { data: signed } = await supabase.storage.from('job-files').createSignedUrls(paths, 3600);
+    files = fileRows.map((f, i) => ({ ...(f as JobFile), url: signed?.[i]?.signedUrl ?? null }));
+  }
 
   return (
     <JobDetail
@@ -30,6 +41,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       stages={(stages as Stage[]) || []}
       tasks={(tasks as Task[]) || []}
       materials={(materials as Material[]) || []}
+      rooms={(rooms as Room[]) || []}
+      files={files}
     />
   );
 }

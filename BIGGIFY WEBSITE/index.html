@@ -42,8 +42,26 @@
   .logo img{height:44px;display:block}
   .nav-links{display:flex;align-items:center;gap:28px;color:var(--ink-soft);font-weight:600;font-size:15px}
   .nav-links a:hover{color:var(--ink)}
-  .nav-cta{display:flex;gap:12px;align-items:center}
-  @media(max-width:820px){.nav-links{display:none}}
+  .nav-cta{display:flex;gap:14px;align-items:center}
+  .nav-phone{font-weight:700;color:var(--ink);font-size:15px;white-space:nowrap;display:flex;align-items:center;gap:6px}
+  .nav-phone:hover{color:var(--brand)}
+  /* dropdown menu */
+  .menu{position:relative}
+  .menu summary{list-style:none;cursor:pointer;font-weight:600;font-size:15px;color:var(--ink-soft);padding:9px 16px;border:1px solid #ece3ca;border-radius:999px;background:#fff;display:flex;align-items:center;gap:7px}
+  .menu summary::-webkit-details-marker{display:none}
+  .menu summary:hover{color:var(--ink)}
+  .menu summary .caret{transition:transform .18s ease}
+  .menu[open] summary .caret{transform:rotate(180deg)}
+  .menu-panel{position:absolute;top:calc(100% + 8px);left:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:8px;min-width:190px;display:flex;flex-direction:column;gap:2px;z-index:60}
+  .menu-panel a{padding:10px 14px;border-radius:8px;color:var(--ink-soft);font-weight:600;font-size:15px}
+  .menu-panel a:hover{background:var(--cream);color:var(--ink)}
+  @media(max-width:560px){
+    .nav-phone{font-size:14px}
+    .nav-cta{gap:9px}
+    .btn{padding:12px 18px;font-size:14px}
+    .menu summary span.lbl{display:none}
+    .menu summary{padding:9px 12px}
+  }
 
   /* HERO */
   .hero{position:relative;background:radial-gradient(1200px 600px at 70% -10%,rgba(207,0,0,.34),transparent 60%),radial-gradient(900px 500px at 10% 10%,rgba(255,90,60,.16),transparent 55%),var(--bg);color:#fff;overflow:hidden}
@@ -140,13 +158,19 @@
   <div class="wrap">
     <nav>
       <a class="logo" href="#top"><img src="LOGO.png" alt="Biggify" /></a>
-      <div class="nav-links">
-        <a href="#how">How it works</a>
-        <a href="#features">Features</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#faq">FAQ</a>
+      <div class="nav-cta">
+        <details class="menu">
+          <summary><span class="lbl">Menu</span><span class="caret">▾</span></summary>
+          <div class="menu-panel">
+            <a href="#how">How it works</a>
+            <a href="#features">Features</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#faq">FAQ</a>
+          </div>
+        </details>
+        <a class="nav-phone" href="tel:+19413279667">📞 (941) 327-9667</a>
+        <a class="btn btn-primary" href="#contact">Get a Free Demo</a>
       </div>
-      <div class="nav-cta"><a class="btn btn-primary" href="#contact">Get a Free Demo</a></div>
     </nav>
   </div>
 </header>
@@ -161,7 +185,7 @@
         <p class="lead">Biggify answers every call, books the appointment, and instantly texts your customer a quick survey — so you show up prepared and never lose a lead to a missed call.</p>
         <div class="hero-cta">
           <a class="btn btn-primary" href="#contact">Get a Free Demo</a>
-          <a class="btn btn-ghost" href="#how">See how it works</a>
+          <a class="btn btn-ghost call-btn" href="tel:+19413279667">📞 Call our receptionist</a>
         </div>
         <div class="trust">
           <span><b>24/7</b> call answering</span>
@@ -256,7 +280,7 @@
     </div>
     <div class="price-card">
       <span class="tag">⭐ Founding Client Offer</span>
-      <div class="p">$<span>297</span><small>/mo</small></div>
+      <div class="p">$<span>147</span><small>/mo</small></div>
       <ul class="price-list">
         <li>24/7 AI call answering</li>
         <li>Appointment booking to your calendar</li>
@@ -291,8 +315,13 @@
 <section class="cta-final" id="contact">
   <div class="wrap">
     <h2>Hear it answer your phone today</h2>
-    <p>Book a free 15-minute demo and we'll set up a live AI receptionist for your business — no commitment.</p>
-    <a class="btn btn-primary" href="mailto:gobiggify@gmail.com?subject=Biggify%20Demo%20Request">Get a Free Demo</a>
+    <p>Call our receptionist right now and hear it for yourself — or book a free 15-minute demo below.</p>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:36px">
+      <a class="btn btn-primary call-btn" href="tel:+19413279667" style="background:#fff;color:var(--brand)">📞 Call our receptionist</a>
+    </div>
+    <!-- Calendly inline widget -->
+    <div class="calendly-inline-widget" data-url="https://calendly.com/boogmasterjones/biggify-appointment?hide_event_type_details=1&hide_gdpr_banner=1" style="min-width:320px;height:700px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow)"></div>
+    <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
     <p style="margin-top:22px;font-size:15px">Or email us: <a href="mailto:gobiggify@gmail.com" style="color:#fff;text-decoration:underline">gobiggify@gmail.com</a></p>
   </div>
 </section>
@@ -314,11 +343,39 @@
       </div>
     </div>
     <div class="foot-bot">
-      <span>© <span id="yr"></span> Biggify. All rights reserved. Biggify is a service of <strong>[YOUR VENDING LLC LEGAL NAME]</strong>.</span>
+      <span>© <span id="yr"></span> Biggify. All rights reserved. Biggify is a service of <strong>Rock Solid Tile</strong>.</span>
       <span>Made for the trades.</span>
     </div>
   </div>
 </footer>
 <script>document.getElementById('yr').textContent=new Date().getFullYear();</script>
+<script>
+(function(){
+  // tel: links only place a call on mobile. On desktop, reveal the number instead.
+  var isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent)
+    || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+  var NUMBER = '(941) 327-9667';
+  document.querySelectorAll('.call-btn').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      if (isMobile) return; // let the tel: link dial
+      e.preventDefault();
+      if (btn.dataset.revealed) return;
+      btn.dataset.revealed = '1';
+      btn.textContent = '📞 ' + NUMBER;
+    });
+  });
+
+  // header dropdown: close on link click and on outside click
+  var menu = document.querySelector('.menu');
+  if (menu) {
+    menu.querySelectorAll('.menu-panel a').forEach(function(a){
+      a.addEventListener('click', function(){ menu.removeAttribute('open'); });
+    });
+    document.addEventListener('click', function(e){
+      if (menu.open && !menu.contains(e.target)) menu.removeAttribute('open');
+    });
+  }
+})();
+</script>
 </body>
 </html>
