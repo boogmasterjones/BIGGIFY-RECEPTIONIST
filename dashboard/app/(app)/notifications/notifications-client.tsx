@@ -50,23 +50,29 @@ export default function NotificationsClient({ initial }: { initial: Notification
   const unread = items.filter((n) => !n.read_at).length;
   const list = filter === 'unread' ? items.filter((n) => !n.read_at) : items;
 
+  function bumpBadge() {
+    window.dispatchEvent(new Event('biggify:notifications-changed'));
+  }
   function onRead(n: Notification) {
     if (n.read_at) return;
     startTransition(async () => {
       dispatch({ t: 'read', id: n.id });
       await markRead(n.id);
+      bumpBadge();
     });
   }
   function onReadAll() {
     startTransition(async () => {
       dispatch({ t: 'readAll' });
       await markAllRead();
+      bumpBadge();
     });
   }
   function onDelete(id: string) {
     startTransition(async () => {
       dispatch({ t: 'delete', id });
       await deleteNotification(id);
+      bumpBadge();
     });
   }
 

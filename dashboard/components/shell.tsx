@@ -44,9 +44,15 @@ export default function Shell({
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // Unread notification count for the sidebar badge. Refetches on navigation so
-  // it updates after the user reads/clears notifications.
+  // Unread notification count for the sidebar badge. Refetches on navigation and
+  // whenever the notifications page signals a change (mark-read / read-all / delete).
   const [unread, setUnread] = useState(0);
+  const [notifTick, setNotifTick] = useState(0);
+  useEffect(() => {
+    const h = () => setNotifTick((t) => t + 1);
+    window.addEventListener('biggify:notifications-changed', h);
+    return () => window.removeEventListener('biggify:notifications-changed', h);
+  }, []);
   useEffect(() => {
     if (!business.features?.notifications) return;
     let active = true;
@@ -62,7 +68,7 @@ export default function Shell({
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, business.id]);
+  }, [pathname, business.id, notifTick]);
   function toggle() {
     setCollapsed((c) => {
       const next = !c;
