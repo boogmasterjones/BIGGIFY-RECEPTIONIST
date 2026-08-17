@@ -1,6 +1,10 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { getUserAndBusiness } from '@/lib/data';
+import CountUp from '@/components/count-up';
+
+// Rough per-event minutes the receptionist saves the owner (tunable, labeled "est.").
+const MIN_PER_CALL = 6;
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -49,8 +53,9 @@ export default async function Home() {
   const supabase = await createClient();
   const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
   const nowIso = new Date().toISOString();
+  const dayStart = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
 
-  const [callsWeek, bookedWeek, upcoming, jobsTotal, notes, nextAppts, stages, jobStageRows, recentJobs, openInvoices] =
+  const [callsWeek, bookedWeek, upcoming, jobsTotal, notes, nextAppts, stages, jobStageRows, recentJobs, openInvoices, callsAll, callsToday, bookedToday, messagesToday] =
     await Promise.all([
       f.receptionist ? count('calls', business.id, (q) => q.gte('started_at', weekAgo)) : Promise.resolve(0),
       f.receptionist ? count('calls', business.id, (q) => q.gte('started_at', weekAgo).eq('outcome', 'booked')) : Promise.resolve(0),
@@ -66,7 +71,18 @@ export default async function Home() {
       f.invoicing
         ? supabase.from('invoices').select('due_at, items:invoice_items(quantity,unit_price_cents)').eq('business_id', business.id).in('status', ['draft', 'sent'])
         : Promise.resolve({ data: [] as any[] }),
+      f.receptionist ? count('calls', business.id) : Promise.resolve(0),
+      f.receptionist ? count('calls', business.id, (q) => q.gte('started_at', dayStart)) : Promise.resolve(0),
+      count('appointments', business.id, (q) => q.gte('created_at', dayStart)),
+      f.notifications
+        ? count('notifications', business.id, (q) => q.eq('type', 'new_message').gte('created_at', dayStart))
+        : Promise.resolve(0),
     ]);
+
+  // Time the receptionist saved (estimate, labeled as such in the UI).
+  const hoursWeek = Math.round((callsWeek * MIN_PER_CALL) / 6) / 10; // one decimal
+  const hoursLife = Math.round((callsAll * MIN_PER_CALL) / 6) / 10;
+  const roofCount = callsToday + bookedToday + messagesToday;
 
   const today = new Date().toISOString().slice(0, 10);
   const invRows = (openInvoices.data as any[]) || [];
@@ -83,10 +99,10 @@ export default async function Home() {
     if (r.stage_id) stageCounts.set(r.stage_id, (stageCounts.get(r.stage_id) || 0) + 1);
   }
 
-  const metrics: { label: string; value: string | number; show: boolean; href?: string }[] = [
+  const metrics: { label: string; value: number; prefix?: string; show: boolean; href?: string }[] = [
     { label: 'Calls this week', value: callsWeek, show: !!f.receptionist, href: '/notifications' },
     { label: 'Booked this week', value: bookedWeek, show: !!f.receptionist, href: '/appointments' },
-    { label: 'Owed to you', value: money(outstandingCents), show: !!f.invoicing && outstandingCents > 0, href: '/money' },
+    { label: 'Owed to you', value: Math.round(outstandingCents / 100), prefix: '$', show: !!f.invoicing && outstandingCents > 0, href: '/money' },
     { label: 'Upcoming', value: upcoming, show: !!f.appointments || !!f.calendar, href: '/appointments' },
     { label: 'Active jobs', value: jobsTotal, show: !!f.jobs, href: '/jobs' },
   ].filter((m) => m.show);
@@ -96,7 +112,27 @@ export default async function Home() {
   return (
     <div>
       <h1 className="text-2xl font-extrabold tracking-tight mb-1">{business.name}</h1>
-      <p className="text-neutral-500 mb-6">Here&apos;s your business at a glance.</p>
+      <p className="text-neutral-500 mb-4">Here&apos;s your business at a glance.</p>
+
+      {/* Time-saved banner */}
+      {f.receptionist && (
+        <div className="mb-6 inline-flex items-center gap-2.5 rounded-full bg-white border border-[#ece3ca] pl-3 pr-4 py-2 shadow-sm">
+          <svg className="w-4 h-4 text-[#CF0000] shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7l-1 8 10-12h-7z" /></svg>
+          {hoursLife > 0 ? (
+            <span className="text-sm text-neutral-600">
+              Biggify saved you{' '}
+              <CountUp value={hoursWeek} decimals={1} suffix="h" className="font-extrabold text-neutral-900 tabular-nums" /> this week
+              {' '}&middot;{' '}
+              <CountUp value={hoursLife} decimals={1} suffix="h" className="font-extrabold text-neutral-900 tabular-nums" /> all-time
+              <span className="text-neutral-400"> (est.)</span>
+            </span>
+          ) : (
+            <span className="text-sm text-neutral-500">
+              Your receptionist is standing by 24/7 — hours saved will show here the moment it answers a call.
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Metrics */}
       {metrics.length > 0 && (
@@ -104,7 +140,7 @@ export default async function Home() {
           {metrics.map((m) => {
             const body = (
               <>
-                <div className="text-3xl font-extrabold text-[#CF0000] tabular-nums">{m.value}</div>
+                <CountUp value={m.value} prefix={m.prefix} className="text-3xl font-extrabold text-[#CF0000] tabular-nums" />
                 <div className="text-sm text-neutral-500 mt-1">{m.label}</div>
               </>
             );
@@ -140,6 +176,24 @@ export default async function Home() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: needs attention + jobs in motion */}
         <div className="lg:col-span-2 space-y-6">
+          {f.receptionist && roofCount > 0 && (
+            <div className="rounded-2xl border border-[#ece3ca] p-5" style={{ background: 'linear-gradient(180deg,#ffffff,#fffaf0)' }}>
+              <div className="flex items-center gap-2 font-bold">
+                <svg className="w-[18px] h-[18px] text-[#E0A32B]" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V2m0 20v-2m8-8h2M2 12h2m13.66-5.66 1.41-1.41M4.93 19.07l1.41-1.41m0-11.32L4.93 4.93m14.14 14.14-1.41-1.41M12 7a5 5 0 100 10 5 5 0 000-10z" /></svg>
+                While you were on the roof today
+              </div>
+              <p className="mt-2 text-[15px] text-neutral-600 leading-relaxed">
+                Your receptionist{' '}
+                {callsToday > 0 && <>answered <b className="text-neutral-900">{callsToday}</b> call{callsToday === 1 ? '' : 's'}</>}
+                {callsToday > 0 && (bookedToday > 0 || messagesToday > 0) ? ', ' : ''}
+                {bookedToday > 0 && <>booked <b className="text-neutral-900">{bookedToday}</b> job{bookedToday === 1 ? '' : 's'}</>}
+                {bookedToday > 0 && messagesToday > 0 ? ', ' : ''}
+                {messagesToday > 0 && <>took <b className="text-neutral-900">{messagesToday}</b> message{messagesToday === 1 ? '' : 's'}</>}
+                {'.'}
+              </p>
+              <div className="mt-2 text-[13.5px] font-bold text-[#CF0000]">You touched none of it. ↓</div>
+            </div>
+          )}
           {f.notifications && (
             <div className={`${card} p-5`}>
               <div className="flex items-center justify-between mb-3">
