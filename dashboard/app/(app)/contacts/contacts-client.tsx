@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createContact, updateContact, deleteContact } from './actions';
@@ -107,9 +108,9 @@ export default function ContactsClient({
               {initial.map((c) => (
                 <tr key={c.id} className="border-b border-neutral-50 hover:bg-[#FFFBF0]">
                   <td className="px-5 py-3">
-                    <button onClick={() => startEdit(c)} className="font-semibold hover:text-[#CF0000]">
+                    <Link href={`/contacts/${c.id}`} className="font-semibold hover:text-[#CF0000]">
                       {c.name || 'Unnamed'}
-                    </button>
+                    </Link>
                     {c.address && <div className="text-neutral-400 text-xs">{c.address}</div>}
                   </td>
                   <td className="px-5 py-3 text-neutral-600">{c.phone || '—'}</td>
@@ -119,7 +120,10 @@ export default function ContactsClient({
                       {c.source === 'ai_call' ? 'AI call' : 'manual'}
                     </span>
                   </td>
-                  <td className="px-5 py-3 text-right">
+                  <td className="px-5 py-3 text-right whitespace-nowrap">
+                    <button onClick={() => startEdit(c)} className="text-neutral-400 hover:text-[#CF0000] text-sm mr-3">
+                      Edit
+                    </button>
                     <button
                       onClick={() => remove(c)}
                       className="text-neutral-300 hover:text-[#CF0000] text-sm"
