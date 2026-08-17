@@ -19,6 +19,7 @@ import {
   uploadJobFiles,
   deleteJobFile,
   postJobMessage,
+  draftInvoiceFromJob,
   type MaterialInput,
   type RoomInput,
 } from './actions';
@@ -66,6 +67,12 @@ export type Message = {
   source: string;
   body: string;
   created_at: string;
+};
+export type JobInvoice = {
+  id: string;
+  number: string | null;
+  status: string;
+  items: { quantity: number; unit_price_cents: number }[];
 };
 export type Job = {
   id: string;
@@ -121,6 +128,9 @@ export default function JobDetail({
   rooms,
   files,
   messages,
+  expensesTotal,
+  invoices,
+  canInvoice,
 }: {
   businessId: string;
   job: Job;
@@ -130,11 +140,15 @@ export default function JobDetail({
   rooms: Room[];
   files: JobFile[];
   messages: Message[];
+  expensesTotal: number;
+  invoices: JobInvoice[];
+  canInvoice: boolean;
 }) {
   const router = useRouter();
   const [taskTitle, setTaskTitle] = useState('');
   const [msgBody, setMsgBody] = useState('');
   const [msgBusy, setMsgBusy] = useState(false);
+  const [invBusy, setInvBusy] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadBusy, setUploadBusy] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -212,6 +226,15 @@ export default function JobDetail({
     setMsgBusy(false);
     setMsgBody('');
     refresh();
+  }
+
+  // --- money ---
+  async function draftInvoice() {
+    setInvBusy(true);
+    const res = await draftInvoiceFromJob(job.id, businessId);
+    setInvBusy(false);
+    if (res.ok && res.data) router.push(`/money/${res.data.id}`);
+    else refresh();
   }
 
   // --- rooms ---
@@ -307,6 +330,15 @@ export default function JobDetail({
 
   const doneCount = tasks.filter((t) => t.done).length;
   const unassigned = materials.filter((m) => !m.room_id);
+
+  // --- money: cost / revenue / profit for this job ---
+  const invTotal = (inv: JobInvoice) => (inv.items || []).reduce((s, it) => s + it.quantity * it.unit_price_cents, 0);
+  const materialsCost = totalSourced;
+  const cost = materialsCost + (expensesTotal || 0);
+  const invoicedTotal = invoices.reduce((s, inv) => s + invTotal(inv), 0);
+  const paidTotal = invoices.filter((i) => i.status === 'paid').reduce((s, inv) => s + invTotal(inv), 0);
+  const revenue = invoices.length ? invoicedTotal : job.value_cents ?? 0;
+  const profit = revenue - cost;
 
   return (
     <div>
@@ -593,6 +625,54 @@ export default function JobDetail({
               );
             })}
           </div>
+        )}
+      </div>
+
+      {/* Money */}
+      <div className="rounded-2xl bg-white border border-[#ece3ca] p-5 mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="font-bold">Money</div>
+          {canInvoice && (
+            <button onClick={draftInvoice} disabled={invBusy} className="rounded-full bg-[#CF0000] text-white font-bold px-4 py-2 text-sm disabled:opacity-60">
+              {invBusy ? 'Drafting…' : '+ Draft invoice'}
+            </button>
+          )}
+        </div>
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="rounded-xl border border-neutral-100 px-4 py-3">
+            <div className="text-[11px] uppercase tracking-wide text-neutral-400 font-semibold">Cost</div>
+            <div className="text-xl font-extrabold mt-0.5 tabular-nums">{money(cost) || '$0'}</div>
+            <div className="text-[11px] text-neutral-400">materials + expenses</div>
+          </div>
+          <div className="rounded-xl border border-neutral-100 px-4 py-3">
+            <div className="text-[11px] uppercase tracking-wide text-neutral-400 font-semibold">Revenue</div>
+            <div className="text-xl font-extrabold mt-0.5 tabular-nums">{money(revenue) || '$0'}</div>
+            <div className="text-[11px] text-neutral-400">{invoices.length ? `${money(paidTotal) || '$0'} paid` : 'quoted'}</div>
+          </div>
+          <div className="rounded-xl border border-neutral-100 px-4 py-3">
+            <div className="text-[11px] uppercase tracking-wide text-neutral-400 font-semibold">Profit</div>
+            <div className="text-xl font-extrabold mt-0.5 tabular-nums" style={{ color: profit < 0 ? '#CF0000' : '#067a63' }}>{money(profit) || '$0'}</div>
+            <div className="text-[11px] text-neutral-400">revenue − cost</div>
+          </div>
+        </div>
+        {invoices.length > 0 ? (
+          <ul className="divide-y divide-neutral-50">
+            {invoices.map((inv) => (
+              <li key={inv.id} className="py-2">
+                <Link href={`/money/${inv.id}`} className="flex items-center justify-between text-sm hover:text-[#CF0000]">
+                  <span className="font-semibold">{inv.number || 'Invoice'}</span>
+                  <span className="flex items-center gap-3">
+                    <span className="tabular-nums">{money(invTotal(inv))}</span>
+                    <span className="text-xs text-neutral-400 capitalize">{inv.status}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-sm text-neutral-300">
+            {canInvoice ? 'No invoice yet — draft one from this job’s materials in one click.' : 'No invoice yet.'}
+          </p>
         )}
       </div>
 

@@ -4,6 +4,14 @@ import { revalidatePath } from 'next/cache';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@/lib/supabase/server';
 import { runStageAutomations, runTaskAutomations } from '@/lib/automation';
+import { createInvoice } from '@/app/(app)/money/actions';
+
+// Draft an invoice from this job (pulls its materials as line items).
+export async function draftInvoiceFromJob(jobId: string, businessId: string): Promise<Result<{ id: string }>> {
+  const res = await createInvoice(businessId, { job_id: jobId });
+  if (!res.ok) return { ok: false, error: res.error };
+  return { ok: true, data: { id: res.id as string } };
+}
 
 export type Result<T = unknown> = { ok: boolean; error?: string; data?: T };
 
