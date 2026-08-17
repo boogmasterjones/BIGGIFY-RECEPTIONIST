@@ -61,6 +61,13 @@ export async function getAvailableSlots(count = 3) {
   }
 }
 
+// A valid-format placeholder email from the caller's number (Cal.com requires
+// an attendee email; the caller only gives us a phone).
+function attendeeEmail(phone) {
+  const digits = (phone || '').replace(/\D/g, '');
+  return digits ? `caller-${digits}@leads.biggify.com` : 'caller@leads.biggify.com';
+}
+
 // Books a slot. Returns { ok, calBookingId, humanTime }.
 export async function createBooking({ startsAt, name, phone, service }) {
   if (!isCalcomLive) {
@@ -79,10 +86,17 @@ export async function createBooking({ startsAt, name, phone, service }) {
         start: startsAt,
         attendee: {
           name: name || 'Caller',
+          // Cal.com requires an attendee email. The caller only gives a phone,
+          // so we synthesize a valid-format placeholder (confirmation to it just
+          // bounces — harmless). The real notification goes to the owner below.
+          email: attendeeEmail(phone),
           phoneNumber: phone || undefined,
           timeZone: 'America/New_York',
         },
-        metadata: { service: service || '', source: 'Biggify AI receptionist' },
+        // Put the business owner on every booking as a guest so they get the
+        // calendar invite + email notification for each meeting.
+        guests: config.business.ownerAlertEmail ? [config.business.ownerAlertEmail] : undefined,
+        metadata: { service: service || '', phone: phone || '', source: 'Biggify AI receptionist' },
       }),
     });
     if (!res.ok) throw new Error(`Cal.com booking ${res.status}`);
