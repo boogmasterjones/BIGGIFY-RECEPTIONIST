@@ -50,7 +50,7 @@ export default async function Home() {
   const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
   const nowIso = new Date().toISOString();
 
-  const [callsWeek, bookedWeek, upcoming, jobsTotal, notes, nextAppts, stages, jobStageRows, recentJobs] =
+  const [callsWeek, bookedWeek, upcoming, jobsTotal, notes, nextAppts, stages, jobStageRows, recentJobs, openInvoices] =
     await Promise.all([
       f.receptionist ? count('calls', business.id, (q) => q.gte('started_at', weekAgo)) : Promise.resolve(0),
       f.receptionist ? count('calls', business.id, (q) => q.gte('started_at', weekAgo).eq('outcome', 'booked')) : Promise.resolve(0),
@@ -63,7 +63,17 @@ export default async function Home() {
       supabase.from('job_stages').select('id,name,color,position').eq('business_id', business.id).order('position'),
       supabase.from('jobs').select('stage_id').eq('business_id', business.id).limit(1000),
       supabase.from('jobs').select('id, service, title, created_at, contact:contacts(name), stage:job_stages(name,color)').eq('business_id', business.id).order('created_at', { ascending: false }).limit(5),
+      f.invoicing
+        ? supabase.from('invoices').select('due_at, items:invoice_items(quantity,unit_price_cents)').eq('business_id', business.id).in('status', ['draft', 'sent'])
+        : Promise.resolve({ data: [] as any[] }),
     ]);
+
+  const today = new Date().toISOString().slice(0, 10);
+  const invRows = (openInvoices.data as any[]) || [];
+  const invTotal = (inv: any) => (inv.items || []).reduce((s: number, it: any) => s + it.quantity * it.unit_price_cents, 0);
+  const outstandingCents = invRows.reduce((s, inv) => s + invTotal(inv), 0);
+  const overdueCents = invRows.filter((inv) => inv.due_at && inv.due_at < today).reduce((s, inv) => s + invTotal(inv), 0);
+  const money = (c: number) => '$' + Math.round(c / 100).toLocaleString('en-US');
 
   const noteList = (notes.data as any[]) || [];
   const unread = noteList.filter((n) => !n.read_at);
@@ -73,9 +83,10 @@ export default async function Home() {
     if (r.stage_id) stageCounts.set(r.stage_id, (stageCounts.get(r.stage_id) || 0) + 1);
   }
 
-  const metrics = [
+  const metrics: { label: string; value: string | number; show: boolean }[] = [
     { label: 'Calls this week', value: callsWeek, show: !!f.receptionist },
     { label: 'Booked this week', value: bookedWeek, show: !!f.receptionist },
+    { label: 'Owed to you', value: money(outstandingCents), show: !!f.invoicing && outstandingCents > 0 },
     { label: 'Upcoming', value: upcoming, show: !!f.appointments || !!f.calendar },
     { label: 'Active jobs', value: jobsTotal, show: !!f.jobs },
   ].filter((m) => m.show);
@@ -105,6 +116,17 @@ export default async function Home() {
         </p>
       )}
       {(!f.receptionist || callsWeek === 0) && <div className="mb-8" />}
+
+      {f.invoicing && overdueCents > 0 && (
+        <Link href="/money" className="flex items-center gap-3 rounded-2xl border border-[#f3d0d0] bg-[#fdf2f2] px-5 py-3 mb-8 hover:bg-[#fbeaea]">
+          <span className="text-lg">⚠️</span>
+          <span className="text-sm">
+            <b className="text-[#b00000]">{money(overdueCents)} overdue</b>
+            <span className="text-neutral-500"> — follow up on unpaid invoices.</span>
+          </span>
+          <span className="ml-auto text-xs text-[#CF0000] font-semibold">Review →</span>
+        </Link>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: needs attention + jobs in motion */}
