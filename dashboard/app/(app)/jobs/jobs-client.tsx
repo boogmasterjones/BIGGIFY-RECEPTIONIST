@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useOptimistic, useRef, useState, startTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { createJob, updateJob, setJobStage, deleteJob } from './actions';
 
@@ -44,7 +44,102 @@ export default function JobsClient({
   const [editing, setEditing] = useState<Job | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [view, setView] = useState<'board' | 'list'>('board');
+
+  // Pointer-drag + optimistic state
+  const [overStage, setOverStage] = useState<string | null>(null);
+  const [flashId, setFlashId] = useState<string | null>(null);
+  const [ghost, setGhost] = useState<{ id: string; label: string; x: number; y: number } | null>(null);
+  const dragRef = useRef<{ id: string; sx: number; sy: number; moved: boolean } | null>(null);
+  const suppressClick = useRef(false);
+  const colRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [optimisticJobs, moveOptimistic] = useOptimistic(
+    initial,
+    (state: Job[], { id, stageId }: { id: string; stageId: string }) =>
+      state.map((j) => (j.id === id ? { ...j, stage_id: stageId } : j)),
+  );
+
+  useEffect(() => {
+    const saved = typeof window !== 'undefined' ? window.localStorage.getItem('jobsView') : null;
+    if (saved === 'list' || saved === 'board') setView(saved);
+  }, []);
+  function pickView(v: 'board' | 'list') {
+    setView(v);
+    try {
+      window.localStorage.setItem('jobsView', v);
+    } catch {}
+  }
+
   const stageById = new Map(stages.map((s) => [s.id, s]));
+  const firstStageId = stages[0]?.id ?? null;
+  const bucketOf = (j: Job) => (j.stage_id && stageById.has(j.stage_id) ? j.stage_id : firstStageId);
+
+  // Group jobs into their stage columns (created-desc order preserved from the server).
+  const byStage = new Map<string, Job[]>();
+  stages.forEach((s) => byStage.set(s.id, []));
+  for (const j of optimisticJobs) {
+    const b = bucketOf(j);
+    if (b && byStage.has(b)) byStage.get(b)!.push(j);
+  }
+
+  function move(id: string, stageId: string) {
+    const cur = optimisticJobs.find((j) => j.id === id);
+    if (!cur || bucketOf(cur) === stageId) return;
+    setFlashId(id);
+    startTransition(async () => {
+      moveOptimistic({ id, stageId });
+      await setJobStage(id, stageId);
+    });
+    setTimeout(() => setFlashId(null), 650);
+  }
+
+  // Which column is under this point? (board hit-test)
+  function stageAt(x: number, y: number): string | null {
+    for (const s of stages) {
+      const el = colRefs.current[s.id];
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return s.id;
+    }
+    return null;
+  }
+
+  function onCardPointerDown(e: React.PointerEvent, j: Job) {
+    if (e.button !== 0) return; // left button only
+    dragRef.current = { id: j.id, sx: e.clientX, sy: e.clientY, moved: false };
+    const label = j.title || j.contact?.name || j.service || 'Job';
+
+    const onMove = (ev: PointerEvent) => {
+      const d = dragRef.current;
+      if (!d) return;
+      const dx = ev.clientX - d.sx;
+      const dy = ev.clientY - d.sy;
+      if (!d.moved && Math.hypot(dx, dy) < 6) return; // click vs. drag threshold
+      if (!d.moved) {
+        d.moved = true;
+        document.body.style.userSelect = 'none';
+      }
+      setGhost({ id: d.id, label, x: ev.clientX, y: ev.clientY });
+      setOverStage(stageAt(ev.clientX, ev.clientY));
+    };
+    const onUp = (ev: PointerEvent) => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      document.body.style.userSelect = '';
+      const d = dragRef.current;
+      dragRef.current = null;
+      setGhost(null);
+      setOverStage(null);
+      if (d && d.moved) {
+        suppressClick.current = true; // don't let the ensuing click navigate
+        setTimeout(() => (suppressClick.current = false), 0);
+        const target = stageAt(ev.clientX, ev.clientY);
+        if (target) move(d.id, target);
+      }
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }
 
   function startAdd() {
     setEditing(null);
@@ -78,41 +173,126 @@ export default function JobsClient({
     router.refresh();
   }
 
-  async function changeStage(id: string, stageId: string) {
-    await setJobStage(id, stageId);
-    router.refresh();
-  }
-
   async function remove(j: Job) {
     if (!confirm('Delete this job?')) return;
     await deleteJob(j.id);
     router.refresh();
   }
 
+  const toggle =
+    'px-3 py-1.5 text-sm font-bold rounded-lg transition-colors';
+
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-extrabold tracking-tight">Jobs</h1>
           <p className="text-neutral-500">
-            Your pipeline — customize the stages in{' '}
+            Your pipeline — drag a job to move it. Customize stages in{' '}
             <a href="/settings" className="text-[#CF0000] underline">
               Settings
             </a>
             .
           </p>
         </div>
-        <button onClick={startAdd} className="rounded-full bg-[#CF0000] text-white font-bold px-5 py-2.5">
-          + Add job
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 rounded-xl bg-white border border-[#ece3ca] p-1">
+            <button onClick={() => pickView('board')} className={`${toggle} ${view === 'board' ? 'bg-[#CF0000] text-white' : 'text-neutral-500 hover:text-neutral-800'}`}>
+              Board
+            </button>
+            <button onClick={() => pickView('list')} className={`${toggle} ${view === 'list' ? 'bg-[#CF0000] text-white' : 'text-neutral-500 hover:text-neutral-800'}`}>
+              List
+            </button>
+          </div>
+          <button onClick={startAdd} className="rounded-full bg-[#CF0000] text-white font-bold px-5 py-2.5 hover:bg-[#e00a0a] active:scale-[.98] transition">
+            + Add job
+          </button>
+        </div>
       </div>
 
-      <div className="rounded-2xl bg-white border border-[#ece3ca] overflow-hidden">
-        {initial.length === 0 ? (
-          <div className="p-10 text-center text-neutral-400">
-            No jobs yet. Add one, or they&apos;ll appear here as the AI books calls.
+      {optimisticJobs.length === 0 ? (
+        <div className="rounded-2xl bg-white border border-[#ece3ca] p-10 text-center text-neutral-400">
+          No jobs yet. Add one, or they&apos;ll appear here as the AI books calls.
+        </div>
+      ) : view === 'board' ? (
+        /* ---------------- BOARD ---------------- */
+        <>
+        <div className="flex gap-3 overflow-x-auto pb-3 -mx-1 px-1">
+          {stages.map((s) => {
+            const jobs = byStage.get(s.id) || [];
+            const total = jobs.reduce((sum, j) => sum + (j.value_cents || 0), 0);
+            const isOver = overStage === s.id && ghost != null;
+            return (
+              <div
+                key={s.id}
+                ref={(el) => {
+                  colRefs.current[s.id] = el;
+                }}
+                className={`w-72 shrink-0 rounded-2xl border p-2.5 transition-colors ${
+                  isOver ? 'border-[#CF0000] bg-white shadow-[inset_0_0_0_2px_rgba(207,0,0,0.15)]' : 'border-[#ece3ca] bg-[#FFFBF0]'
+                }`}
+              >
+                <div className="flex items-center gap-2 px-1.5 py-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color || '#9aa0b4' }} />
+                  <span className="text-sm font-bold text-neutral-700">{s.name}</span>
+                  <span className="ml-auto text-xs font-bold text-neutral-400 tabular-nums">{jobs.length}</span>
+                </div>
+                {total > 0 && (
+                  <div className="px-1.5 pb-2 text-[11px] font-semibold text-neutral-400 tabular-nums">{money(total)}</div>
+                )}
+                <div className="min-h-[80px] space-y-2">
+                  {jobs.map((j) => (
+                    <div
+                      key={j.id}
+                      onPointerDown={(e) => onCardPointerDown(e, j)}
+                      onClickCapture={(e) => {
+                        if (suppressClick.current) {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }
+                      }}
+                      className={`group rounded-xl bg-white border p-3 cursor-grab active:cursor-grabbing transition-all touch-none select-none ${
+                        ghost?.id === j.id ? 'opacity-40' : 'hover:-translate-y-0.5 hover:shadow-md'
+                      } ${flashId === j.id ? 'border-[#CF0000] ring-2 ring-[#CF0000]/30' : 'border-[#ece3ca]'}`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <Link href={`/jobs/${j.id}`} draggable={false} className="font-semibold text-[14px] leading-tight hover:text-[#CF0000]">
+                          {j.title || j.contact?.name || 'Open job'}
+                        </Link>
+                        {j.source === 'ai_call' && (
+                          <span className="text-[9px] font-bold uppercase tracking-wide text-[#CF0000] bg-[#FDECEC] rounded px-1.5 py-0.5 shrink-0">AI</span>
+                        )}
+                      </div>
+                      <div className="mt-1 flex items-center justify-between text-xs text-neutral-400">
+                        <span className="truncate">{j.service || (j.title && j.contact?.name) || '—'}</span>
+                        {j.value_cents != null && <span className="font-bold text-neutral-500 tabular-nums shrink-0 ml-2">{money(j.value_cents)}</span>}
+                      </div>
+                    </div>
+                  ))}
+                  {jobs.length === 0 && (
+                    <div className={`rounded-xl border border-dashed text-[11px] text-center py-4 transition-colors ${isOver ? 'border-[#CF0000] text-[#CF0000]' : 'border-[#e4d9bd] text-neutral-300'}`}>
+                      Drop here
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* floating "lifted" ghost that follows the cursor while dragging */}
+        {ghost && (
+          <div
+            className="fixed z-[60] pointer-events-none rounded-xl bg-white border border-[#CF0000] shadow-xl px-3 py-2 text-[13px] font-semibold -rotate-2"
+            style={{ left: ghost.x + 14, top: ghost.y + 10 }}
+          >
+            {ghost.label}
           </div>
-        ) : (
+        )}
+        </>
+      ) : (
+        /* ---------------- LIST ---------------- */
+        <div className="rounded-2xl bg-white border border-[#ece3ca] overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-[12px] uppercase tracking-wide text-neutral-400 border-b border-neutral-100">
@@ -124,7 +304,7 @@ export default function JobsClient({
               </tr>
             </thead>
             <tbody>
-              {initial.map((j) => {
+              {optimisticJobs.map((j) => {
                 const stage = j.stage_id ? stageById.get(j.stage_id) : null;
                 return (
                   <tr key={j.id} className="border-b border-neutral-50 hover:bg-[#FFFBF0]">
@@ -132,18 +312,16 @@ export default function JobsClient({
                       <Link href={`/jobs/${j.id}`} className="font-semibold hover:text-[#CF0000]">
                         {j.title || j.contact?.name || 'Open job'}
                       </Link>
-                      {j.title && j.contact?.name && (
-                        <div className="text-neutral-400 text-xs">{j.contact.name}</div>
-                      )}
+                      {j.title && j.contact?.name && <div className="text-neutral-400 text-xs">{j.contact.name}</div>}
                     </td>
                     <td className="px-5 py-3 text-neutral-600">{j.service || '—'}</td>
                     <td className="px-5 py-3 text-neutral-600">{money(j.value_cents)}</td>
                     <td className="px-5 py-3">
                       <select
-                        value={j.stage_id ?? ''}
-                        onChange={(e) => changeStage(j.id, e.target.value)}
+                        value={bucketOf(j) ?? ''}
+                        onChange={(e) => move(j.id, e.target.value)}
                         className="text-[12px] font-semibold rounded-full px-2.5 py-1 outline-none cursor-pointer text-white"
-                        style={{ backgroundColor: stage?.color ?? '#9aa0b4' }}
+                        style={{ backgroundColor: stage?.color ?? stageById.get(bucketOf(j) || '')?.color ?? '#9aa0b4' }}
                       >
                         {stages.map((s) => (
                           <option key={s.id} value={s.id} className="text-neutral-900 bg-white">
@@ -165,8 +343,8 @@ export default function JobsClient({
               })}
             </tbody>
           </table>
-        )}
-      </div>
+        </div>
+      )}
 
       {open && (
         <div className="fixed inset-0 z-50 flex justify-end" role="dialog">
