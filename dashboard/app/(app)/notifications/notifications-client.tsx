@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useOptimistic, useState, startTransition } from 'react';
 import { markRead, markAllRead, deleteNotification } from './actions';
 
 export type Notification = {
@@ -37,23 +36,38 @@ function timeAgo(iso: string) {
 }
 
 export default function NotificationsClient({ initial }: { initial: Notification[] }) {
-  const router = useRouter();
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
-  const unread = initial.filter((n) => !n.read_at).length;
-  const list = filter === 'unread' ? initial.filter((n) => !n.read_at) : initial;
+  const [items, dispatch] = useOptimistic(
+    initial,
+    (state: Notification[], action: { t: 'read' | 'readAll' | 'delete'; id?: string }) => {
+      const now = new Date().toISOString();
+      if (action.t === 'read') return state.map((n) => (n.id === action.id ? { ...n, read_at: n.read_at ?? now } : n));
+      if (action.t === 'readAll') return state.map((n) => ({ ...n, read_at: n.read_at ?? now }));
+      if (action.t === 'delete') return state.filter((n) => n.id !== action.id);
+      return state;
+    },
+  );
+  const unread = items.filter((n) => !n.read_at).length;
+  const list = filter === 'unread' ? items.filter((n) => !n.read_at) : items;
 
-  async function onRead(n: Notification) {
+  function onRead(n: Notification) {
     if (n.read_at) return;
-    await markRead(n.id);
-    router.refresh();
+    startTransition(async () => {
+      dispatch({ t: 'read', id: n.id });
+      await markRead(n.id);
+    });
   }
-  async function onReadAll() {
-    await markAllRead();
-    router.refresh();
+  function onReadAll() {
+    startTransition(async () => {
+      dispatch({ t: 'readAll' });
+      await markAllRead();
+    });
   }
-  async function onDelete(id: string) {
-    await deleteNotification(id);
-    router.refresh();
+  function onDelete(id: string) {
+    startTransition(async () => {
+      dispatch({ t: 'delete', id });
+      await deleteNotification(id);
+    });
   }
 
   return (
