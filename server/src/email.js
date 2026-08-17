@@ -1,10 +1,13 @@
-// Email notifications via SMTP (Gmail by default). In non-live mode (no
-// SMTP_USER / SMTP_PASS) it just logs — so the receptionist never crashes on a
-// missing key and you can see exactly what would have been sent.
+// Email notifications. Primary path is Resend (an HTTP email API over port 443)
+// because cloud hosts like Render routinely block/timeout outbound SMTP ports —
+// HTTP always works. SMTP (Gmail) is kept as a fallback. If neither is
+// configured it logs in mock mode so the receptionist never crashes.
 //
-// Gmail setup: turn on 2-Step Verification on the sending Google account, then
-// create an App Password (Google Account -> Security -> App passwords) and put
-// it in SMTP_PASS. SMTP_USER is the full Gmail address.
+// Resend setup: sign up at resend.com, create an API key -> RESEND_API_KEY.
+//   - To send to ANY address, verify your domain in Resend and set
+//     EMAIL_FROM=alerts@yourdomain.com.
+//   - Without a verified domain you can only send to your own Resend account
+//     email, using the default from address (onboarding@resend.dev).
 
 import nodemailer from 'nodemailer';
 import dns from 'node:dns';
@@ -12,38 +15,50 @@ import { config } from './config.js';
 
 const dnsp = dns.promises;
 
+const resendKey = process.env.RESEND_API_KEY || '';
+const EMAIL_FROM = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+
 const smtpUser = process.env.SMTP_USER || '';
 const smtpPass = process.env.SMTP_PASS || '';
-// Optional overrides for non-Gmail SMTP.
 const smtpHost = process.env.SMTP_HOST || '';
-const smtpPort = Number(process.env.SMTP_PORT) || 0;
-const HOST = smtpHost || 'smtp.gmail.com';
-const PORT = smtpPort || 587;
+const smtpPort = Number(process.env.SMTP_PORT) || 587;
+const SMTP_HOST = smtpHost || 'smtp.gmail.com';
 
-export const isEmailLive = Boolean(smtpUser && smtpPass);
+export const emailMode = resendKey ? 'resend' : smtpUser && smtpPass ? 'smtp' : 'mock';
+export const isEmailLive = emailMode !== 'mock';
 
+// ---- Resend: a single HTTPS POST, no ports to get blocked ----
+async function sendViaResend(to, subject, text, fromName) {
+  const from = `${fromName || 'Biggify'} via Biggify <${EMAIL_FROM}>`;
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from, to, subject, text }),
+    signal: AbortSignal.timeout(10000),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json?.message || json?.error?.message || `Resend HTTP ${res.status}`);
+  return json?.id || 'sent';
+}
+
+// ---- SMTP fallback (nodemailer, forced IPv4) ----
 const base = { connectionTimeout: 8000, greetingTimeout: 8000, socketTimeout: 10000 };
-
-// Render (and many container hosts) have NO outbound IPv6, yet Gmail's SMTP
-// resolves to an IPv6 address first (ENETUNREACH). Setting family:4 wasn't
-// enough, so we resolve the host to an IPv4 address ourselves and connect to
-// that IP directly — validating TLS against the real hostname via `servername`.
 let transporter = null;
 async function getTransporter() {
   if (transporter) return transporter;
-  let connectHost = HOST;
+  let connectHost = SMTP_HOST;
   try {
-    const [ipv4] = await dnsp.resolve4(HOST);
+    const [ipv4] = await dnsp.resolve4(SMTP_HOST);
     if (ipv4) connectHost = ipv4;
   } catch (e) {
     console.error('[email] resolve4 failed, using hostname:', e.message);
   }
   transporter = nodemailer.createTransport({
     host: connectHost,
-    port: PORT,
-    secure: PORT === 465, // 587 uses STARTTLS
+    port: smtpPort,
+    secure: smtpPort === 465,
     auth: { user: smtpUser, pass: smtpPass },
-    tls: { servername: HOST }, // cert is for the hostname, not the raw IP
+    tls: { servername: SMTP_HOST },
     ...base,
   });
   return transporter;
@@ -57,6 +72,10 @@ export async function sendEmail(to, subject, text, fromName = '') {
     return { ok: true, mocked: true };
   }
   try {
+    if (resendKey) {
+      const id = await sendViaResend(to, subject, text, fromName);
+      return { ok: true, id, via: 'resend' };
+    }
     const tx = await getTransporter();
     const info = await tx.sendMail({
       from: `"${fromName || config.business.name} via Biggify" <${smtpUser}>`,
@@ -64,7 +83,7 @@ export async function sendEmail(to, subject, text, fromName = '') {
       subject,
       text,
     });
-    return { ok: true, id: info.messageId };
+    return { ok: true, id: info.messageId, via: 'smtp' };
   } catch (err) {
     console.error('[email] send failed:', err.message);
     return { ok: false, error: err.message };

@@ -7,7 +7,7 @@ import { WebSocketServer } from 'ws';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import { config, isCalcomLive, isSmsLive } from './config.js';
-import { isEmailLive, sendEmail } from './email.js';
+import { isEmailLive, emailMode, sendEmail } from './email.js';
 import { WELCOME_GREETING, greetingFor } from './prompt.js';
 import { CallSession } from './claude.js';
 import { getAvailableSlots } from './calcom.js';
@@ -36,9 +36,9 @@ app.get('/', (_req, res) => {
   res.type('text').send(
     `Biggify AI receptionist is running.\n` +
     `DB: ${isSupabaseLive ? 'live (multi-tenant)' : 'MOCK (env single-business)'}\n` +
-    `Cal.com: ${isCalcomLive ? 'live' : 'MOCK'} | SMS: ${isSmsLive ? 'live' : 'MOCK'} | Email: ${isEmailLive ? 'live' : 'MOCK'}\n` +
+    `Cal.com: ${isCalcomLive ? 'live' : 'MOCK'} | SMS: ${isSmsLive ? 'live' : 'MOCK'} | Email: ${emailMode}\n` +
     `Alert email: ${config.business.ownerAlertEmail || '(not set)'}\n` +
-    `Dashboard: /dashboard`
+    `Diagnostics: /test-email  /test-cal`
   );
 });
 
@@ -48,12 +48,33 @@ app.get('/test-email', async (_req, res) => {
   if (!to) return res.type('text').send('OWNER_ALERT_EMAIL is not set. Add it in your env vars.');
   if (!isEmailLive) {
     return res.type('text').send(
-      'Email is in MOCK mode (not actually sending). Set SMTP_USER and SMTP_PASS ' +
-      '(Gmail app password) in your env vars, then redeploy.'
+      'Email is in MOCK mode (not sending). Recommended: set RESEND_API_KEY (from resend.com) ' +
+      'for reliable HTTP email. Then redeploy and try again.'
     );
   }
   const result = await sendEmail(to, 'Biggify test email', 'This is a test from your Biggify receptionist. If you got this, email alerts work.');
-  res.type('text').send(result.ok ? `Sent to ${to}. Check your inbox (and spam).` : `Failed: ${result.error}`);
+  res.type('text').send(
+    result.ok
+      ? `Sent to ${to} via ${result.via || 'email'}. Check your inbox (and spam).`
+      : `Failed (${emailMode}): ${result.error}`
+  );
+});
+
+// --- Cal.com diagnostic: visit /test-cal to check calendar booking is wired ---
+app.get('/test-cal', async (_req, res) => {
+  if (!isCalcomLive) {
+    return res.type('text').send(
+      'Cal.com is in MOCK mode (fake slots, no real bookings). Set CALCOM_API_KEY and ' +
+      'CALCOM_EVENT_TYPE_ID in your env vars, then redeploy.'
+    );
+  }
+  try {
+    const slots = await getAvailableSlots(3);
+    if (!slots.length) return res.type('text').send('Cal.com connected, but returned no open slots — check the event type availability.');
+    res.type('text').send('Cal.com is LIVE. Next open times:\n' + slots.map((s) => '- ' + s.humanTime).join('\n'));
+  } catch (e) {
+    res.type('text').send(`Cal.com error: ${e.message} — check CALCOM_API_KEY and CALCOM_EVENT_TYPE_ID.`);
+  }
 });
 
 // --- Twilio voice webhook: returns TwiML that connects the call to ConversationRelay ---
