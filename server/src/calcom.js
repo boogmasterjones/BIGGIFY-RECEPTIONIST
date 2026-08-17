@@ -25,19 +25,26 @@ function ordinal(n) {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
-// TTS-friendly, comma-free time phrase: "Monday August 18th at 9 AM".
-// Commas make the voice pause mid-phrase, so we avoid them entirely.
+// TTS-friendly, comma-free time phrase — says "today"/"tomorrow" when it applies,
+// else "Monday August 18th". Commas make the voice pause, so we avoid them.
 function humanizeSlot(iso) {
   const d = new Date(iso);
-  const weekday = d.toLocaleString('en-US', { weekday: 'long' });
-  const month = d.toLocaleString('en-US', { month: 'long' });
-  const day = ordinal(d.getDate());
+  const startOfDay = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const dayDiff = Math.round((startOfDay(d) - startOfDay(new Date())) / 86400000);
+  let dayLabel;
+  if (dayDiff === 0) dayLabel = 'today';
+  else if (dayDiff === 1) dayLabel = 'tomorrow';
+  else {
+    const weekday = d.toLocaleString('en-US', { weekday: 'long' });
+    const month = d.toLocaleString('en-US', { month: 'long' });
+    dayLabel = `${weekday} ${month} ${ordinal(d.getDate())}`;
+  }
   let h = d.getHours();
   const min = d.getMinutes();
   const ampm = h >= 12 ? 'PM' : 'AM';
   h = h % 12 || 12;
   const time = min === 0 ? `${h} ${ampm}` : `${h}:${String(min).padStart(2, '0')} ${ampm}`;
-  return `${weekday} ${month} ${day} at ${time}`;
+  return `${dayLabel} at ${time}`;
 }
 
 // Returns up to `count` upcoming slots as [{ startsAt, humanTime }].
@@ -59,13 +66,19 @@ export async function getAvailableSlots(count = 3, cal = null) {
     });
     if (!res.ok) throw new Error(`Cal.com slots ${res.status}`);
     const json = await res.json();
-    // v2 returns { data: { "YYYY-MM-DD": [{ start }] } }
+    // v2 returns { data: { "YYYY-MM-DD": [{ start }] } }. Take the EARLIEST slot
+    // from each day, in date order, so we offer the soonest time today + the
+    // soonest on the next open day (not two times on the same day).
     const buckets = json?.data || {};
-    const flat = [];
-    for (const day of Object.keys(buckets)) {
-      for (const s of buckets[day]) flat.push(s.start || s.time || s);
+    const picked = [];
+    for (const day of Object.keys(buckets).sort()) {
+      const daySlots = buckets[day];
+      if (!daySlots || !daySlots.length) continue;
+      const iso = daySlots[0].start || daySlots[0].time || daySlots[0];
+      picked.push(iso);
+      if (picked.length >= count) break;
     }
-    return flat.slice(0, count).map((iso) => ({ startsAt: iso, humanTime: humanizeSlot(iso) }));
+    return picked.map((iso) => ({ startsAt: iso, humanTime: humanizeSlot(iso) }));
   } catch (err) {
     console.error('[calcom] slots failed, using mock:', err.message);
     return mockSlots(count);
@@ -124,14 +137,20 @@ export async function createBooking({ startsAt, name, phone, service, cal = null
   }
 }
 
+// Fallback only (used if Cal.com is unreachable). Sane business-hour slots, one
+// per weekday, starting today if a slot is still in the future — never odd hours.
 function mockSlots(count) {
   const out = [];
-  const base = new Date();
-  base.setHours(9, 0, 0, 0);
-  for (let i = 1; out.length < count; i++) {
-    const d = new Date(base.getTime() + i * 24 * 60 * 60 * 1000);
-    const day = d.getDay();
-    if (day === 0 || day === 6) continue; // skip weekends
+  const soon = Date.now() + 30 * 60 * 1000;
+  for (let i = 0; out.length < count && i < 12; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    if (d.getDay() === 0 || d.getDay() === 6) continue; // weekends
+    d.setHours(9, 0, 0, 0);
+    if (d.getTime() < soon) {
+      d.setHours(14, 0, 0, 0); // 9am passed — try 2pm today
+      if (d.getTime() < soon) continue; // 2pm passed too — skip today
+    }
     out.push({ startsAt: d.toISOString(), humanTime: humanizeSlot(d.toISOString()) });
   }
   return out;
