@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { addInvoiceItem, deleteInvoiceItem, updateInvoice, deleteInvoice } from '../actions';
+import { burst } from '@/components/confetti';
 
 export type Item = { id: string; description: string | null; quantity: number; unit_price_cents: number; position: number };
 export type Invoice = {
@@ -45,6 +46,7 @@ export default function InvoiceDetail({
   const [desc, setDesc] = useState('');
   const [qty, setQty] = useState('1');
   const [price, setPrice] = useState('');
+  const [status, setStatusLocal] = useState(invoice.status); // optimistic
   const total = items.reduce((s, it) => s + it.quantity * it.unit_price_cents, 0);
 
   async function add() {
@@ -53,8 +55,15 @@ export default function InvoiceDetail({
     setDesc(''); setQty('1'); setPrice('');
     router.refresh();
   }
-  async function setStatus(status: string) {
-    await updateInvoice(invoice.id, { status });
+  async function setStatus(next: string, e?: React.MouseEvent) {
+    const wasPaid = status === 'paid';
+    setStatusLocal(next); // optimistic — the pill/flow update instantly
+    if (next === 'paid' && !wasPaid) {
+      const x = e ? e.clientX : window.innerWidth / 2;
+      const y = e ? e.clientY : window.innerHeight / 2;
+      burst(x, y);
+    }
+    await updateInvoice(invoice.id, { status: next });
     router.refresh();
   }
   async function setDue(due_at: string) {
@@ -67,7 +76,7 @@ export default function InvoiceDetail({
     router.push('/money');
   }
 
-  const st = STATUS[invoice.status] || STATUS.draft;
+  const st = STATUS[status] || STATUS.draft;
 
   return (
     <div>
@@ -91,9 +100,9 @@ export default function InvoiceDetail({
         {FLOW.map((s) => (
           <button
             key={s}
-            onClick={() => setStatus(s)}
-            className="px-3 py-1.5 rounded-full text-xs font-semibold border"
-            style={invoice.status === s
+            onClick={(e) => setStatus(s, e)}
+            className="px-3 py-1.5 rounded-full text-xs font-semibold border transition-transform active:scale-95"
+            style={status === s
               ? { backgroundColor: STATUS[s].color, color: 'white', borderColor: STATUS[s].color }
               : { background: 'white', color: '#6b7280', borderColor: '#ece3ca' }}
           >
