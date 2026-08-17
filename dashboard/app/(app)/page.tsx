@@ -83,12 +83,12 @@ export default async function Home() {
     if (r.stage_id) stageCounts.set(r.stage_id, (stageCounts.get(r.stage_id) || 0) + 1);
   }
 
-  const metrics: { label: string; value: string | number; show: boolean }[] = [
-    { label: 'Calls this week', value: callsWeek, show: !!f.receptionist },
-    { label: 'Booked this week', value: bookedWeek, show: !!f.receptionist },
-    { label: 'Owed to you', value: money(outstandingCents), show: !!f.invoicing && outstandingCents > 0 },
-    { label: 'Upcoming', value: upcoming, show: !!f.appointments || !!f.calendar },
-    { label: 'Active jobs', value: jobsTotal, show: !!f.jobs },
+  const metrics: { label: string; value: string | number; show: boolean; href?: string }[] = [
+    { label: 'Calls this week', value: callsWeek, show: !!f.receptionist, href: '/notifications' },
+    { label: 'Booked this week', value: bookedWeek, show: !!f.receptionist, href: '/appointments' },
+    { label: 'Owed to you', value: money(outstandingCents), show: !!f.invoicing && outstandingCents > 0, href: '/money' },
+    { label: 'Upcoming', value: upcoming, show: !!f.appointments || !!f.calendar, href: '/appointments' },
+    { label: 'Active jobs', value: jobsTotal, show: !!f.jobs, href: '/jobs' },
   ].filter((m) => m.show);
 
   const card = 'rounded-2xl bg-white border border-[#ece3ca]';
@@ -101,12 +101,21 @@ export default async function Home() {
       {/* Metrics */}
       {metrics.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-3">
-          {metrics.map((m) => (
-            <div key={m.label} className={`${card} p-5`}>
-              <div className="text-3xl font-extrabold text-[#CF0000] tabular-nums">{m.value}</div>
-              <div className="text-sm text-neutral-500 mt-1">{m.label}</div>
-            </div>
-          ))}
+          {metrics.map((m) => {
+            const body = (
+              <>
+                <div className="text-3xl font-extrabold text-[#CF0000] tabular-nums">{m.value}</div>
+                <div className="text-sm text-neutral-500 mt-1">{m.label}</div>
+              </>
+            );
+            return m.href ? (
+              <Link key={m.label} href={m.href} className={`${card} p-5 block transition hover:border-[#CF0000]/50 hover:shadow-sm`}>
+                {body}
+              </Link>
+            ) : (
+              <div key={m.label} className={`${card} p-5`}>{body}</div>
+            );
+          })}
         </div>
       )}
       {f.receptionist && callsWeek > 0 && (
