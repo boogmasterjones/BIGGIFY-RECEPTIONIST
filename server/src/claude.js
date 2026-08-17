@@ -1,9 +1,10 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { config } from './config.js';
-import { systemPrompt } from './prompt.js';
+import { systemPrompt, greetingFor } from './prompt.js';
 import { getAvailableSlots, createBooking } from './calcom.js';
 import { updateLead, getLead } from './store.js';
 import { alertOwner } from './twilioSms.js';
+import { upsertContactByPhone, createAppointment as sbCreateAppointment, createJob as sbCreateJob, updateCall, updateAppointment as sbUpdateAppointment } from './supabase.js';
 
 const client = new Anthropic({ apiKey: config.anthropicApiKey });
 
@@ -84,9 +85,12 @@ const tools = [
 ];
 
 // Runs one tool and returns the string result to feed back to Claude.
-async function runTool(name, input, leadId) {
+// `business` is the tenant config resolved for this call (its Cal.com creds,
+// owner email, Supabase id, etc.).
+async function runTool(name, input, leadId, business) {
+  const biz = business || {};
   if (name === 'check_availability') {
-    const slots = await getAvailableSlots(3);
+    const slots = await getAvailableSlots(3, biz.cal);
     updateLead(leadId, { availabilityCache: slots });
     return JSON.stringify({
       slots: slots.map((s) => ({ starts_at: s.startsAt, when: s.humanTime })),
@@ -102,7 +106,7 @@ async function runTool(name, input, leadId) {
       return JSON.stringify({
         booked: false,
         callback: true,
-        message: 'Callback request recorded. Now ask for their name, the job, and their area.',
+        message: 'Callback request recorded. Now ask for their name and what they need.',
       });
     }
 
@@ -111,17 +115,28 @@ async function runTool(name, input, leadId) {
       name: input.name || lead?.name || 'Caller',
       phone: lead?.phone,
       service: lead?.service,
+      cal: biz.cal,
+      ownerEmail: biz.ownerAlertEmail,
+      timeZone: biz.timezone,
     });
     updateLead(leadId, {
       status: result.ok ? 'booked' : 'booking_failed',
       appointment: { startsAt: input.starts_at, humanTime: result.humanTime, calBookingId: result.calBookingId },
     });
+    // Persist the appointment to Supabase (best-effort, no-ops without a business id).
+    const apptId = await sbCreateAppointment({
+      businessId: biz.id,
+      contactId: lead?.dbContactId,
+      startsAt: input.starts_at,
+      notes: `Booked by AI receptionist. Cal.com: ${result.calBookingId || 'n/a'}`,
+    });
+    if (apptId) updateLead(leadId, { dbApptId: apptId });
     return JSON.stringify({
       booked: result.ok,
       when: result.humanTime,
       message: result.ok
-        ? 'Callback scheduled. Now ask for all three in one message: their name, the kind of work, and their area. Follow up only for anything they leave out.'
-        : 'Booking hiccup — tell the caller the team will confirm the time shortly, then ask for their name, job, and area.',
+        ? 'Callback scheduled. Now ask for both in one message: their name and what kind of work they need. Follow up only for anything they leave out.'
+        : 'Booking hiccup — tell the caller the team will confirm the time shortly, then ask for their name and what they need.',
     });
   }
 
@@ -130,14 +145,23 @@ async function runTool(name, input, leadId) {
     const updated = updateLead(leadId, {
       name: input.name || current?.name || null,
       service: input.work_type || current?.service || null,
-      survey: {
-        issue: input.work_type || null,
-        completedAt: new Date().toISOString(),
-      },
+      survey: { issue: input.work_type || null, completedAt: new Date().toISOString() },
       status: current?.status === 'callback_requested' ? 'callback_requested' : 'qualified',
     });
     // Fire-and-forget: never block the live call on an email/SMS send.
-    alertOwner(updated).catch((e) => console.error('[alert] record_details:', e.message));
+    alertOwner(updated, business).catch((e) => console.error('[alert] record_details:', e.message));
+    // Persist to Supabase (best-effort).
+    if (biz.id) {
+      (async () => {
+        const contactId = await upsertContactByPhone({ businessId: biz.id, phone: current?.phone, name: updated.name });
+        if (contactId) updateLead(leadId, { dbContactId: contactId });
+        const jobId = await sbCreateJob({ businessId: biz.id, contactId, service: updated.service });
+        if (jobId) updateLead(leadId, { dbJobId: jobId });
+        const lead = getLead(leadId);
+        if (lead?.dbApptId && jobId) sbUpdateAppointment(lead.dbApptId, { job_id: jobId });
+        if (lead?.dbCallId) updateCall(lead.dbCallId, { contact_id: contactId, job_id: jobId, outcome: 'booked' });
+      })().catch((e) => console.error('[supabase] record_details:', e.message));
+    }
     return JSON.stringify({ recorded: true });
   }
 
@@ -150,7 +174,14 @@ async function runTool(name, input, leadId) {
       survey: { notes: input.message || null, completedAt: new Date().toISOString() },
     });
     // Fire-and-forget: never block the live call on an email/SMS send.
-    alertOwner(updated).catch((e) => console.error('[alert] take_message:', e.message));
+    alertOwner(updated, business).catch((e) => console.error('[alert] take_message:', e.message));
+    if (biz.id) {
+      (async () => {
+        const contactId = await upsertContactByPhone({ businessId: biz.id, phone: current?.phone, name: updated.name });
+        const lead = getLead(leadId);
+        if (lead?.dbCallId) updateCall(lead.dbCallId, { contact_id: contactId, outcome: 'message' });
+      })().catch((e) => console.error('[supabase] take_message:', e.message));
+    }
     return JSON.stringify({
       recorded: true,
       message: 'Message saved and sent to the team. Confirm to the caller that someone will get it, then wrap up.',
@@ -159,6 +190,9 @@ async function runTool(name, input, leadId) {
 
   if (name === 'cancel_appointment') {
     updateLead(leadId, { status: 'canceled', cancelReason: input.reason || 'out of scope' });
+    const lead = getLead(leadId);
+    if (lead?.dbApptId) sbUpdateAppointment(lead.dbApptId, { status: 'canceled' });
+    if (lead?.dbCallId) updateCall(lead.dbCallId, { outcome: 'canceled' });
     return JSON.stringify({ canceled: true, message: 'Appointment canceled. Let the caller know politely.' });
   }
 
@@ -167,7 +201,9 @@ async function runTool(name, input, leadId) {
 
 // Holds the conversation for a single phone call.
 export class CallSession {
-  constructor(leadId, slots = null) {
+  constructor(business, leadId, slots = null) {
+    this.business = business || {};
+    this.greeting = greetingFor(this.business);
     this.leadId = leadId;
     this.slots = slots; // pre-fetched availability, injected into the prompt
     this.messages = [];
@@ -217,7 +253,7 @@ export class CallSession {
           max_tokens: 512,
           // Cache the (static) system prompt so time-to-first-token drops on every
           // follow-up turn in the call — and on later calls within the cache window.
-          system: [{ type: 'text', text: systemPrompt(this.slots), cache_control: { type: 'ephemeral' } }],
+          system: [{ type: 'text', text: systemPrompt(this.business, this.slots, this.greeting), cache_control: { type: 'ephemeral' } }],
           thinking: { type: 'disabled' }, // no thinking = much faster for voice
           tools,
           messages: this.messages,
@@ -240,7 +276,7 @@ export class CallSession {
         const toolResults = [];
         for (const block of res.content) {
           if (block.type === 'tool_use') {
-            const out = await runTool(block.name, block.input || {}, this.leadId);
+            const out = await runTool(block.name, block.input || {}, this.leadId, this.business);
             toolResults.push({ type: 'tool_result', tool_use_id: block.id, content: out });
           }
         }

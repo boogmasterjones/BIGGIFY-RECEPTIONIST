@@ -42,8 +42,12 @@ export async function sendSurvey(lead) {
 }
 
 // Alerts the business owner that a new lead came in — by email (primary) and,
-// if an owner phone is set, by SMS too. Best-effort: never throws.
-export async function alertOwner(lead) {
+// if an owner phone is set, by SMS too. `business` carries the recipient info;
+// falls back to env config for the single-business setup. Best-effort.
+export async function alertOwner(lead, business = null) {
+  const ownerEmail = business?.ownerAlertEmail ?? config.business.ownerAlertEmail;
+  const ownerPhone = business?.ownerAlertPhone ?? config.business.ownerAlertPhone;
+  const bizName = business?.name || config.business.name;
   const survey = lead.survey || {};
   const isMessage = lead.status === 'message' || Boolean(lead.message);
 
@@ -66,7 +70,6 @@ export async function alertOwner(lead) {
       `Name:     ${lead.name || 'Caller'}`,
       `Phone:    ${lead.phone || 'n/a'}`,
       `Work:     ${lead.service || survey.issue || 'n/a'}`,
-      `Area:     ${survey.address || 'n/a'}`,
       lead.appointment ? `Callback: ${lead.appointment.humanTime}` : `Callback: (not scheduled — callback requested)`,
       survey.notes ? `Notes:    ${survey.notes}` : '',
     ].filter(Boolean);
@@ -75,11 +78,11 @@ export async function alertOwner(lead) {
   const body = lines.join('\n');
 
   const results = {};
-  if (config.business.ownerAlertEmail) {
-    results.email = await sendEmail(config.business.ownerAlertEmail, subject, body);
+  if (ownerEmail) {
+    results.email = await sendEmail(ownerEmail, subject, body, bizName);
   }
-  if (config.business.ownerAlertPhone) {
-    results.sms = await sendSms(config.business.ownerAlertPhone, body);
+  if (ownerPhone) {
+    results.sms = await sendSms(ownerPhone, body);
   }
   if (!results.email && !results.sms) return { ok: false, reason: 'no owner email or phone set' };
   return { ok: true, ...results };

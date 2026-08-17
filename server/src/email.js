@@ -50,7 +50,7 @@ async function getTransporter() {
 }
 
 // Sends a plain-text email. Returns { ok, ... }. Never throws.
-export async function sendEmail(to, subject, text) {
+export async function sendEmail(to, subject, text, fromName = '') {
   if (!to) return { ok: false, reason: 'no recipient' };
   if (!isEmailLive) {
     console.log(`[email:mock] -> ${to} | ${subject}\n${text}\n`);
@@ -59,7 +59,7 @@ export async function sendEmail(to, subject, text) {
   try {
     const tx = await getTransporter();
     const info = await tx.sendMail({
-      from: `"${config.business.name} via Biggify" <${smtpUser}>`,
+      from: `"${fromName || config.business.name} via Biggify" <${smtpUser}>`,
       to,
       subject,
       text,

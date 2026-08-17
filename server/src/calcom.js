@@ -5,9 +5,19 @@
 // the v2 API; if your Cal.com account returns a different shape, adjust the two
 // fetch() blocks — the mock path already gives you a working demo in the meantime.
 
-import { config, isCalcomLive } from './config.js';
+import { config } from './config.js';
 
 const CAL_BASE = 'https://api.cal.com/v2';
+
+// Per-business Cal.com creds: { apiKey, eventTypeId }. Falls back to env config
+// for the single-business setup.
+function calCreds(cal) {
+  return cal && (cal.apiKey || cal.eventTypeId) ? cal : { apiKey: config.calcom.apiKey, eventTypeId: config.calcom.eventTypeId };
+}
+function calLive(cal) {
+  const c = calCreds(cal);
+  return Boolean(c.apiKey && c.eventTypeId);
+}
 
 function ordinal(n) {
   const s = ['th', 'st', 'nd', 'rd'];
@@ -31,18 +41,19 @@ function humanizeSlot(iso) {
 }
 
 // Returns up to `count` upcoming slots as [{ startsAt, humanTime }].
-export async function getAvailableSlots(count = 3) {
-  if (!isCalcomLive) return mockSlots(count);
+export async function getAvailableSlots(count = 3, cal = null) {
+  const creds = calCreds(cal);
+  if (!calLive(cal)) return mockSlots(count);
 
   const start = new Date();
   const end = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  const url = `${CAL_BASE}/slots?eventTypeId=${encodeURIComponent(config.calcom.eventTypeId)}` +
+  const url = `${CAL_BASE}/slots?eventTypeId=${encodeURIComponent(creds.eventTypeId)}` +
     `&startTime=${start.toISOString()}&endTime=${end.toISOString()}`;
 
   try {
     const res = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${config.calcom.apiKey}`,
+        Authorization: `Bearer ${creds.apiKey}`,
         'cal-api-version': '2024-09-04',
       },
     });
@@ -69,20 +80,21 @@ function attendeeEmail(phone) {
 }
 
 // Books a slot. Returns { ok, calBookingId, humanTime }.
-export async function createBooking({ startsAt, name, phone, service }) {
-  if (!isCalcomLive) {
+export async function createBooking({ startsAt, name, phone, service, cal = null, ownerEmail = '', timeZone = 'America/New_York' }) {
+  const creds = calCreds(cal);
+  if (!calLive(cal)) {
     return { ok: true, calBookingId: `mock-${Date.now()}`, humanTime: humanizeSlot(startsAt) };
   }
   try {
     const res = await fetch(`${CAL_BASE}/bookings`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${config.calcom.apiKey}`,
+        Authorization: `Bearer ${creds.apiKey}`,
         'cal-api-version': '2024-08-13',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        eventTypeId: Number(config.calcom.eventTypeId),
+        eventTypeId: Number(creds.eventTypeId),
         start: startsAt,
         attendee: {
           name: name || 'Caller',
@@ -91,11 +103,11 @@ export async function createBooking({ startsAt, name, phone, service }) {
           // bounces — harmless). The real notification goes to the owner below.
           email: attendeeEmail(phone),
           phoneNumber: phone || undefined,
-          timeZone: 'America/New_York',
+          timeZone,
         },
         // Put the business owner on every booking as a guest so they get the
         // calendar invite + email notification for each meeting.
-        guests: config.business.ownerAlertEmail ? [config.business.ownerAlertEmail] : undefined,
+        guests: ownerEmail ? [ownerEmail] : undefined,
         metadata: { service: service || '', phone: phone || '', source: 'Biggify AI receptionist' },
       }),
     });

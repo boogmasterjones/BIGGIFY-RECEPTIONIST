@@ -8,12 +8,23 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import { config, isCalcomLive, isSmsLive } from './config.js';
 import { isEmailLive, sendEmail } from './email.js';
-import { WELCOME_GREETING } from './prompt.js';
+import { WELCOME_GREETING, greetingFor } from './prompt.js';
 import { CallSession } from './claude.js';
 import { getAvailableSlots } from './calcom.js';
 import { createLead, updateLead, getLead, allLeads } from './store.js';
 import { alertOwner } from './twilioSms.js';
 import { surveyPage, thankYouPage, dashboardPage, testChatPage } from './pages.js';
+import { isSupabaseLive, lookupBusinessByNumber, envBusiness, logCall, upsertContactByPhone, updateCall } from './supabase.js';
+
+// Resolve which business a call is for by the dialed number, falling back to
+// the single-business env config.
+async function resolveBusiness(toNumber) {
+  if (isSupabaseLive) {
+    const biz = await lookupBusinessByNumber(toNumber);
+    if (biz) return biz;
+  }
+  return envBusiness();
+}
 
 const app = express();
 app.use(express.urlencoded({ extended: false }));
@@ -24,6 +35,7 @@ app.use(express.static(path.join(__dirname, '..', 'public'))); // serves /logo.p
 app.get('/', (_req, res) => {
   res.type('text').send(
     `Biggify AI receptionist is running.\n` +
+    `DB: ${isSupabaseLive ? 'live (multi-tenant)' : 'MOCK (env single-business)'}\n` +
     `Cal.com: ${isCalcomLive ? 'live' : 'MOCK'} | SMS: ${isSmsLive ? 'live' : 'MOCK'} | Email: ${isEmailLive ? 'live' : 'MOCK'}\n` +
     `Alert email: ${config.business.ownerAlertEmail || '(not set)'}\n` +
     `Dashboard: /dashboard`
@@ -45,15 +57,20 @@ app.get('/test-email', async (_req, res) => {
 });
 
 // --- Twilio voice webhook: returns TwiML that connects the call to ConversationRelay ---
-app.post('/incoming-call', (req, res) => {
+app.post('/incoming-call', async (req, res) => {
+  // Twilio posts the dialed number as "To" — use it to pick the business so the
+  // greeting/voice match the tenant this number belongs to.
+  const business = await resolveBusiness(req.body.To);
   const wsUrl = (config.publicUrl.replace(/^http/, 'ws') || 'ws://localhost:' + config.port) + '/ws';
-  const greeting = escapeXml(WELCOME_GREETING);
-  const ttsAttr = config.ttsProvider ? ` ttsProvider="${escapeXml(config.ttsProvider)}"` : '';
+  const greeting = escapeXml(greetingFor(business));
+  const voice = business.voice || config.voice;
+  const provider = business.ttsProvider || config.ttsProvider;
+  const ttsAttr = provider ? ` ttsProvider="${escapeXml(provider)}"` : '';
   const twiml =
     `<?xml version="1.0" encoding="UTF-8"?>` +
     `<Response>` +
     `<Connect>` +
-    `<ConversationRelay url="${wsUrl}" welcomeGreeting="${greeting}" voice="${escapeXml(config.voice)}"${ttsAttr} interruptible="true" />` +
+    `<ConversationRelay url="${wsUrl}" welcomeGreeting="${greeting}" voice="${escapeXml(voice)}"${ttsAttr} interruptible="true" />` +
     `</Connect>` +
     `</Response>`;
   res.type('text/xml').send(twiml);
@@ -90,7 +107,7 @@ app.post('/api/chat', async (req, res) => {
   let session = chatSessions.get(id);
   if (!session) {
     const lead = createLead({ callSid: id, from: '+15555550123', to: config.twilio.phoneNumber || 'test-line' });
-    session = new CallSession(lead.id);
+    session = new CallSession(envBusiness(), lead.id);
     chatSessions.set(id, session);
   }
   try {
@@ -156,12 +173,20 @@ wss.on('connection', (ws) => {
 
     if (msg.type === 'setup') {
       const lead = createLead({ callSid: msg.callSid, from: msg.from, to: msg.to });
-      // Pre-fetch availability now so the AI can offer times on its first reply
-      // without a Cal.com + extra model round-trip mid-call.
+      // Which tenant is this call for? (by the dialed number)
+      const business = await resolveBusiness(msg.to);
+      // Log the call + upsert the caller as a contact in Supabase (best-effort).
+      const [dbCallId, dbContactId] = await Promise.all([
+        logCall({ businessId: business.id, callSid: msg.callSid, from: msg.from, to: msg.to }),
+        upsertContactByPhone({ businessId: business.id, phone: msg.from }),
+      ]);
+      updateLead(lead.id, { businessId: business.id, dbCallId, dbContactId });
+      // Pre-fetch this business's availability so the AI can offer times on its
+      // first reply without a Cal.com + extra model round-trip mid-call.
       let slots = null;
-      try { slots = await getAvailableSlots(2); } catch (e) { console.error('[call] slot prefetch:', e.message); }
-      session = new CallSession(lead.id, slots);
-      console.log(`[call] setup ${msg.callSid} from ${msg.from} -> lead ${lead.id}`);
+      try { slots = await getAvailableSlots(2, business.cal); } catch (e) { console.error('[call] slot prefetch:', e.message); }
+      session = new CallSession(business, lead.id, slots);
+      console.log(`[call] setup ${msg.callSid} to ${msg.to} -> ${business.name} (lead ${lead.id})`);
       return;
     }
 
@@ -184,7 +209,13 @@ wss.on('connection', (ws) => {
     }
   });
 
-  ws.on('close', () => { cancelInflight(); console.log('[call] connection closed'); });
+  ws.on('close', () => {
+    cancelInflight();
+    // Stamp the call as ended in Supabase (best-effort).
+    const lead = session ? getLead(session.leadId) : null;
+    if (lead?.dbCallId) updateCall(lead.dbCallId, { ended_at: new Date().toISOString(), outcome: lead.status });
+    console.log('[call] connection closed');
+  });
 });
 
 function escapeXml(s = '') {
@@ -193,6 +224,6 @@ function escapeXml(s = '') {
 
 server.listen(config.port, () => {
   console.log(`Biggify receptionist listening on :${config.port}`);
-  console.log(`  Cal.com: ${isCalcomLive ? 'LIVE' : 'mock'} | SMS: ${isSmsLive ? 'LIVE' : 'mock'} | Email: ${isEmailLive ? 'LIVE' : 'mock'}`);
+  console.log(`  DB: ${isSupabaseLive ? 'LIVE (multi-tenant)' : 'mock (env)'} | Cal.com: ${isCalcomLive ? 'LIVE' : 'mock'} | SMS: ${isSmsLive ? 'LIVE' : 'mock'} | Email: ${isEmailLive ? 'LIVE' : 'mock'}`);
   if (!config.publicUrl) console.log('  ⚠ PUBLIC_URL not set — set it to your ngrok/deploy URL for Twilio + survey links.');
 });
