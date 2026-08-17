@@ -84,6 +84,7 @@ export default function Shell({
     { href: '/contacts', label: 'Contacts', icon: '👥', show: !!f.contacts },
     { href: '/jobs', label: 'Jobs', icon: '🧰', show: !!f.jobs },
     { href: '/appointments', label: 'Appointments', icon: '📅', show: !!f.appointments || !!f.calendar },
+    { href: '/calls', label: 'Calls', icon: '📞', show: !!f.receptionist },
     { href: '/notifications', label: 'Notifications', icon: '🔔', show: !!f.notifications, badge: unread },
     { href: '/money', label: 'Money', icon: '💳', show: !!f.invoicing },
     { href: '/statistics', label: 'Statistics', icon: '📊', show: !!f.statistics },

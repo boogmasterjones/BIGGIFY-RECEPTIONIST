@@ -100,7 +100,7 @@ export default async function Home() {
   }
 
   const metrics: { label: string; value: number; prefix?: string; show: boolean; href?: string }[] = [
-    { label: 'Calls this week', value: callsWeek, show: !!f.receptionist, href: '/notifications' },
+    { label: 'Calls this week', value: callsWeek, show: !!f.receptionist, href: '/calls' },
     { label: 'Booked this week', value: bookedWeek, show: !!f.receptionist, href: '/appointments' },
     { label: 'Owed to you', value: Math.round(outstandingCents / 100), prefix: '$', show: !!f.invoicing && outstandingCents > 0, href: '/money' },
     { label: 'Upcoming', value: upcoming, show: !!f.appointments || !!f.calendar, href: '/appointments' },
