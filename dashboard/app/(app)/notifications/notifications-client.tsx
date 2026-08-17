@@ -20,6 +20,7 @@ const TYPE_ICON: Record<string, string> = {
   appointment_booked: '📅',
   callback_requested: '↩️',
   job_updated: '🧰',
+  invoice_drafted: '🧾',
   default: '🔔',
 };
 

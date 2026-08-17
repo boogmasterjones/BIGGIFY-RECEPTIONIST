@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@/lib/supabase/server';
+import { runStageAutomations, runTaskAutomations } from '@/lib/automation';
 
 export type Result<T = unknown> = { ok: boolean; error?: string; data?: T };
 
@@ -44,6 +45,7 @@ export async function updateJobMeta(
   if (patch.description !== undefined) clean.description = patch.description.trim() || null;
   const { error } = await supabase.from('jobs').update(clean).eq('id', jobId);
   if (error) return { ok: false, error: error.message };
+  if (patch.stage_id) await runStageAutomations(jobId, patch.stage_id);
   touch(jobId);
   return { ok: true };
 }
@@ -72,6 +74,7 @@ export async function toggleTask(id: string, jobId: string, done: boolean): Prom
   const supabase = await createClient();
   const { error } = await supabase.from('job_tasks').update({ done }).eq('id', id);
   if (error) return { ok: false, error: error.message };
+  if (done) await runTaskAutomations(jobId); // all tasks done → auto-advance
   touch(jobId);
   return { ok: true };
 }

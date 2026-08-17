@@ -37,6 +37,8 @@ const NOTE_ICON: Record<string, string> = {
   new_message: '✉️',
   appointment_booked: '📅',
   callback_requested: '↩️',
+  job_updated: '🧰',
+  invoice_drafted: '🧾',
   default: '🔔',
 };
 

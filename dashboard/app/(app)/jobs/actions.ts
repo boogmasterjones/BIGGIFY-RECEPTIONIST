@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { runStageAutomations } from '@/lib/automation';
 
 export type JobInput = {
   title?: string;
@@ -48,6 +49,7 @@ export async function setJobStage(id: string, stageId: string): Promise<Result> 
   const supabase = await createClient();
   const { error } = await supabase.from('jobs').update({ stage_id: stageId }).eq('id', id);
   if (error) return { ok: false, error: error.message };
+  await runStageAutomations(id, stageId);
   revalidatePath('/jobs');
   return { ok: true };
 }
