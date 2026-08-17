@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import CallCard, { type CallLite } from '@/components/call-card';
 import {
   updateJobMeta,
   addTask,
@@ -130,6 +131,7 @@ export default function JobDetail({
   messages,
   expensesTotal,
   invoices,
+  calls,
   canInvoice,
 }: {
   businessId: string;
@@ -142,6 +144,7 @@ export default function JobDetail({
   messages: Message[];
   expensesTotal: number;
   invoices: JobInvoice[];
+  calls: CallLite[];
   canInvoice: boolean;
 }) {
   const router = useRouter();
@@ -675,6 +678,21 @@ export default function JobDetail({
           </p>
         )}
       </div>
+
+      {/* Calls — the receptionist calls that belong to this job */}
+      {calls.length > 0 && (
+        <div className="rounded-2xl bg-white border border-[#ece3ca] p-5 mt-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="font-bold">Calls</div>
+            <span className="text-xs text-neutral-400">The call{calls.length === 1 ? '' : 's'} that created this job</span>
+          </div>
+          <div className="space-y-2">
+            {calls.map((c, i) => (
+              <CallCard key={c.id} call={c} defaultOpen={i === 0} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Conversation */}
       <div className="rounded-2xl bg-white border border-[#ece3ca] p-5 mt-6">

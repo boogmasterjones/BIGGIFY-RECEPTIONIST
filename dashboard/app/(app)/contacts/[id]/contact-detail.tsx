@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import CallCard from '@/components/call-card';
 
 export type Contact = {
   id: string;
@@ -15,7 +16,14 @@ export type Contact = {
 };
 export type JobRow = { id: string; title: string | null; service: string | null; created_at: string; stage: { name: string | null; color: string | null } | null };
 export type ApptRow = { id: string; starts_at: string; status: string };
-export type CallRow = { id: string; started_at: string | null; outcome: string | null };
+export type CallRow = {
+  id: string;
+  from_number: string | null;
+  started_at: string | null;
+  ended_at: string | null;
+  outcome: string | null;
+  transcript: { role: string; text: string }[] | null;
+};
 export type InvoiceRow = { id: string; number: string | null; status: string; items: { quantity: number; unit_price_cents: number }[] };
 
 function money(cents: number) {
@@ -128,6 +136,23 @@ export default function ContactDetail({
             )}
           </div>
 
+          {/* Calls — expand any one to read the full transcript */}
+          <div className={`${card} p-5`}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-bold">Calls</div>
+              {calls.length > 0 && <span className="text-xs text-neutral-400">{calls.length} on record</span>}
+            </div>
+            {calls.length ? (
+              <div className="space-y-2">
+                {calls.map((c, i) => (
+                  <CallCard key={c.id} call={c} defaultOpen={i === 0} />
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-neutral-400">No calls logged.</p>
+            )}
+          </div>
+
           {contact.notes && (
             <div className={`${card} p-5`}>
               <div className="font-bold mb-2">Notes</div>
@@ -154,21 +179,6 @@ export default function ContactDetail({
             )}
           </div>
 
-          <div className={`${card} p-5`}>
-            <div className="font-bold mb-3">Calls</div>
-            {calls.length ? (
-              <ul className="space-y-2.5">
-                {calls.map((c) => (
-                  <li key={c.id} className="text-sm flex items-center justify-between">
-                    <span>{date(c.started_at)}</span>
-                    <span className="text-xs text-neutral-400 capitalize">{c.outcome || 'call'}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-neutral-400">No calls logged.</p>
-            )}
-          </div>
         </div>
       </div>
     </div>

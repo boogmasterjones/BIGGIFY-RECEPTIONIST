@@ -22,16 +22,23 @@ The live server is in `DB: MOCK` mode, so nothing the receptionist does is writt
   ```
 
 ## Preview call transcripts (optional)
-The new **Calls** page shows a full transcript of every receptionist call. Real
-calls populate it automatically once the server is DB-live (the Render step above).
-To see the transcript view *right now* with a sample, paste this in the Supabase SQL
-editor — then open **Calls** in the dashboard. Delete it after with
+The new **Calls** page shows a full transcript of every receptionist call, and each
+call's transcript also appears inline on its **contact** and **job** pages. Real calls
+populate all of this automatically once the server is DB-live (the Render step above).
+
+To see it *right now*, paste this in the Supabase SQL editor — it links a sample call
+to Matthew + his job, so it lights up on **Calls**, **Matthew's contact page**, and
+**his job page** at once. Delete it after with
 `delete from calls where from_number = '+19415551234';`
 
 ```sql
-insert into calls (business_id, from_number, to_number, outcome, started_at, ended_at, transcript)
-values (
-  (select id from businesses where name = 'Bob''s HVAC'),
+insert into calls (business_id, contact_id, job_id, from_number, to_number, outcome, started_at, ended_at, transcript)
+select
+  b.id,
+  (select id from contacts where business_id = b.id and name = 'Matthew' limit 1),
+  (select j.id from jobs j
+     join contacts c on c.id = j.contact_id
+    where j.business_id = b.id and c.name = 'Matthew' limit 1),
   '+19415551234', '+19417594411', 'booked',
   now() - interval '22 minutes', now() - interval '19 minutes',
   '[
@@ -45,7 +52,8 @@ values (
     {"role":"caller","text":"Nope, that''s everything, thanks!"},
     {"role":"assistant","text":"Have a great day!"}
   ]'::jsonb
-);
+from businesses b
+where b.name = 'Bob''s HVAC';
 ```
 
 ## Turn on the Money lens

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getUserAndBusiness } from '@/lib/data';
+import { TranscriptThread } from '@/components/call-card';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -88,29 +89,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             No transcript was captured for this call.
           </div>
         ) : (
-          <div className="space-y-4">
-            {turns.map((t, i) => {
-              const isCaller = t.role === 'caller';
-              return (
-                <div key={i} className={`flex ${isCaller ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[78%] ${isCaller ? 'items-end' : 'items-start'} flex flex-col`}>
-                    <div className={`text-[11px] font-bold uppercase tracking-wide mb-1 ${isCaller ? 'text-neutral-400 text-right' : 'text-[#CF0000]'}`}>
-                      {isCaller ? 'Caller' : 'Receptionist'}
-                    </div>
-                    <div
-                      className={`px-4 py-2.5 text-[15px] leading-relaxed rounded-2xl ${
-                        isCaller
-                          ? 'bg-[#F1F0EC] text-neutral-800 rounded-br-md'
-                          : 'bg-[#CF0000] text-white rounded-bl-md'
-                      }`}
-                    >
-                      {t.text}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <TranscriptThread turns={turns} size="lg" />
         )}
       </div>
     </div>
