@@ -1,0 +1,576 @@
+<title>Biggify Command Center</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  /* ---- Brand tokens: Biggify cream world, committed single-theme + self-painted ---- */
+  :root{
+    --cream:#FFF6E1;
+    --cream-2:#FCEFCF;
+    --card:#FFFFFF;
+    --border:#ECE3CA;
+    --border-2:#F2E9D3;
+    --red:#CF0000;
+    --red-press:#A60000;
+    --red-tint:#FDECEC;
+    --ink:#1A1712;
+    --ink-2:#57503F;
+    --muted:#8A8172;      /* warm grey, hue-biased toward the cream */
+    --green:#1E9E6A;
+    --green-tint:#E7F6EF;
+    --gold:#E0A32B;
+    --shadow:0 1px 2px rgba(60,40,0,.04), 0 8px 24px rgba(60,40,0,.05);
+    --shadow-lift:0 2px 6px rgba(60,40,0,.06), 0 18px 42px rgba(120,60,0,.10);
+    --r:18px;
+    --fast:140ms cubic-bezier(.2,0,0,1);
+    --spring:520ms cubic-bezier(.16,1,.3,1);
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,ui-sans-serif,system-ui,"Helvetica Neue",Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:var(--font);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.45;
+    min-height:100vh;
+  }
+  .tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+  .label{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---- top page-load sweep (a classic "feels fast" signal) ---- */
+  #sweep{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--red),#ff5a5a);z-index:90;box-shadow:0 0 10px rgba(207,0,0,.5);opacity:0}
+
+  /* ---- shell ---- */
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px 80px}
+  header.bar{
+    position:sticky;top:0;z-index:40;
+    background:rgba(255,246,225,.82);
+    backdrop-filter:saturate(1.2) blur(10px);
+    -webkit-backdrop-filter:saturate(1.2) blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .bar-in{max-width:1120px;margin:0 auto;padding:13px 22px;display:flex;align-items:center;gap:16px}
+  .biz h1{font-size:18px;font-weight:800;letter-spacing:-.01em;margin:0;line-height:1.1}
+  .biz .sub{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+  .spacer{flex:1}
+  .saved-pill{
+    display:inline-flex;align-items:center;gap:9px;
+    background:var(--card);border:1px solid var(--border);border-radius:999px;
+    padding:7px 14px 7px 11px;box-shadow:var(--shadow);font-size:13px;color:var(--ink-2);
+    transition:transform var(--fast),box-shadow var(--fast);
+  }
+  .saved-pill:hover{transform:translateY(-1px);box-shadow:var(--shadow-lift)}
+  .saved-pill b{color:var(--ink);font-weight:800}
+  .bolt{width:16px;height:16px;flex:none;color:var(--red)}
+  .kbd{
+    display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+    background:var(--card);border:1px solid var(--border);border-radius:11px;
+    padding:7px 11px;font-size:12.5px;color:var(--muted);box-shadow:var(--shadow);
+    transition:transform var(--fast),border-color var(--fast),color var(--fast);
+  }
+  .kbd:hover{transform:translateY(-1px);border-color:var(--red);color:var(--ink)}
+  .kbd kbd{font-family:var(--font);font-weight:800;color:var(--ink);background:var(--cream-2);border:1px solid var(--border);border-radius:6px;padding:1px 6px;font-size:11px}
+  .mark{font-weight:800;letter-spacing:-.02em;font-size:15px}
+  .mark .a{color:var(--ink)}.mark .b{color:var(--red)}
+
+  /* ---- reveal / skeleton ---- */
+  .reveal{opacity:0;transform:translateY(10px);transition:opacity var(--spring),transform var(--spring)}
+  .ready .reveal{opacity:1;transform:none}
+  .ready .reveal.d1{transition-delay:40ms}
+  .ready .reveal.d2{transition-delay:90ms}
+  .ready .reveal.d3{transition-delay:140ms}
+  .ready .reveal.d4{transition-delay:190ms}
+  .skel{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
+  .skel::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(0,0,0,.035),transparent);transform:translateX(-100%);animation:sweep 1s infinite}
+  @keyframes sweep{100%{transform:translateX(100%)}}
+  #skeleton{display:grid;gap:16px;padding-top:22px}
+  #skeleton .row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  #skeleton .b{height:96px}#skeleton .big{height:120px}#skeleton .tall{height:280px}
+  .ready #skeleton{display:none}
+  #app{display:none}
+  .ready #app{display:block}
+
+  /* ---- cards ---- */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+  .pad{padding:18px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:22px}
+  .cols{display:grid;grid-template-columns:1.35fr 1fr;gap:16px;margin-top:16px}
+  @media(max-width:860px){.grid4{grid-template-columns:repeat(2,1fr)}.cols{grid-template-columns:1fr}}
+
+  /* metric */
+  .metric{padding:16px 18px;cursor:pointer;transition:transform var(--fast),box-shadow var(--fast),border-color var(--fast)}
+  .metric:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift);border-color:rgba(207,0,0,.45)}
+  .metric .v{font-size:34px;font-weight:800;letter-spacing:-.02em;color:var(--red);line-height:1}
+  .metric .k{font-size:13px;color:var(--muted);margin-top:7px}
+
+  /* one thing */
+  .one{padding:18px 20px;margin-top:22px;display:flex;align-items:center;gap:16px;border-color:var(--border-2);position:relative;overflow:hidden}
+  .one .dot{width:10px;height:10px;border-radius:50%;background:var(--red);flex:none;box-shadow:0 0 0 5px var(--red-tint)}
+  .one .body{flex:1;min-width:0}
+  .one .ey{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--red)}
+  .one .txt{font-size:16.5px;font-weight:650;margin-top:3px;letter-spacing:-.01em}
+  .one .txt b{font-weight:850}
+  .btn{
+    appearance:none;border:0;cursor:pointer;font-family:var(--font);font-weight:800;
+    background:var(--red);color:#fff;border-radius:12px;padding:11px 20px;font-size:14.5px;flex:none;
+    box-shadow:0 1px 0 var(--red-press);transition:transform var(--fast),background var(--fast),box-shadow var(--fast);
+  }
+  .btn:hover{background:#e00a0a}
+  .btn:active{transform:translateY(1px) scale(.985);box-shadow:none}
+  .btn.ghost{background:var(--cream-2);color:var(--ink);box-shadow:none;border:1px solid var(--border)}
+  .btn.ghost:hover{background:#f7eccb}
+  .btn.sm{padding:8px 14px;font-size:13px;border-radius:10px}
+  .one .allclear{font-size:16px;font-weight:750;color:var(--green)}
+
+  /* section head */
+  .shead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .shead .t{font-weight:800;font-size:15px;letter-spacing:-.01em}
+  .link{font-size:12px;font-weight:800;color:var(--red);cursor:pointer;text-decoration:none}
+
+  /* pipeline */
+  .pipe{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .stage{background:var(--cream);border:1px solid var(--border);border-radius:14px;padding:9px 9px 12px;min-height:210px;transition:background var(--fast),border-color var(--fast),box-shadow var(--fast)}
+  .stage.drop{background:#fff;border-color:var(--red);box-shadow:inset 0 0 0 2px rgba(207,0,0,.18)}
+  .stage .sh{display:flex;align-items:center;gap:7px;padding:2px 4px 9px}
+  .stage .sh .c{width:8px;height:8px;border-radius:50%}
+  .stage .sh .n{font-size:12px;font-weight:800;color:var(--ink-2)}
+  .stage .sh .ct{margin-left:auto;font-size:12px;font-weight:800;color:var(--muted)}
+  .job{
+    background:var(--card);border:1px solid var(--border);border-radius:11px;padding:9px 10px;margin-bottom:8px;cursor:grab;
+    box-shadow:0 1px 1px rgba(60,40,0,.04);transition:transform var(--fast),box-shadow var(--fast),border-color var(--fast),opacity var(--fast);
+    position:relative;
+  }
+  .job:hover{box-shadow:var(--shadow-lift);border-color:var(--border-2);transform:translateY(-1px)}
+  .job:active{cursor:grabbing}
+  .job.dragging{opacity:.35}
+  .job .jn{font-weight:750;font-size:13.5px;letter-spacing:-.01em}
+  .job .js{font-size:12px;color:var(--muted);margin-top:1px}
+  .job .adv{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:7px;border:1px solid var(--border);background:var(--cream);color:var(--ink-2);cursor:pointer;display:grid;place-items:center;opacity:0;transition:opacity var(--fast),background var(--fast),color var(--fast)}
+  .job:hover .adv{opacity:1}
+  .job .adv:hover{background:var(--red);color:#fff;border-color:var(--red)}
+  .flash{animation:flash .6s ease-out}
+  @keyframes flash{0%{box-shadow:0 0 0 2px var(--red),0 0 0 8px var(--red-tint)}100%{box-shadow:0 1px 1px rgba(60,40,0,.04)}}
+  .pop-in{animation:popin .42s cubic-bezier(.16,1,.3,1)}
+  @keyframes popin{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+
+  /* roof digest */
+  .roof{padding:18px 20px;background:linear-gradient(180deg,#fff, #fffaf0);border-color:var(--border-2)}
+  .roof .h{display:flex;align-items:center;gap:9px;font-weight:800;font-size:15px}
+  .roof .sun{width:18px;height:18px;color:var(--gold)}
+  .roof .line{margin-top:12px;font-size:15px;color:var(--ink-2);line-height:1.5}
+  .roof .line b{color:var(--ink);font-weight:800}
+  .roof .foot{margin-top:12px;font-size:13.5px;font-weight:800;color:var(--red)}
+
+  /* next up */
+  .appt{display:flex;gap:11px;align-items:flex-start;padding:9px 0}
+  .appt+.appt{border-top:1px solid var(--border-2)}
+  .appt .rail{width:3px;align-self:stretch;border-radius:3px;background:rgba(207,0,0,.6)}
+  .appt .n{font-weight:700;font-size:13.5px}
+  .appt .w{font-size:12px;color:var(--muted);margin-top:1px}
+
+  /* money rows */
+  .inv{display:flex;align-items:center;gap:10px;padding:10px 0}
+  .inv+.inv{border-top:1px solid var(--border-2)}
+  .inv .n{font-weight:700;font-size:13.5px}
+  .inv .m{font-size:12px;color:var(--muted)}
+  .inv .amt{margin-left:auto;font-weight:800;font-size:14px}
+  .inv.over .amt{color:var(--red)}
+  .inv .paid{margin-left:auto;font-weight:800;color:var(--green);font-size:13px;opacity:0;transition:opacity var(--fast)}
+  .inv.paid-row{background:var(--green-tint);border-radius:10px}
+  .inv.paid-row .paid{opacity:1}
+
+  /* toast + saved ghost */
+  #toaster{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+  .toast{background:var(--ink);color:#fff;font-weight:700;font-size:13.5px;padding:10px 16px;border-radius:12px;box-shadow:var(--shadow-lift);display:flex;align-items:center;gap:9px;animation:toastin .34s cubic-bezier(.16,1,.3,1)}
+  .toast.good{background:var(--green)}
+  .toast .k{width:15px;height:15px}
+  @keyframes toastin{0%{transform:translateY(14px);opacity:0}100%{transform:none;opacity:1}}
+  .ghost{position:fixed;z-index:85;pointer-events:none;font-weight:800;font-size:12.5px;color:var(--green);background:#fff;border:1px solid var(--green);border-radius:999px;padding:3px 9px;box-shadow:var(--shadow);animation:ghost 1s ease-out forwards}
+  @keyframes ghost{0%{transform:translateY(4px) scale(.9);opacity:0}18%{transform:translateY(-2px) scale(1);opacity:1}100%{transform:translateY(-20px);opacity:0}}
+
+  /* command palette */
+  #cmdk{position:fixed;inset:0;z-index:70;display:none;align-items:flex-start;justify-content:center;padding-top:14vh;background:rgba(26,23,18,.34);backdrop-filter:blur(3px)}
+  #cmdk.on{display:flex;animation:fade .12s ease-out}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .palette{width:min(560px,92vw);background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:0 24px 70px rgba(60,30,0,.28);overflow:hidden;animation:palin .16s cubic-bezier(.16,1,.3,1)}
+  @keyframes palin{from{transform:translateY(-8px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+  .palette input{width:100%;border:0;outline:0;font-family:var(--font);font-size:16px;padding:16px 18px;color:var(--ink);background:transparent;border-bottom:1px solid var(--border)}
+  .palette input::placeholder{color:var(--muted)}
+  .plist{max-height:320px;overflow:auto;padding:6px}
+  .pitem{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:14px}
+  .pitem .ic{width:26px;height:26px;border-radius:7px;background:var(--cream-2);display:grid;place-items:center;flex:none;color:var(--red);font-weight:800}
+  .pitem .hint{margin-left:auto;font-size:11px;color:var(--muted);font-weight:700}
+  .pitem.sel{background:var(--red-tint)}
+  .pitem.sel .hint{color:var(--red)}
+  .pempty{padding:22px;text-align:center;color:var(--muted);font-size:14px}
+
+  /* replay chip */
+  #replay{position:fixed;right:16px;bottom:18px;z-index:60;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:800;color:var(--ink-2);cursor:pointer;box-shadow:var(--shadow);transition:transform var(--fast),color var(--fast)}
+  #replay:hover{transform:translateY(-1px);color:var(--red)}
+
+  canvas#confetti{position:fixed;inset:0;z-index:75;pointer-events:none}
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition-duration:60ms!important}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+
+<div id="sweep"></div>
+
+<header class="bar">
+  <div class="bar-in">
+    <div class="biz">
+      <h1>Bob&rsquo;s HVAC</h1>
+      <div class="sub">Command Center</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="saved-pill" title="Every AI-answered call, auto-drafted invoice, and message taken adds up.">
+      <svg class="bolt" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>
+      <span>Biggify saved you <b class="tnum" id="tickWeek">0.0</b> h this week &middot; <b class="tnum" id="tickMonth">0</b> h this month</span>
+    </div>
+    <div class="kbd" id="openK"><kbd>&#8984;</kbd><kbd>K</kbd></div>
+    <span class="mark"><span class="a">BIGG</span><span class="b">ify</span></span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- skeleton (shown first, ~380ms) -->
+  <div id="skeleton" aria-hidden="true">
+    <div class="skel big"></div>
+    <div class="row"><div class="skel b"></div><div class="skel b"></div><div class="skel b"></div><div class="skel b"></div></div>
+    <div class="row" style="grid-template-columns:1.35fr 1fr"><div class="skel tall"></div><div class="skel tall"></div></div>
+  </div>
+
+  <!-- real app -->
+  <div id="app">
+
+    <!-- the one thing -->
+    <div class="card one reveal d1" id="oneCard">
+      <div class="dot"></div>
+      <div class="body">
+        <div class="ey">The one thing</div>
+        <div class="txt" id="oneTxt"></div>
+      </div>
+      <button class="btn ghost sm" id="oneSkip">Skip</button>
+      <button class="btn" id="oneApprove">Approve</button>
+    </div>
+
+    <!-- metrics -->
+    <div class="grid4">
+      <div class="card metric reveal d1" data-to="24"><div class="v tnum" data-to="24">0</div><div class="k">Calls this week</div></div>
+      <div class="card metric reveal d2" data-to="9"><div class="v tnum" data-to="9">0</div><div class="k">Booked this week</div></div>
+      <div class="card metric reveal d3"><div class="v tnum" data-prefix="$" data-to="4180" id="owedV">0</div><div class="k">Owed to you</div></div>
+      <div class="card metric reveal d4"><div class="v tnum" data-suffix="h" data-to="12.4" data-dec="1">0</div><div class="k">Hours saved</div></div>
+    </div>
+
+    <div class="cols">
+      <!-- LEFT: pipeline + roof -->
+      <div style="display:grid;gap:16px">
+        <div class="card pad reveal d2">
+          <div class="shead">
+            <div class="t">Jobs in motion</div>
+            <span class="label" style="color:var(--muted)">drag a job &rarr; or tap &#8250;</span>
+          </div>
+          <div class="pipe" id="pipe">
+            <div class="stage" data-stage="new">
+              <div class="sh"><span class="c" style="background:#6366f1"></span><span class="n">New</span><span class="ct">0</span></div>
+            </div>
+            <div class="stage" data-stage="sched">
+              <div class="sh"><span class="c" style="background:var(--gold)"></span><span class="n">Scheduled</span><span class="ct">0</span></div>
+            </div>
+            <div class="stage" data-stage="prog">
+              <div class="sh"><span class="c" style="background:#2f74d0"></span><span class="n">In progress</span><span class="ct">0</span></div>
+            </div>
+            <div class="stage" data-stage="done">
+              <div class="sh"><span class="c" style="background:var(--green)"></span><span class="n">Done</span><span class="ct">0</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card roof reveal d3">
+          <div class="h"><svg class="sun" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V2m0 20v-2m8-8h2M2 12h2m13.66-5.66 1.41-1.41M4.93 19.07l1.41-1.41m0-11.32L4.93 4.93m14.14 14.14-1.41-1.41M12 7a5 5 0 100 10 5 5 0 000-10z"/></svg>While you were on the roof today</div>
+          <div class="line">Your receptionist answered <b>3 calls</b>, booked <b>1 job ($839)</b>, and took <b>1 message</b>.</div>
+          <div class="foot">You touched none of it. &darr;</div>
+        </div>
+      </div>
+
+      <!-- RIGHT: next up + money -->
+      <div style="display:grid;gap:16px">
+        <div class="card pad reveal d3">
+          <div class="shead"><div class="t">Next up</div><a class="link">Calendar &rarr;</a></div>
+          <div class="appt"><div class="rail"></div><div><div class="n">Matthew &mdash; AC repair</div><div class="w">Today &middot; 2:30 PM</div></div></div>
+          <div class="appt"><div class="rail"></div><div><div class="n">Sarah &mdash; Install quote</div><div class="w">Tomorrow &middot; 9:00 AM</div></div></div>
+          <div class="appt"><div class="rail"></div><div><div class="n">Diego &mdash; Furnace tune-up</div><div class="w">Tomorrow &middot; 1:15 PM</div></div></div>
+        </div>
+
+        <div class="card pad reveal d4">
+          <div class="shead"><div class="t">Money</div><a class="link">All invoices &rarr;</a></div>
+          <div id="invList">
+            <div class="inv over" data-amt="839"><div><div class="n">Matthew &mdash; INV-1042</div><div class="m">3 days overdue</div></div><div class="amt tnum">$839</div><button class="btn sm" data-pay>Mark paid</button><span class="paid">Paid &#10003;</span></div>
+            <div class="inv" data-amt="1240"><div><div class="n">Priya &mdash; INV-1041</div><div class="m">Due in 5 days</div></div><div class="amt tnum">$1,240</div><button class="btn sm" data-pay>Mark paid</button><span class="paid">Paid &#10003;</span></div>
+            <div class="inv" data-amt="620"><div><div class="n">Diego &mdash; INV-1040</div><div class="m">Sent yesterday</div></div><div class="amt tnum">$620</div><button class="btn sm" data-pay>Mark paid</button><span class="paid">Paid &#10003;</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="replay">&#8635; Replay load</div>
+<div id="toaster"></div>
+<canvas id="confetti"></canvas>
+
+<!-- command palette -->
+<div id="cmdk">
+  <div class="palette" role="dialog" aria-label="Command palette">
+    <input id="cmdInput" placeholder="Type a command or search&hellip;" autocomplete="off" />
+    <div class="plist" id="cmdList"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var root = document.documentElement;
+
+  /* ---------- load sequence: red sweep -> skeleton -> snap in ---------- */
+  function runLoad(){
+    root.classList.remove('ready');
+    var sweep = document.getElementById('sweep');
+    sweep.style.transition='none'; sweep.style.width='0'; sweep.style.opacity='1';
+    // front-loaded: jump most of the way immediately, then finish
+    requestAnimationFrame(function(){
+      sweep.style.transition='width .5s cubic-bezier(.16,1,.3,1), opacity .3s ease .45s';
+      sweep.style.width='100%';
+    });
+    setTimeout(function(){ sweep.style.opacity='0'; }, 430);
+    setTimeout(function(){
+      root.classList.add('ready');
+      countUp();
+      seedJobs();
+    }, reduce ? 60 : 380);
+  }
+
+  /* ---------- count-up (front-loaded easing = feels fast) ---------- */
+  function countUp(){
+    document.querySelectorAll('[data-to]').forEach(function(el){
+      if(el.classList.contains('metric')) return; // wrapper carries data-to too; skip
+      var to=parseFloat(el.getAttribute('data-to')), dec=parseInt(el.getAttribute('data-dec')||'0',10);
+      var pre=el.getAttribute('data-prefix')||'', suf=el.getAttribute('data-suffix')||'';
+      if(reduce){ el.textContent=pre+fmt(to,dec)+suf; return; }
+      var start=performance.now(), dur=720;
+      function tick(now){
+        var p=Math.min(1,(now-start)/dur);
+        var e=1-Math.pow(1-p,3); // easeOutCubic
+        el.textContent=pre+fmt(to*e,dec)+suf;
+        if(p<1) requestAnimationFrame(tick);
+        else el.textContent=pre+fmt(to,dec)+suf;
+      }
+      requestAnimationFrame(tick);
+    });
+  }
+  function fmt(n,dec){ return dec? n.toFixed(dec) : Math.round(n).toLocaleString('en-US'); }
+
+  /* ---------- live "saved you" ticker ---------- */
+  var week=12.4, month=47;
+  function paintTick(){ document.getElementById('tickWeek').textContent=week.toFixed(1); document.getElementById('tickMonth').textContent=month; }
+  paintTick();
+  if(!reduce) setInterval(function(){ week+=0.1; if(Math.random()<.5) month+=1; paintTick();
+    var w=document.getElementById('tickWeek'); w.animate?w.animate([{color:'#CF0000'},{color:'#1A1712'}],{duration:600}):0;
+  }, 5200);
+
+  /* ---------- the one thing ---------- */
+  var priorities=[
+    'Matthew&rsquo;s invoice is <b>3 days overdue</b> &mdash; $839. Send a reminder text?',
+    'New lead from <b>Sarah</b> (kitchen AC) &mdash; draft a callback text?',
+    'Job for <b>Diego</b> is marked done &mdash; draft the <b>$1,240</b> invoice?',
+    'Priya replied &ldquo;yes&rdquo; to her quote &mdash; <b>book the install</b>?'
+  ];
+  var pi=0;
+  function paintOne(){
+    var txt=document.getElementById('oneTxt');
+    if(pi>=priorities.length){
+      document.getElementById('oneApprove').style.display='none';
+      document.getElementById('oneSkip').style.display='none';
+      document.querySelector('#oneCard .dot').style.background='var(--green)';
+      document.querySelector('#oneCard .dot').style.boxShadow='0 0 0 5px var(--green-tint)';
+      document.querySelector('#oneCard .ey').textContent='All clear';
+      txt.className='allclear'; txt.innerHTML='You&rsquo;re all caught up. Go do the work &mdash; Biggify&rsquo;s got the desk. &#9749;';
+      return;
+    }
+    txt.innerHTML=priorities[pi];
+  }
+  function nextOne(approved){
+    var card=document.getElementById('oneCard');
+    if(approved){ flash(card); toast('good','Done &mdash; handled for you'); week+=0.2; paintTick(); }
+    pi++;
+    // quick swap
+    var txt=document.getElementById('oneTxt');
+    txt.style.transition='opacity .12s, transform .12s'; txt.style.opacity='0'; txt.style.transform='translateY(-6px)';
+    setTimeout(function(){ paintOne(); txt.style.opacity='1'; txt.style.transform='none'; },120);
+  }
+  document.getElementById('oneApprove').onclick=function(){ nextOne(true); };
+  document.getElementById('oneSkip').onclick=function(){ nextOne(false); };
+  paintOne();
+
+  /* ---------- pipeline: optimistic drag + tap-advance ---------- */
+  var jobData=[
+    {n:'Matthew',s:'AC repair &middot; $839',st:'new'},
+    {n:'Sarah',s:'Install quote &middot; $3,400',st:'new'},
+    {n:'Diego',s:'Furnace tune-up &middot; $180',st:'sched'},
+    {n:'Priya',s:'Thermostat &middot; $420',st:'sched'},
+    {n:'Marcus',s:'Duct cleaning &middot; $560',st:'prog'},
+    {n:'Lena',s:'Coil replace &middot; $1,240',st:'done'}
+  ];
+  var order=['new','sched','prog','done'];
+  function makeJob(d){
+    var el=document.createElement('div');
+    el.className='job'; el.draggable=true;
+    el.innerHTML='<div class="jn">'+d.n+'</div><div class="js">'+d.s+'</div><button class="adv" title="Advance">&#8250;</button>';
+    el.addEventListener('dragstart',function(e){ el.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; window.__drag=el; });
+    el.addEventListener('dragend',function(){ el.classList.remove('dragging'); });
+    el.querySelector('.adv').addEventListener('click',function(ev){
+      ev.stopPropagation();
+      var cur=el.closest('.stage').getAttribute('data-stage');
+      var idx=order.indexOf(cur); if(idx<order.length-1) moveJob(el, order[idx+1], el.querySelector('.adv'));
+    });
+    return el;
+  }
+  function seedJobs(){
+    document.querySelectorAll('.stage .job').forEach(function(j){j.remove();});
+    jobData.forEach(function(d){ document.querySelector('.stage[data-stage="'+d.st+'"]').appendChild(makeJob(d)); });
+    recount();
+  }
+  function recount(){
+    document.querySelectorAll('.stage').forEach(function(s){
+      s.querySelector('.ct').textContent = s.querySelectorAll('.job').length;
+    });
+  }
+  function moveJob(el, toStage, atEl){
+    var target=document.querySelector('.stage[data-stage="'+toStage+'"]');
+    target.appendChild(el);                 // optimistic: move instantly
+    el.classList.remove('pop-in'); void el.offsetWidth; el.classList.add('flash');
+    recount();
+    savedGhost(atEl||el);                    // "the DB is catching up to you"
+    if(toStage==='done'){ toast('good','Job done &mdash; invoice auto-drafted'); week+=0.3; paintTick(); }
+  }
+  document.querySelectorAll('.stage').forEach(function(st){
+    st.addEventListener('dragover',function(e){ e.preventDefault(); st.classList.add('drop'); });
+    st.addEventListener('dragleave',function(){ st.classList.remove('drop'); });
+    st.addEventListener('drop',function(e){
+      e.preventDefault(); st.classList.remove('drop');
+      var el=window.__drag; if(!el) return;
+      moveJob(el, st.getAttribute('data-stage'));
+      window.__drag=null;
+    });
+  });
+
+  /* ---------- money: mark paid -> confetti + optimistic drop ---------- */
+  var owed=4180;
+  document.getElementById('invList').addEventListener('click',function(e){
+    var b=e.target.closest('[data-pay]'); if(!b) return;
+    var row=b.closest('.inv'); var amt=parseInt(row.getAttribute('data-amt'),10);
+    b.style.display='none'; row.classList.add('paid-row');
+    owed-=amt; tweenOwed(owed);
+    burst(b);
+    toast('good','Paid &#10003; &mdash; $'+amt.toLocaleString('en-US')+' in the bank');
+    setTimeout(function(){ row.style.transition='opacity .3s, height .3s, margin .3s, padding .3s'; row.style.opacity='0'; },900);
+  });
+  function tweenOwed(to){
+    var el=document.getElementById('owedV'); var from=parseInt(el.textContent.replace(/[^0-9]/g,''),10)||0;
+    if(reduce){ el.textContent='$'+to.toLocaleString('en-US'); return; }
+    var s=performance.now();
+    function t(now){ var p=Math.min(1,(now-s)/450); var e=1-Math.pow(1-p,3); var v=Math.round(from+(to-from)*e);
+      el.textContent='$'+v.toLocaleString('en-US'); if(p<1) requestAnimationFrame(t); }
+    requestAnimationFrame(t);
+  }
+
+  /* ---------- toast + saved ghost ---------- */
+  function toast(kind,html){
+    var t=document.getElementById('toaster'); var d=document.createElement('div');
+    d.className='toast'+(kind==='good'?' good':'');
+    d.innerHTML=(kind==='good'?'<svg class="k" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>':'')+'<span>'+html+'</span>';
+    t.appendChild(d);
+    setTimeout(function(){ d.style.transition='opacity .25s, transform .25s'; d.style.opacity='0'; d.style.transform='translateY(8px)';
+      setTimeout(function(){ d.remove(); },260); }, 1700);
+  }
+  function savedGhost(el){
+    if(reduce||!el) return;
+    var r=el.getBoundingClientRect(); var g=document.createElement('div');
+    g.className='ghost'; g.textContent='Saved ✓';
+    g.style.left=(r.left+r.width/2-22)+'px'; g.style.top=(r.top-8)+'px';
+    document.body.appendChild(g); setTimeout(function(){g.remove();},1000);
+  }
+  function flash(el){ el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+
+  /* ---------- confetti ---------- */
+  var cv=document.getElementById('confetti'), cx=cv.getContext('2d'), parts=[];
+  function size(){ cv.width=innerWidth; cv.height=innerHeight; } size(); addEventListener('resize',size);
+  function burst(el){
+    if(reduce){ return; }
+    var r=el.getBoundingClientRect(); var ox=r.left+r.width/2, oy=r.top+r.height/2;
+    var colors=['#CF0000','#F03030','#E0A32B','#ffffff','#A60000'];
+    for(var i=0;i<90;i++){ var a=Math.random()*Math.PI*2, sp=4+Math.random()*7;
+      parts.push({x:ox,y:oy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-4,g:.22+Math.random()*.12,
+        s:4+Math.random()*5,c:colors[i%colors.length],life:1,rot:Math.random()*6,vr:(Math.random()-.5)*.4}); }
+    if(!raf) loop();
+  }
+  var raf=null;
+  function loop(){
+    raf=requestAnimationFrame(loop); cx.clearRect(0,0,cv.width,cv.height);
+    for(var i=parts.length-1;i>=0;i--){ var p=parts[i]; p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.life-=.012;
+      if(p.life<=0||p.y>cv.height+40){ parts.splice(i,1); continue; }
+      cx.save(); cx.globalAlpha=Math.max(0,p.life); cx.translate(p.x,p.y); cx.rotate(p.rot);
+      cx.fillStyle=p.c; cx.fillRect(-p.s/2,-p.s/2,p.s,p.s*.6); cx.restore(); }
+    if(!parts.length){ cancelAnimationFrame(raf); raf=null; cx.clearRect(0,0,cv.width,cv.height); }
+  }
+
+  /* ---------- command palette ---------- */
+  var cmds=[
+    {i:'+',t:'New job',h:'J'},{i:'$',t:'New invoice',h:'I'},{i:'@',t:'Add contact',h:'C'},
+    {i:'&#9776;',t:'Go to Jobs',h:''},{i:'&#128176;',t:'Go to Money',h:''},{i:'&#128197;',t:'Open Calendar',h:''},
+    {i:'&#10003;',t:'Mark all notifications read',h:''},{i:'&#9993;',t:'Draft a follow-up',h:''}
+  ];
+  var sel=0, filtered=cmds.slice();
+  var pane=document.getElementById('cmdk'), inp=document.getElementById('cmdInput'), list=document.getElementById('cmdList');
+  function openK(){ pane.classList.add('on'); inp.value=''; filtered=cmds.slice(); sel=0; paintList(); setTimeout(function(){inp.focus();},20); }
+  function closeK(){ pane.classList.remove('on'); }
+  function paintList(){
+    if(!filtered.length){ list.innerHTML='<div class="pempty">No commands match.</div>'; return; }
+    list.innerHTML=filtered.map(function(c,idx){
+      return '<div class="pitem'+(idx===sel?' sel':'')+'" data-i="'+idx+'"><span class="ic">'+c.i+'</span><span>'+c.t+'</span>'+(c.h?'<span class="hint">'+c.h+'</span>':'')+'</div>';
+    }).join('');
+  }
+  inp && inp.addEventListener('input',function(){ var q=inp.value.toLowerCase();
+    filtered=cmds.filter(function(c){return c.t.toLowerCase().indexOf(q)>-1;}); sel=0; paintList(); });
+  list.addEventListener('mousemove',function(e){ var it=e.target.closest('.pitem'); if(it){ sel=+it.getAttribute('data-i'); paintList(); }});
+  list.addEventListener('click',function(e){ var it=e.target.closest('.pitem'); if(it){ runCmd(filtered[+it.getAttribute('data-i')]); }});
+  function runCmd(c){ closeK(); if(c){ toast('good',c.t+' &mdash; done'); } }
+  document.getElementById('openK').onclick=openK;
+  addEventListener('keydown',function(e){
+    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); pane.classList.contains('on')?closeK():openK(); return; }
+    if(!pane.classList.contains('on')) return;
+    if(e.key==='Escape') closeK();
+    else if(e.key==='ArrowDown'){ e.preventDefault(); sel=Math.min(filtered.length-1,sel+1); paintList(); scrollSel(); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); sel=Math.max(0,sel-1); paintList(); scrollSel(); }
+    else if(e.key==='Enter'){ e.preventDefault(); runCmd(filtered[sel]); }
+  });
+  function scrollSel(){ var el=list.querySelector('.pitem.sel'); if(el) el.scrollIntoView({block:'nearest'}); }
+  pane.addEventListener('click',function(e){ if(e.target===pane) closeK(); });
+
+  /* ---------- replay ---------- */
+  document.getElementById('replay').onclick=function(){ pi=0; owed=4180;
+    document.getElementById('oneApprove').style.display='';
+    document.getElementById('oneSkip').style.display='';
+    var dot=document.querySelector('#oneCard .dot'); dot.style.background='var(--red)'; dot.style.boxShadow='0 0 0 5px var(--red-tint)';
+    document.querySelector('#oneCard .ey').textContent='The one thing';
+    document.getElementById('oneTxt').className='txt';
+    document.querySelectorAll('.inv').forEach(function(r){ r.style.opacity=''; r.style.transition=''; r.classList.remove('paid-row'); var b=r.querySelector('[data-pay]'); if(b) b.style.display=''; });
+    paintOne(); runLoad();
+  };
+
+  runLoad();
+})();
+</script>
