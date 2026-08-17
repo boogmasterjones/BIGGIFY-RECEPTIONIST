@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createContact, updateContact, deleteContact } from './actions';
 
 export type Contact = {
@@ -28,6 +28,7 @@ export default function ContactsClient({
   initial: Contact[];
 }) {
   const router = useRouter();
+  const params = useSearchParams();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Contact | null>(null);
   const [busy, setBusy] = useState(false);
@@ -38,6 +39,14 @@ export default function ContactsClient({
     setError(null);
     setOpen(true);
   }
+
+  // Opened via the ⌘K "New contact" command (/contacts?new=1)
+  useEffect(() => {
+    if (params.get('new') === '1') {
+      startAdd();
+      router.replace('/contacts');
+    }
+  }, [params, router]);
   function startEdit(c: Contact) {
     setEditing(c);
     setError(null);

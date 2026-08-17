@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useOptimistic, useRef, useState, startTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createJob, updateJob, setJobStage, deleteJob } from './actions';
 
 export type Stage = { id: string; name: string; color: string; position: number };
@@ -40,6 +40,7 @@ export default function JobsClient({
   stages: Stage[];
 }) {
   const router = useRouter();
+  const params = useSearchParams();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Job | null>(null);
   const [busy, setBusy] = useState(false);
@@ -63,6 +64,16 @@ export default function JobsClient({
     const saved = typeof window !== 'undefined' ? window.localStorage.getItem('jobsView') : null;
     if (saved === 'list' || saved === 'board') setView(saved);
   }, []);
+
+  // Opened via the ⌘K "New job" command (/jobs?new=1)
+  useEffect(() => {
+    if (params.get('new') === '1') {
+      setEditing(null);
+      setError(null);
+      setOpen(true);
+      router.replace('/jobs');
+    }
+  }, [params, router]);
   function pickView(v: 'board' | 'list') {
     setView(v);
     try {

@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   createAppointment,
   updateAppointment,
@@ -70,6 +70,7 @@ export default function AppointmentsClient({
   jobs: Option[];
 }) {
   const router = useRouter();
+  const params = useSearchParams();
   const today = new Date();
   const [view, setView] = useState({ y: today.getFullYear(), m: today.getMonth() });
   const [open, setOpen] = useState(false);
@@ -126,6 +127,15 @@ export default function AppointmentsClient({
     setError(null);
     setOpen(true);
   }
+
+  // Opened via the ⌘K "New appointment" command (/appointments?new=1)
+  useEffect(() => {
+    if (params.get('new') === '1') {
+      openAdd();
+      router.replace('/appointments');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params, router]);
   function openEdit(a: Appointment) {
     setEditingId(a.id);
     setForm({

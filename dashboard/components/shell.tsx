@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { Business, Role } from '@/lib/data';
+import CommandPalette, { type Command } from '@/components/command-palette';
 
 type NavItem = { href: string; label: string; icon: string; show: boolean; badge?: number };
 
@@ -28,6 +29,19 @@ export default function Shell({
   const [collapsed, setCollapsed] = useState(false);
   useEffect(() => {
     if (localStorage.getItem('biggify_sidebar_collapsed') === '1') setCollapsed(true);
+  }, []);
+
+  // ⌘K / Ctrl-K command palette
+  const [cmdOpen, setCmdOpen] = useState(false);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCmdOpen((o) => !o);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   }, []);
 
   // Unread notification count for the sidebar badge. Refetches on navigation so
@@ -71,6 +85,14 @@ export default function Shell({
     { href: '/admin', label: 'Biggify Admin', icon: '🛡️', show: isSuperAdmin },
   ];
 
+  // Command palette entries: jump to any page + quick-create actions.
+  const commands: Command[] = [
+    ...nav.filter((n) => n.show).map((n) => ({ id: `nav-${n.href}`, label: n.label, icon: n.icon, href: n.href, group: 'Go to' })),
+    ...(f.jobs ? [{ id: 'new-job', label: 'New job', icon: '🧰', href: '/jobs?new=1', group: 'Create' }] : []),
+    ...(f.contacts ? [{ id: 'new-contact', label: 'New contact', icon: '👥', href: '/contacts?new=1', group: 'Create' }] : []),
+    ...(f.appointments || f.calendar ? [{ id: 'new-appt', label: 'New appointment', icon: '📅', href: '/appointments?new=1', group: 'Create' }] : []),
+  ];
+
   async function signOut() {
     await supabase.auth.signOut();
     router.push('/login');
@@ -107,6 +129,21 @@ export default function Shell({
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto">
+          <button
+            onClick={() => setCmdOpen(true)}
+            title="Search (⌘K)"
+            className={`w-full flex items-center gap-2.5 rounded-lg px-3 py-2 mb-1 text-sm text-neutral-400 border border-[#ece3ca] bg-[#FFFBF0] hover:text-neutral-700 hover:border-[#e0d4b0] transition ${
+              collapsed ? 'justify-center' : ''
+            }`}
+          >
+            <span className="text-[14px]">🔍</span>
+            {!collapsed && (
+              <>
+                <span className="flex-1 text-left">Search…</span>
+                <kbd className="text-[10px] font-bold text-neutral-400 border border-neutral-200 rounded px-1.5 py-0.5 bg-white">⌘K</kbd>
+              </>
+            )}
+          </button>
           {nav
             .filter((n) => n.show)
             .map((n) => {
@@ -157,6 +194,8 @@ export default function Shell({
       <main className="flex-1 min-w-0 overflow-x-hidden">
         <div className="mx-auto max-w-5xl p-8">{children}</div>
       </main>
+
+      <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} commands={commands} />
     </div>
   );
 }
