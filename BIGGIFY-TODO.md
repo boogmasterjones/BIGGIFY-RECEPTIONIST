@@ -21,6 +21,33 @@ The live server is in `DB: MOCK` mode, so nothing the receptionist does is writt
   where name = 'Bob''s HVAC';
   ```
 
+## Preview call transcripts (optional)
+The new **Calls** page shows a full transcript of every receptionist call. Real
+calls populate it automatically once the server is DB-live (the Render step above).
+To see the transcript view *right now* with a sample, paste this in the Supabase SQL
+editor — then open **Calls** in the dashboard. Delete it after with
+`delete from calls where from_number = '+19415551234';`
+
+```sql
+insert into calls (business_id, from_number, to_number, outcome, started_at, ended_at, transcript)
+values (
+  (select id from businesses where name = 'Bob''s HVAC'),
+  '+19415551234', '+19417594411', 'booked',
+  now() - interval '22 minutes', now() - interval '19 minutes',
+  '[
+    {"role":"assistant","text":"Thanks for calling Bob''s HVAC, this is the front desk. How can I help?"},
+    {"role":"caller","text":"Hi, my AC stopped cooling last night and it''s getting hot."},
+    {"role":"assistant","text":"Sorry to hear that. I can get a tech out to you. I have today at 2:30, or tomorrow at 9. Which works better?"},
+    {"role":"caller","text":"Today at 2:30 would be great."},
+    {"role":"assistant","text":"Booked for 2:30 today. Can I grab your name and the address?"},
+    {"role":"caller","text":"Matthew, 128 Palm Street."},
+    {"role":"assistant","text":"Got it, Matthew. You''re all set for 2:30. Anything else I can help with?"},
+    {"role":"caller","text":"Nope, that''s everything, thanks!"},
+    {"role":"assistant","text":"Have a great day!"}
+  ]'::jsonb
+);
+```
+
 ## Turn on the Money lens
 - [ ] Run migrations `supabase/migrations/006_money.sql` and `007_job_messages.sql` in the Supabase SQL editor.
 - [ ] Flip `features.invoicing = true` on your `businesses` row so the **Money** nav appears.
