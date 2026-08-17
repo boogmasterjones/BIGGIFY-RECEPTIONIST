@@ -10,6 +10,28 @@ function touch(jobId: string) {
   revalidatePath(`/jobs/${jobId}`);
 }
 
+// ---- Comms: conversation thread on the job ----
+export async function postJobMessage(jobId: string, businessId: string, body: string): Promise<Result> {
+  if (!body.trim()) return { ok: false, error: 'Empty message' };
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  let authorName: string | null = null;
+  if (user) {
+    const { data: profile } = await supabase.from('profiles').select('full_name, email').eq('id', user.id).maybeSingle();
+    authorName = (profile?.full_name as string) || (profile?.email as string) || null;
+  }
+  const { error } = await supabase.from('job_messages').insert({
+    job_id: jobId,
+    business_id: businessId,
+    author_id: user?.id ?? null,
+    author_name: authorName,
+    body: body.trim(),
+  });
+  if (error) return { ok: false, error: error.message };
+  touch(jobId);
+  return { ok: true };
+}
+
 // ---- Job-level ----
 export async function updateJobMeta(
   jobId: string,

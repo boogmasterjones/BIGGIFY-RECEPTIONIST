@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getUserAndBusiness } from '@/lib/data';
-import JobDetail, { type Job, type Stage, type Task, type Material, type Room, type JobFile } from './job-detail';
+import JobDetail, { type Job, type Stage, type Task, type Material, type Room, type JobFile, type Message } from './job-detail';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,13 +17,14 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     .maybeSingle();
   if (!job) notFound();
 
-  const [{ data: stages }, { data: tasks }, { data: materials }, { data: rooms }, { data: fileRows }] =
+  const [{ data: stages }, { data: tasks }, { data: materials }, { data: rooms }, { data: fileRows }, { data: messages }] =
     await Promise.all([
       supabase.from('job_stages').select('id, name, color, position').eq('business_id', business.id).order('position'),
       supabase.from('job_tasks').select('*').eq('job_id', id).order('position'),
       supabase.from('job_materials').select('*').eq('job_id', id).order('position'),
       supabase.from('job_rooms').select('*').eq('job_id', id).order('position'),
       supabase.from('job_files').select('*').eq('job_id', id).order('created_at', { ascending: false }),
+      supabase.from('job_messages').select('*').eq('job_id', id).order('created_at'),
     ]);
 
   // Sign URLs for the private bucket so thumbnails/links work.
@@ -43,6 +44,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       materials={(materials as Material[]) || []}
       rooms={(rooms as Room[]) || []}
       files={files}
+      messages={(messages as Message[]) || []}
     />
   );
 }

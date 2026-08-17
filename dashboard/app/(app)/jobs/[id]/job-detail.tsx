@@ -18,6 +18,7 @@ import {
   deleteRoom,
   uploadJobFiles,
   deleteJobFile,
+  postJobMessage,
   type MaterialInput,
   type RoomInput,
 } from './actions';
@@ -58,6 +59,13 @@ export type JobFile = {
   size_bytes: number | null;
   created_at: string;
   url: string | null;
+};
+export type Message = {
+  id: string;
+  author_name: string | null;
+  source: string;
+  body: string;
+  created_at: string;
 };
 export type Job = {
   id: string;
@@ -112,6 +120,7 @@ export default function JobDetail({
   materials,
   rooms,
   files,
+  messages,
 }: {
   businessId: string;
   job: Job;
@@ -120,9 +129,12 @@ export default function JobDetail({
   materials: Material[];
   rooms: Room[];
   files: JobFile[];
+  messages: Message[];
 }) {
   const router = useRouter();
   const [taskTitle, setTaskTitle] = useState('');
+  const [msgBody, setMsgBody] = useState('');
+  const [msgBusy, setMsgBusy] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadBusy, setUploadBusy] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -189,6 +201,16 @@ export default function JobDetail({
   async function removeFile(f: JobFile) {
     if (!confirm(`Delete "${f.name || 'this file'}"?`)) return;
     await deleteJobFile(f.id, job.id, f.storage_path);
+    refresh();
+  }
+
+  // --- conversation ---
+  async function sendMessage() {
+    if (!msgBody.trim()) return;
+    setMsgBusy(true);
+    await postJobMessage(job.id, businessId, msgBody);
+    setMsgBusy(false);
+    setMsgBody('');
     refresh();
   }
 
@@ -572,6 +594,48 @@ export default function JobDetail({
             })}
           </div>
         )}
+      </div>
+
+      {/* Conversation */}
+      <div className="rounded-2xl bg-white border border-[#ece3ca] p-5 mt-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="font-bold">Conversation</div>
+          <span className="text-xs text-neutral-400">Keep the team in the loop — no scattered texts</span>
+        </div>
+        {messages.length > 0 && (
+          <div className="space-y-3 mb-4">
+            {messages.map((m) => (
+              <div key={m.id} className="flex gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#FFF6E1] grid place-items-center text-xs font-bold text-[#CF0000] shrink-0">
+                  {(m.author_name || '?').slice(0, 1).toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-sm font-semibold">{m.author_name || 'Someone'}</span>
+                    <span className="text-[11px] text-neutral-400">
+                      {new Date(m.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                    </span>
+                    {m.source === 'slack' && <span className="text-[10px] text-neutral-400">via Slack</span>}
+                  </div>
+                  <p className="text-sm text-neutral-700 whitespace-pre-wrap">{m.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="flex gap-2">
+          <textarea
+            value={msgBody}
+            onChange={(e) => setMsgBody(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) sendMessage(); }}
+            placeholder="Write a note to the team…  (⌘/Ctrl+Enter to send)"
+            rows={2}
+            className="flex-1 rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-[#CF0000] resize-none"
+          />
+          <button onClick={sendMessage} disabled={msgBusy} className="rounded-lg bg-[#CF0000] text-white px-4 text-sm font-bold disabled:opacity-60 self-stretch">
+            {msgBusy ? '…' : 'Send'}
+          </button>
+        </div>
       </div>
 
       {/* Material slide-over */}
