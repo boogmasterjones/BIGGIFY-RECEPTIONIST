@@ -38,15 +38,14 @@ const tools = [
   {
     name: 'record_details',
     description:
-      "Save the details you collect AFTER booking: the caller's name, the kind of work they need, and the area they're in. Call this once you have all three.",
+      "Save the details you collect AFTER booking: the caller's name and the kind of work they need. Call this once you have both.",
     input_schema: {
       type: 'object',
       properties: {
         name: { type: 'string', description: "Caller's name" },
-        work_type: { type: 'string', description: 'The kind of work the caller needs done' },
-        location: { type: 'string', description: 'The area / part of town / city the caller is located in' },
+        work_type: { type: 'string', description: 'The kind of work / reason the caller needs help' },
       },
-      required: ['work_type', 'location'],
+      required: ['work_type'],
       additionalProperties: false,
     },
   },
@@ -133,7 +132,6 @@ async function runTool(name, input, leadId) {
       service: input.work_type || current?.service || null,
       survey: {
         issue: input.work_type || null,
-        address: input.location || null,
         completedAt: new Date().toISOString(),
       },
       status: current?.status === 'callback_requested' ? 'callback_requested' : 'qualified',
@@ -174,6 +172,22 @@ export class CallSession {
     this.slots = slots; // pre-fetched availability, injected into the prompt
     this.messages = [];
     this.ended = false; // set true when the AI decides to hang up
+  }
+
+  // The caller talked over the AI: trim the last assistant turn to only what was
+  // actually spoken before the interrupt, so the model knows the caller may not
+  // have heard the rest and can bring the key part back naturally.
+  markInterrupted(heardText) {
+    for (let i = this.messages.length - 1; i >= 0; i--) {
+      if (this.messages[i].role === 'assistant') {
+        const heard = (heardText || '').trim();
+        this.messages[i] = {
+          role: 'assistant',
+          content: heard ? `${heard} …[the caller interrupted here — they may not have heard the rest]` : '…[interrupted]',
+        };
+        return;
+      }
+    }
   }
 
   // Takes the caller's transcribed utterance. Streams the reply text through

@@ -165,10 +165,12 @@ wss.on('connection', (ws) => {
       return;
     }
 
-    // Caller barged in — stop talking immediately. A follow-up 'prompt' with
-    // their words (if any) arrives right after and gets handled below.
+    // Caller barged in — stop talking immediately, and record how much they
+    // actually heard so the next reply can bring back anything they missed.
+    // A follow-up 'prompt' with their words (if any) arrives right after.
     if (msg.type === 'interrupt') {
       await cancelInflight();
+      if (session && msg.utteranceUntilInterrupt) session.markInterrupted(msg.utteranceUntilInterrupt);
       return;
     }
 
