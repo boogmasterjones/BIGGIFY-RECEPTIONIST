@@ -4,7 +4,7 @@ import { systemPrompt, greetingFor } from './prompt.js';
 import { getAvailableSlots, createBooking } from './calcom.js';
 import { updateLead, getLead } from './store.js';
 import { alertOwner } from './twilioSms.js';
-import { upsertContactByPhone, createAppointment as sbCreateAppointment, createJob as sbCreateJob, updateCall, updateAppointment as sbUpdateAppointment } from './supabase.js';
+import { upsertContactByPhone, createAppointment as sbCreateAppointment, createJob as sbCreateJob, updateCall, updateAppointment as sbUpdateAppointment, createNotification } from './supabase.js';
 
 const client = new Anthropic({ apiKey: config.anthropicApiKey });
 
@@ -160,6 +160,13 @@ async function runTool(name, input, leadId, business) {
         const lead = getLead(leadId);
         if (lead?.dbApptId && jobId) sbUpdateAppointment(lead.dbApptId, { job_id: jobId });
         if (lead?.dbCallId) updateCall(lead.dbCallId, { contact_id: contactId, job_id: jobId, outcome: 'booked' });
+        const when = lead?.appointment?.humanTime;
+        createNotification({
+          businessId: biz.id,
+          type: 'new_lead',
+          title: `New callback — ${updated.name || 'Caller'}`,
+          body: [updated.service, when ? `callback ${when}` : null].filter(Boolean).join(' · ') || undefined,
+        });
       })().catch((e) => console.error('[supabase] record_details:', e.message));
     }
     return JSON.stringify({ recorded: true });
@@ -180,6 +187,12 @@ async function runTool(name, input, leadId, business) {
         const contactId = await upsertContactByPhone({ businessId: biz.id, phone: current?.phone, name: updated.name });
         const lead = getLead(leadId);
         if (lead?.dbCallId) updateCall(lead.dbCallId, { contact_id: contactId, outcome: 'message' });
+        createNotification({
+          businessId: biz.id,
+          type: 'new_message',
+          title: `New message — ${updated.name || 'Caller'}`,
+          body: updated.message || undefined,
+        });
       })().catch((e) => console.error('[supabase] take_message:', e.message));
     }
     return JSON.stringify({

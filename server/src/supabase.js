@@ -174,6 +174,17 @@ export async function createJob({ businessId, contactId, service, description })
   }
 }
 
+// Create an in-app notification for the whole business (user_id null). The
+// client sees it in their dashboard. Best-effort.
+export async function createNotification({ businessId, type, title, body }) {
+  if (!supabase || !businessId) return;
+  try {
+    await supabase.from('notifications').insert({ business_id: businessId, type, title, body: body || null });
+  } catch (e) {
+    console.error('[supabase] createNotification:', e.message);
+  }
+}
+
 export async function updateCall(id, patch) {
   if (!supabase || !id) return;
   try {

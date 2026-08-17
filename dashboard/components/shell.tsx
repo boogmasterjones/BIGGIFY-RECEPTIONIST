@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import type { Business, Role } from '@/lib/data';
 
-type NavItem = { href: string; label: string; icon: string; show: boolean };
+type NavItem = { href: string; label: string; icon: string; show: boolean; badge?: number };
 
 export default function Shell({
   business,
@@ -29,6 +29,26 @@ export default function Shell({
   useEffect(() => {
     if (localStorage.getItem('biggify_sidebar_collapsed') === '1') setCollapsed(true);
   }, []);
+
+  // Unread notification count for the sidebar badge. Refetches on navigation so
+  // it updates after the user reads/clears notifications.
+  const [unread, setUnread] = useState(0);
+  useEffect(() => {
+    if (!business.features?.notifications) return;
+    let active = true;
+    supabase
+      .from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('business_id', business.id)
+      .is('read_at', null)
+      .then(({ count }) => {
+        if (active) setUnread(count || 0);
+      });
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, business.id]);
   function toggle() {
     setCollapsed((c) => {
       const next = !c;
@@ -44,7 +64,7 @@ export default function Shell({
     { href: '/contacts', label: 'Contacts', icon: '👥', show: !!f.contacts },
     { href: '/jobs', label: 'Jobs', icon: '🧰', show: !!f.jobs },
     { href: '/appointments', label: 'Appointments', icon: '📅', show: !!f.appointments || !!f.calendar },
-    { href: '/notifications', label: 'Notifications', icon: '🔔', show: !!f.notifications },
+    { href: '/notifications', label: 'Notifications', icon: '🔔', show: !!f.notifications, badge: unread },
     { href: '/invoicing', label: 'Invoicing', icon: '💳', show: !!f.invoicing },
     { href: '/statistics', label: 'Statistics', icon: '📊', show: !!f.statistics },
     { href: '/settings', label: 'Settings', icon: '⚙️', show: canManage },
@@ -96,12 +116,28 @@ export default function Shell({
                   key={n.href}
                   href={n.href}
                   title={collapsed ? n.label : undefined}
-                  className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition ${
+                  className={`relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition ${
                     collapsed ? 'justify-center' : ''
                   } ${active ? 'bg-[#CF0000] text-white' : 'text-neutral-600 hover:bg-[#FFF6E1]'}`}
                 >
-                  <span className="text-[15px]">{n.icon}</span>
-                  {!collapsed && n.label}
+                  <span className="text-[15px] relative">
+                    {n.icon}
+                    {collapsed && n.badge ? (
+                      <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-[#CF0000] text-white text-[10px] font-bold grid place-items-center">
+                        {n.badge > 9 ? '9+' : n.badge}
+                      </span>
+                    ) : null}
+                  </span>
+                  {!collapsed && <span className="flex-1">{n.label}</span>}
+                  {!collapsed && n.badge ? (
+                    <span
+                      className={`min-w-[18px] h-[18px] px-1 rounded-full text-[11px] font-bold grid place-items-center ${
+                        active ? 'bg-white text-[#CF0000]' : 'bg-[#CF0000] text-white'
+                      }`}
+                    >
+                      {n.badge > 99 ? '99+' : n.badge}
+                    </span>
+                  ) : null}
                 </Link>
               );
             })}
