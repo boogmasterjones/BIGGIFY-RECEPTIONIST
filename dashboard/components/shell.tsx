@@ -65,7 +65,7 @@ export default function Shell({
     { href: '/jobs', label: 'Jobs', icon: '🧰', show: !!f.jobs },
     { href: '/appointments', label: 'Appointments', icon: '📅', show: !!f.appointments || !!f.calendar },
     { href: '/notifications', label: 'Notifications', icon: '🔔', show: !!f.notifications, badge: unread },
-    { href: '/invoicing', label: 'Invoicing', icon: '💳', show: !!f.invoicing },
+    { href: '/money', label: 'Money', icon: '💳', show: !!f.invoicing },
     { href: '/statistics', label: 'Statistics', icon: '📊', show: !!f.statistics },
     { href: '/settings', label: 'Settings', icon: '⚙️', show: canManage },
     { href: '/admin', label: 'Biggify Admin', icon: '🛡️', show: isSuperAdmin },
