@@ -45,13 +45,13 @@
   .nav-cta{display:flex;gap:14px;align-items:center}
   .nav-phone{font-weight:700;color:var(--ink);font-size:15px;white-space:nowrap;display:flex;align-items:center;gap:6px}
   .nav-phone:hover{color:var(--brand)}
-  /* dropdown menu — simple hamburger icon */
+  /* dropdown menu — plain 3-line icon button (no <details> marker) */
   .menu{position:relative}
-  .menu summary{list-style:none;cursor:pointer;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;padding:6px}
-  .menu summary::-webkit-details-marker{display:none}
-  .menu summary svg{display:block}
-  .menu summary:hover{color:var(--brand)}
+  .menu-btn{border:none;background:none;cursor:pointer;color:var(--ink-soft);padding:6px;display:flex;align-items:center;justify-content:center}
+  .menu-btn svg{display:block}
+  .menu-btn:hover{color:var(--brand)}
   .menu-panel{position:absolute;top:calc(100% + 8px);left:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:8px;min-width:190px;display:flex;flex-direction:column;gap:2px;z-index:60}
+  .menu-panel[hidden]{display:none}
   .menu-panel a{padding:10px 14px;border-radius:8px;color:var(--ink-soft);font-weight:600;font-size:15px}
   .menu-panel a:hover{background:var(--cream);color:var(--ink)}
   @media(max-width:560px){
@@ -156,17 +156,17 @@
     <nav>
       <a class="logo" href="#top"><img src="LOGO.png" alt="Biggify" /></a>
       <div class="nav-cta">
-        <details class="menu">
-          <summary aria-label="Menu">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-          </summary>
-          <div class="menu-panel">
+        <div class="menu">
+          <button type="button" class="menu-btn" aria-label="Menu" aria-expanded="false">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+          </button>
+          <div class="menu-panel" hidden>
             <a href="#how">How it works</a>
             <a href="#features">Features</a>
             <a href="#pricing">Pricing</a>
             <a href="#faq">FAQ</a>
           </div>
-        </details>
+        </div>
         <a class="nav-phone" href="tel:+19413279667">📞 (941) 327-9667</a>
         <a class="btn btn-primary" href="#contact">Get a Free Demo</a>
       </div>
@@ -364,14 +364,20 @@
     });
   });
 
-  // header dropdown: close on link click and on outside click
-  var menu = document.querySelector('.menu');
-  if (menu) {
-    menu.querySelectorAll('.menu-panel a').forEach(function(a){
-      a.addEventListener('click', function(){ menu.removeAttribute('open'); });
+  // header dropdown: toggle on click, close on link click / outside click
+  var menuBtn = document.querySelector('.menu-btn');
+  var menuPanel = document.querySelector('.menu-panel');
+  if (menuBtn && menuPanel) {
+    var closeMenu = function(){ menuPanel.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); };
+    menuBtn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var willOpen = menuPanel.hidden;
+      menuPanel.hidden = !willOpen;
+      menuBtn.setAttribute('aria-expanded', String(willOpen));
     });
+    menuPanel.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', closeMenu); });
     document.addEventListener('click', function(e){
-      if (menu.open && !menu.contains(e.target)) menu.removeAttribute('open');
+      if (!menuPanel.hidden && !e.target.closest('.menu')) closeMenu();
     });
   }
 })();
