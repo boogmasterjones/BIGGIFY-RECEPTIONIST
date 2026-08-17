@@ -232,9 +232,16 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     cancelInflight();
-    // Stamp the call as ended in Supabase (best-effort).
+    // Stamp the call as ended in Supabase + save the transcript (best-effort).
     const lead = session ? getLead(session.leadId) : null;
-    if (lead?.dbCallId) updateCall(lead.dbCallId, { ended_at: new Date().toISOString(), outcome: lead.status });
+    if (lead?.dbCallId) {
+      const transcript = session ? session.transcript() : null;
+      updateCall(lead.dbCallId, {
+        ended_at: new Date().toISOString(),
+        outcome: lead.status,
+        transcript: transcript && transcript.length ? transcript : null,
+      });
+    }
     console.log('[call] connection closed');
   });
 });

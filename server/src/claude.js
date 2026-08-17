@@ -223,6 +223,30 @@ export class CallSession {
     this.ended = false; // set true when the AI decides to hang up
   }
 
+  // A clean, human-readable transcript of the call for the dashboard: an ordered
+  // list of { role: 'assistant' | 'caller', text } turns. Drops the tool plumbing
+  // (tool_use / tool_result) and leads with the spoken greeting.
+  transcript() {
+    const turns = [];
+    if (this.greeting) turns.push({ role: 'assistant', text: this.greeting });
+    for (const m of this.messages) {
+      if (m.role === 'user') {
+        // Caller utterances are plain strings; tool_result turns are arrays — skip those.
+        if (typeof m.content === 'string') {
+          const t = m.content.trim();
+          if (t) turns.push({ role: 'caller', text: t });
+        }
+      } else if (m.role === 'assistant') {
+        let text = '';
+        if (typeof m.content === 'string') text = m.content;
+        else if (Array.isArray(m.content)) text = m.content.filter((b) => b.type === 'text').map((b) => b.text).join(' ');
+        text = text.replace(/\s*…?\[[^\]]*\]/g, '').trim(); // strip interrupt markers
+        if (text) turns.push({ role: 'assistant', text });
+      }
+    }
+    return turns;
+  }
+
   // The caller talked over the AI: trim the last assistant turn to only what was
   // actually spoken before the interrupt, so the model knows the caller may not
   // have heard the rest and can bring the key part back naturally.
