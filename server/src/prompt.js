@@ -56,4 +56,4 @@ Rules:
 
 export const WELCOME_GREETING =
   process.env.BUSINESS_GREETING ||
-  `Thanks for calling ${config.business.name}! The team's tied up right now, but I can help — would you like to set up a callback, or leave a quick message?`;
+  `Hey, thanks for calling ${config.business.name}! The team is busy right now so they sent you to me. Rather than send you to voicemail, let me help — would you like to schedule a callback, or to leave a message for the team?`;
