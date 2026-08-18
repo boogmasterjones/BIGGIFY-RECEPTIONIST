@@ -60,8 +60,14 @@ where b.name = 'Bob''s HVAC';
 - [ ] `006_money.sql` + `007_job_messages.sql` — Money lens + job conversation.
 - [ ] `008_job_file_meta.sql` — photo captions + notes (needed to save photo names/notes).
 - [ ] `009_call_retention.sql` — `jobs.completed_at` + the call auto-cleanup function.
+- [ ] `010_outreach.sql` — Quote Follow-Up Vault + 5-Star Autopilot (job_followups + business/job columns).
 - [ ] Flip `features.invoicing = true` on your `businesses` row so the **Money** nav appears.
 - [ ] **Enable `pg_cron`** (Supabase → Database → Extensions → search "pg_cron") so the call-retention purge runs daily. Until then you can run `select public.purge_expired_calls();` by hand. (Re-run the last block of `009` after enabling it to schedule the daily job.)
+
+## Turn on the automated texts (Quote Vault + 5-Star Autopilot)
+- [ ] Run migration `010_outreach.sql`.
+- [ ] In the dashboard → **Settings → Automations**, flip on Quote Follow-Ups and/or Review Requests, and paste your Google review link.
+- [ ] These only send for real once the server is DB-live **and** SMS is live (Twilio creds set). Test anytime with `https://biggify-receptionist.onrender.com/run-outreach` — in MOCK mode it logs the texts instead of sending. The hourly sweep runs automatically once deployed.
 
 ## Review + ship
 - [ ] Review the local commits and tell Claude to **push** when you're ready (hard rule: never pushed without your say-so).
