@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { getUserAndBusiness } from '@/lib/data';
+import { textOn } from '@/lib/colors';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -93,7 +94,7 @@ export default async function Page() {
                 </div>
                 <div className="hidden sm:block text-xs text-neutral-400 shrink-0 tabular-nums">{dur ? dur : ''}</div>
                 <div className="text-right shrink-0">
-                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: chip.color }}>
+                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ backgroundColor: chip.color, color: textOn(chip.color) }}>
                     {chip.label}
                   </span>
                   <div className="text-xs text-neutral-400 mt-1">{whenLabel(c.started_at)}</div>

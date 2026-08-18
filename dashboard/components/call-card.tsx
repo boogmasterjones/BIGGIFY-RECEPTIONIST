@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { textOn } from '@/lib/colors';
 
 export type CallTurn = { role: string; text: string };
 export type CallLite = {
@@ -85,7 +86,7 @@ export default function CallCard({ call, defaultOpen = false }: { call: CallLite
             {dur ? ` · ${dur}` : ''}
           </div>
         </div>
-        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full text-white shrink-0" style={{ backgroundColor: chip.color }}>
+        <span className="text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0" style={{ backgroundColor: chip.color, color: textOn(chip.color) }}>
           {chip.label}
         </span>
         <span className={`text-neutral-300 shrink-0 transition-transform ${open ? 'rotate-90' : ''}`}>›</span>

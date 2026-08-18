@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createInvoice, addExpense, deleteExpense } from './actions';
+import { textOn } from '@/lib/colors';
 
 export type Option = { id: string; name: string | null };
 export type Invoice = {
@@ -162,7 +163,7 @@ export default function MoneyClient({
                         </td>
                         <td className="px-5 py-3 font-semibold tabular-nums">{money(invoiceTotal(inv))}</td>
                         <td className="px-5 py-3">
-                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full text-white" style={{ backgroundColor: overdueRow ? '#CF0000' : st.color }}>
+                          <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: overdueRow ? '#CF0000' : st.color, color: textOn(overdueRow ? '#CF0000' : st.color) }}>
                             {overdueRow ? 'Overdue' : st.label}
                           </span>
                         </td>

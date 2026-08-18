@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getUserAndBusiness } from '@/lib/data';
 import { TranscriptThread } from '@/components/call-card';
+import { textOn } from '@/lib/colors';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -78,7 +79,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
             )}
           </div>
         </div>
-        <span className="text-xs font-bold px-2.5 py-1 rounded-full text-white shrink-0" style={{ backgroundColor: chip.color }}>
+        <span className="text-xs font-bold px-2.5 py-1 rounded-full shrink-0" style={{ backgroundColor: chip.color, color: textOn(chip.color) }}>
           {chip.label}
         </span>
       </div>

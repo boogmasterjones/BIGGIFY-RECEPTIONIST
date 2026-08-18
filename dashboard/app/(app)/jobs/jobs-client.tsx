@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useOptimistic, useRef, useState, startTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ConfirmButton from '@/components/confirm-button';
+import { textOn } from '@/lib/colors';
 import { createJob, updateJob, setJobStage, deleteJob } from './actions';
 
 export type Stage = { id: string; name: string; color: string; position: number };
@@ -317,6 +318,7 @@ export default function JobsClient({
             <tbody>
               {optimisticJobs.map((j) => {
                 const stage = j.stage_id ? stageById.get(j.stage_id) : null;
+                const selColor = stage?.color ?? stageById.get(bucketOf(j) || '')?.color ?? '#9aa0b4';
                 return (
                   <tr key={j.id} className="border-b border-neutral-50 hover:bg-[#FFFBF0]">
                     <td className="px-5 py-3">
@@ -331,8 +333,8 @@ export default function JobsClient({
                       <select
                         value={bucketOf(j) ?? ''}
                         onChange={(e) => move(j.id, e.target.value)}
-                        className="text-[12px] font-semibold rounded-full px-2.5 py-1 outline-none cursor-pointer text-white"
-                        style={{ backgroundColor: stage?.color ?? stageById.get(bucketOf(j) || '')?.color ?? '#9aa0b4' }}
+                        className="text-[12px] font-semibold rounded-full px-2.5 py-1 outline-none cursor-pointer"
+                        style={{ backgroundColor: selColor, color: textOn(selColor) }}
                       >
                         {stages.map((s) => (
                           <option key={s.id} value={s.id} className="text-neutral-900 bg-white">

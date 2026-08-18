@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import CallCard from '@/components/call-card';
+import { textOn } from '@/lib/colors';
 
 export type Contact = {
   id: string;
@@ -101,7 +102,7 @@ export default function ContactDetail({
                         <span className="text-neutral-400"> · {date(j.created_at)}</span>
                       </span>
                       {j.stage?.name && (
-                        <span className="text-[11px] px-2 py-0.5 rounded-full text-white shrink-0 ml-2" style={{ backgroundColor: j.stage.color || '#9aa0b4' }}>
+                        <span className="text-[11px] px-2 py-0.5 rounded-full shrink-0 ml-2" style={{ backgroundColor: j.stage.color || '#9aa0b4', color: textOn(j.stage.color || '#9aa0b4') }}>
                           {j.stage.name}
                         </span>
                       )}

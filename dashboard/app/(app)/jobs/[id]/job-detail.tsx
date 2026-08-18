@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CallCard, { type CallLite } from '@/components/call-card';
 import ConfirmButton from '@/components/confirm-button';
+import { textOn } from '@/lib/colors';
 import {
   updateJobMeta,
   addTask,
@@ -375,7 +376,7 @@ export default function JobDetail({
               className="px-3 py-1.5 rounded-full text-xs font-semibold transition"
               style={
                 active
-                  ? { backgroundColor: s.color, color: 'white' }
+                  ? { backgroundColor: s.color, color: textOn(s.color) }
                   : { backgroundColor: '#fff', color: '#6b7280', border: '1px solid #ece3ca' }
               }
             >
@@ -542,8 +543,8 @@ export default function JobDetail({
                         <select
                           value={m.status}
                           onChange={(e) => setMaterialStatus(m.id, job.id, e.target.value).then(refresh)}
-                          className="text-[11px] font-semibold rounded-full px-2 py-0.5 text-white outline-none cursor-pointer"
-                          style={{ backgroundColor: st.color }}
+                          className="text-[11px] font-semibold rounded-full px-2 py-0.5 outline-none cursor-pointer"
+                          style={{ backgroundColor: st.color, color: textOn(st.color) }}
                         >
                           {MAT_STATUS.map((s) => (
                             <option key={s.value} value={s.value} className="text-neutral-900 bg-white">

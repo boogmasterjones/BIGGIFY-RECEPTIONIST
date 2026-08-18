@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { getUserAndBusiness } from '@/lib/data';
 import CountUp from '@/components/count-up';
+import { textOn } from '@/lib/colors';
 
 // Rough per-event minutes the receptionist saves the owner (tunable, labeled "est.").
 const MIN_PER_CALL = 6;
@@ -249,7 +250,7 @@ export default async function Home() {
                           {j.service && <span className="text-neutral-400"> · {j.service}</span>}
                         </span>
                         {j.stage?.name && (
-                          <span className="text-[11px] px-2 py-0.5 rounded-full text-white shrink-0 ml-2" style={{ backgroundColor: j.stage.color || '#9aa0b4' }}>
+                          <span className="text-[11px] px-2 py-0.5 rounded-full shrink-0 ml-2" style={{ backgroundColor: j.stage.color || '#9aa0b4', color: textOn(j.stage.color || '#9aa0b4') }}>
                             {j.stage.name}
                           </span>
                         )}

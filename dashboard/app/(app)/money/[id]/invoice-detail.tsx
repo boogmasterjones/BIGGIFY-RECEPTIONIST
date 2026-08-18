@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { addInvoiceItem, deleteInvoiceItem, updateInvoice, deleteInvoice } from '../actions';
 import { burst } from '@/components/confetti';
 import ConfirmButton from '@/components/confirm-button';
+import { textOn } from '@/lib/colors';
 
 export type Item = { id: string; description: string | null; quantity: number; unit_price_cents: number; position: number };
 export type Invoice = {
@@ -92,7 +93,7 @@ export default function InvoiceDetail({
             )}
           </div>
         </div>
-        <span className="text-xs font-semibold px-2.5 py-1 rounded-full text-white" style={{ backgroundColor: st.color }}>{st.label}</span>
+        <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ backgroundColor: st.color, color: textOn(st.color) }}>{st.label}</span>
       </div>
 
       {/* status flow + due */}
