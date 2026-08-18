@@ -155,8 +155,11 @@ export default function JobDetail({
 }) {
   const router = useRouter();
   const [taskTitle, setTaskTitle] = useState('');
+  const [taskError, setTaskError] = useState<string | null>(null);
+  const taskInputRef = useRef<HTMLInputElement>(null);
   const [msgBody, setMsgBody] = useState('');
   const [msgBusy, setMsgBusy] = useState(false);
+  const [msgError, setMsgError] = useState<string | null>(null);
   const [invBusy, setInvBusy] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadBusy, setUploadBusy] = useState(false);
@@ -200,8 +203,16 @@ export default function JobDetail({
 
   // --- tasks ---
   async function onAddTask() {
-    if (!taskTitle.trim()) return;
-    await addTask(job.id, businessId, taskTitle);
+    if (!taskTitle.trim()) {
+      taskInputRef.current?.focus();
+      return;
+    }
+    setTaskError(null);
+    const res = await addTask(job.id, businessId, taskTitle);
+    if (!res.ok) {
+      setTaskError(res.error || 'Could not add the task.');
+      return;
+    }
     setTaskTitle('');
     refresh();
   }
@@ -245,8 +256,13 @@ export default function JobDetail({
   async function sendMessage() {
     if (!msgBody.trim()) return;
     setMsgBusy(true);
-    await postJobMessage(job.id, businessId, msgBody);
+    setMsgError(null);
+    const res = await postJobMessage(job.id, businessId, msgBody);
     setMsgBusy(false);
+    if (!res.ok) {
+      setMsgError(res.error || 'Could not post the message.');
+      return;
+    }
     setMsgBody('');
     refresh();
   }
@@ -511,8 +527,9 @@ export default function JobDetail({
           </div>
           <div className="flex gap-2">
             <input
+              ref={taskInputRef}
               value={taskTitle}
-              onChange={(e) => setTaskTitle(e.target.value)}
+              onChange={(e) => { setTaskTitle(e.target.value); if (taskError) setTaskError(null); }}
               onKeyDown={(e) => e.key === 'Enter' && onAddTask()}
               placeholder="Add a task…"
               className="flex-1 rounded-lg border border-neutral-200 px-3 py-2 text-sm outline-none focus:border-[#CF0000]"
@@ -521,6 +538,7 @@ export default function JobDetail({
               +
             </button>
           </div>
+          {taskError && <p className="text-xs text-[#b00000] mt-2">{taskError}</p>}
         </div>
 
         {/* Materials */}
@@ -795,6 +813,8 @@ export default function JobDetail({
             {msgBusy ? '…' : 'Send'}
           </button>
         </div>
+        {msgError && <p className="text-xs text-[#b00000] mt-2">{msgError}</p>}
+        <p className="text-[11px] text-neutral-400 mt-2">Internal team log for this job — the customer never sees this.</p>
       </div>
 
       {/* Material slide-over */}
