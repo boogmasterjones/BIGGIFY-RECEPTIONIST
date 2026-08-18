@@ -15,6 +15,7 @@ import { createLead, updateLead, getLead, allLeads } from './store.js';
 import { alertOwner } from './twilioSms.js';
 import { surveyPage, thankYouPage, dashboardPage, testChatPage } from './pages.js';
 import { isSupabaseLive, lookupBusinessByNumber, envBusiness, logCall, upsertContactByPhone, updateCall } from './supabase.js';
+import { startOutreachScheduler, runOutreachSweep } from './outreach.js';
 
 // Resolve which business a call is for by the dialed number, falling back to
 // the single-business env config.
@@ -75,6 +76,14 @@ app.get('/test-cal', async (_req, res) => {
   } catch (e) {
     res.type('text').send(`Cal.com error: ${e.message} — check CALCOM_API_KEY and CALCOM_EVENT_TYPE_ID.`);
   }
+});
+
+// Manually run the outreach sweep (quote follow-ups + review requests) so you can
+// test it without waiting for the hourly timer.
+app.get('/run-outreach', async (_req, res) => {
+  if (!isSupabaseLive) return res.type('text').send('Outreach needs the DB live (set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY).');
+  const out = await runOutreachSweep();
+  res.type('text').send(`Outreach sweep done. Quote follow-ups sent: ${out.quote ?? 0} · Review requests sent: ${out.review ?? 0}` + (isSmsLive ? '' : '\n(SMS is in MOCK mode — messages were logged, not sent. Set Twilio creds to send for real.)'));
 });
 
 // --- Twilio voice webhook: returns TwiML that connects the call to ConversationRelay ---
@@ -254,4 +263,6 @@ server.listen(config.port, () => {
   console.log(`Biggify receptionist listening on :${config.port}`);
   console.log(`  DB: ${isSupabaseLive ? 'LIVE (multi-tenant)' : 'mock (env)'} | Cal.com: ${isCalcomLive ? 'LIVE' : 'mock'} | SMS: ${isSmsLive ? 'LIVE' : 'mock'} | Email: ${isEmailLive ? 'LIVE' : 'mock'}`);
   if (!config.publicUrl) console.log('  ⚠ PUBLIC_URL not set — set it to your ngrok/deploy URL for Twilio + survey links.');
+  // Quote follow-ups + review requests (opt-in per business; no-op unless DB is live).
+  startOutreachScheduler();
 });

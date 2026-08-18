@@ -10,15 +10,19 @@ if (isSmsLive) {
   client = twilio(config.twilio.accountSid, config.twilio.authToken);
 }
 
-export async function sendSms(to, body) {
+export async function sendSms(to, body, from = null) {
   if (!to) return { ok: false, reason: 'no recipient' };
   if (!isSmsLive) {
-    console.log(`[sms:mock] -> ${to}\n${body}\n`);
+    console.log(`[sms:mock]${from ? ` (from ${from})` : ''} -> ${to}\n${body}\n`);
     return { ok: true, mocked: true };
   }
   try {
     const payload = { to, body };
-    if (config.twilio.messagingServiceSid) {
+    // Prefer sending from the business's own number when given, so replies land
+    // on their line; otherwise fall back to the messaging service / env number.
+    if (from) {
+      payload.from = from;
+    } else if (config.twilio.messagingServiceSid) {
       payload.messagingServiceSid = config.twilio.messagingServiceSid;
     } else {
       payload.from = config.twilio.phoneNumber;

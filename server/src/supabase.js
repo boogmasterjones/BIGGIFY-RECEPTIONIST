@@ -18,6 +18,11 @@ const supabase = isSupabaseLive
   ? createClient(url, serviceKey, { auth: { persistSession: false } })
   : null;
 
+// The raw service-role client for background jobs (outreach sweeps, etc.).
+export function serviceDb() {
+  return supabase;
+}
+
 // The single-business config from env vars — used as a fallback when Supabase
 // isn't configured, or when a dialed number isn't mapped to any business.
 export function envBusiness() {

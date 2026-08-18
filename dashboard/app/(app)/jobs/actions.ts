@@ -29,9 +29,12 @@ function parse(input: JobInput) {
 
 export async function createJob(businessId: string, input: JobInput): Promise<Result> {
   const supabase = await createClient();
-  const { error } = await supabase
-    .from('jobs')
-    .insert({ business_id: businessId, source: 'manual', ...parse(input) });
+  const row = parse(input);
+  const insert: Record<string, unknown> = { business_id: businessId, source: 'manual', ...row };
+  // Stamp the quote time when the job is created with a value — starts the
+  // follow-up clock (Quote Follow-Up Vault).
+  if (row.value_cents && row.value_cents > 0) insert.quoted_at = new Date().toISOString();
+  const { error } = await supabase.from('jobs').insert(insert);
   if (error) return { ok: false, error: error.message };
   revalidatePath('/jobs');
   return { ok: true };
@@ -39,7 +42,14 @@ export async function createJob(businessId: string, input: JobInput): Promise<Re
 
 export async function updateJob(id: string, input: JobInput): Promise<Result> {
   const supabase = await createClient();
-  const { error } = await supabase.from('jobs').update(parse(input)).eq('id', id);
+  const row = parse(input);
+  const patch: Record<string, unknown> = { ...row };
+  // First time a value is set, stamp quoted_at (don't reset it on later edits).
+  if (row.value_cents && row.value_cents > 0) {
+    const { data: existing } = await supabase.from('jobs').select('quoted_at').eq('id', id).maybeSingle();
+    if (existing && !existing.quoted_at) patch.quoted_at = new Date().toISOString();
+  }
+  const { error } = await supabase.from('jobs').update(patch).eq('id', id);
   if (error) return { ok: false, error: error.message };
   revalidatePath('/jobs');
   return { ok: true };
