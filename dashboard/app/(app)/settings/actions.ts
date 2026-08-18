@@ -37,3 +37,22 @@ export async function updateBusiness(
   revalidatePath('/');
   return { ok: true };
 }
+
+// Automated outreach settings (Quote Follow-Up Vault + 5-Star Autopilot).
+export async function updateAutomations(
+  businessId: string,
+  input: { quote_followups_enabled: boolean; review_requests_enabled: boolean; review_url: string }
+): Promise<{ ok: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('businesses')
+    .update({
+      quote_followups_enabled: input.quote_followups_enabled,
+      review_requests_enabled: input.review_requests_enabled,
+      review_url: input.review_url.trim() || null,
+    })
+    .eq('id', businessId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath('/settings');
+  return { ok: true };
+}

@@ -58,6 +58,15 @@ export async function updateJobMeta(
   return { ok: true };
 }
 
+// ---- Outreach: pause/resume auto follow-ups for this job ----
+export async function setFollowupsPaused(jobId: string, paused: boolean): Promise<Result> {
+  const supabase = await createClient();
+  const { error } = await supabase.from('jobs').update({ followups_paused: paused }).eq('id', jobId);
+  if (error) return { ok: false, error: error.message };
+  touch(jobId);
+  return { ok: true };
+}
+
 // ---- Tasks ----
 export async function addTask(jobId: string, businessId: string, title: string): Promise<Result> {
   if (!title.trim()) return { ok: false, error: 'Task needs a title' };

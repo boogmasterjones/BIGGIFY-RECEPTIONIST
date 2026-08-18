@@ -23,6 +23,7 @@ import {
   uploadJobFiles,
   updateJobFile,
   deleteJobFile,
+  setFollowupsPaused,
   postJobMessage,
   draftInvoiceFromJob,
   type MaterialInput,
@@ -81,6 +82,13 @@ export type JobInvoice = {
   status: string;
   items: { quantity: number; unit_price_cents: number }[];
 };
+export type Followup = {
+  id: string;
+  kind: string; // 'quote' | 'review'
+  step: number;
+  status: string;
+  created_at: string;
+};
 export type Job = {
   id: string;
   title: string | null;
@@ -138,6 +146,9 @@ export default function JobDetail({
   expensesTotal,
   invoices,
   calls,
+  followups,
+  followupsPaused,
+  quotedAt,
   canInvoice,
 }: {
   businessId: string;
@@ -151,6 +162,9 @@ export default function JobDetail({
   expensesTotal: number;
   invoices: JobInvoice[];
   calls: CallLite[];
+  followups: Followup[];
+  followupsPaused: boolean;
+  quotedAt: string | null;
   canInvoice: boolean;
 }) {
   const router = useRouter();
@@ -249,6 +263,15 @@ export default function JobDetail({
     await updateJobFile(fileEditing.id, job.id, fileForm);
     setBusy(false);
     setFileEditing(null);
+    refresh();
+  }
+
+  // --- outreach follow-ups ---
+  const [paused, setPaused] = useState(followupsPaused);
+  async function togglePaused() {
+    const next = !paused;
+    setPaused(next); // optimistic
+    await setFollowupsPaused(job.id, next);
     refresh();
   }
 
@@ -755,6 +778,47 @@ export default function JobDetail({
           <p className="text-sm text-neutral-300">
             {canInvoice ? 'No invoice yet — draft one from this job’s materials in one click.' : 'No invoice yet.'}
           </p>
+        )}
+      </div>
+
+      {/* Follow-ups — automated quote nudges + review request for this job */}
+      <div className="rounded-2xl bg-white border border-[#ece3ca] p-5 mt-6">
+        <div className="flex items-center justify-between mb-1">
+          <div className="font-bold">Follow-ups</div>
+          <button
+            onClick={togglePaused}
+            className={`text-xs font-bold rounded-full px-3 py-1 border ${paused ? 'border-neutral-200 text-neutral-500 hover:text-neutral-700' : 'border-[#1E9E6A] text-[#1E9E6A]'}`}
+          >
+            {paused ? 'Auto follow-ups paused — resume' : 'Auto follow-ups on — pause for this job'}
+          </button>
+        </div>
+        <p className="text-xs text-neutral-400 mb-3">
+          {quotedAt
+            ? `Quote sent ${new Date(quotedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} — the Vault nudges unbooked quotes at 3, 7, and 14 days. `
+            : 'Set a value on this job to start the quote follow-up clock. '}
+          <a href="/settings" className="text-[#CF0000] font-semibold">Turn the automations on in Settings.</a>
+        </p>
+        {followups.length > 0 ? (
+          <ul className="divide-y divide-neutral-50">
+            {followups.map((fu) => {
+              const label =
+                fu.kind === 'review'
+                  ? 'Review request'
+                  : `Quote nudge · ${fu.step === 1 ? '3-day' : fu.step === 2 ? '7-day' : '14-day'}`;
+              return (
+                <li key={fu.id} className="py-2 flex items-center gap-3 text-sm">
+                  <span>{fu.kind === 'review' ? '⭐' : '💬'}</span>
+                  <span className="flex-1 font-medium">{label}</span>
+                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${fu.status === 'sent' ? 'bg-[#E7F6EF] text-[#1E9E6A]' : 'bg-[#FDECEC] text-[#CF0000]'}`}>
+                    {fu.status === 'sent' ? 'Sent' : 'Failed'}
+                  </span>
+                  <span className="text-xs text-neutral-400">{new Date(fu.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="text-sm text-neutral-300">No follow-ups sent yet — they&apos;ll appear here automatically.</p>
         )}
       </div>
 

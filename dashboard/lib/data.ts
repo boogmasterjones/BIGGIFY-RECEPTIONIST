@@ -18,6 +18,9 @@ export type Business = {
   owner_alert_phone: string | null;
   plan: string;
   features: Features;
+  review_url?: string | null;
+  quote_followups_enabled?: boolean;
+  review_requests_enabled?: boolean;
 };
 
 export type Role = 'owner' | 'admin' | 'staff';

@@ -44,6 +44,8 @@ const NOTE_ICON: Record<string, string> = {
   callback_requested: '↩️',
   job_updated: '🧰',
   invoice_drafted: '🧾',
+  followup_sent: '💬',
+  review_sent: '⭐',
   default: '🔔',
 };
 
