@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import ConfirmButton from '@/components/confirm-button';
 import { addStage, updateStage, deleteStage, moveStage } from './stages-actions';
 
 export type Stage = { id: string; name: string; color: string; position: number };
@@ -75,15 +76,12 @@ export default function StagesManager({
             >
               ↓
             </button>
-            <button
-              onClick={() => {
-                if (confirm(`Delete stage "${s.name}"?`)) deleteStage(s.id).then(refresh);
-              }}
+            <ConfirmButton
+              onConfirm={() => deleteStage(s.id).then(refresh)}
+              label="✕"
+              title={`Delete stage "${s.name}"`}
               className="w-8 h-8 grid place-items-center rounded text-neutral-300 hover:text-[#CF0000]"
-              title="Delete"
-            >
-              ✕
-            </button>
+            />
           </div>
         ))}
       </div>

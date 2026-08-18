@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import ConfirmButton from '@/components/confirm-button';
 import {
   createAppointment,
   updateAppointment,
@@ -171,7 +172,6 @@ export default function AppointmentsClient({
   }
   async function remove() {
     if (!editingId) return;
-    if (!confirm('Delete this appointment?')) return;
     await deleteAppointment(editingId);
     setOpen(false);
     refresh();
@@ -310,9 +310,13 @@ export default function AppointmentsClient({
                   {busy ? 'Saving…' : editingId ? 'Save' : 'Add appointment'}
                 </button>
                 {editingId && (
-                  <button onClick={remove} className="rounded-full border border-neutral-200 text-neutral-500 px-4 hover:text-[#CF0000]">
-                    Delete
-                  </button>
+                  <ConfirmButton
+                    onConfirm={remove}
+                    label="Delete"
+                    confirmLabel="Delete for good"
+                    className="rounded-full border border-neutral-200 text-neutral-500 px-4 hover:text-[#CF0000]"
+                    armedClassName="rounded-full bg-[#CF0000] text-white px-4 py-2.5 text-sm font-bold"
+                  />
                 )}
               </div>
             </div>

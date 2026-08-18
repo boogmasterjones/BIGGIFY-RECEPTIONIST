@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CallCard, { type CallLite } from '@/components/call-card';
+import ConfirmButton from '@/components/confirm-button';
 import {
   updateJobMeta,
   addTask,
@@ -216,7 +217,6 @@ export default function JobDetail({
     refresh();
   }
   async function removeFile(f: JobFile) {
-    if (!confirm(`Delete "${f.name || 'this file'}"?`)) return;
     await deleteJobFile(f.id, job.id, f.storage_path);
     refresh();
   }
@@ -797,12 +797,13 @@ export default function JobDetail({
                   {busy ? 'Saving…' : matEditingId ? 'Save' : 'Add material'}
                 </button>
                 {matEditingId && (
-                  <button
-                    onClick={() => { if (confirm('Delete this material?')) deleteMaterial(matEditingId, job.id).then(() => { setMatOpen(false); refresh(); }); }}
-                    className="rounded-full border border-neutral-200 text-neutral-500 px-4 hover:text-[#CF0000]"
-                  >
-                    Delete
-                  </button>
+                  <ConfirmButton
+                    onConfirm={() => deleteMaterial(matEditingId, job.id).then(() => { setMatOpen(false); refresh(); })}
+                    label="Delete"
+                    confirmLabel="Delete for good"
+                    className="rounded-full border border-neutral-200 text-neutral-500 px-4 py-2.5 hover:text-[#CF0000]"
+                    armedClassName="rounded-full bg-[#CF0000] text-white px-4 py-2.5 text-sm font-bold"
+                  />
                 )}
               </div>
             </div>
@@ -833,12 +834,13 @@ export default function JobDetail({
                   {busy ? 'Saving…' : roomEditingId ? 'Save' : 'Add room'}
                 </button>
                 {roomEditingId && (
-                  <button
-                    onClick={() => { if (confirm('Delete this room? Materials stay but lose their room.')) deleteRoom(roomEditingId, job.id).then(() => { setRoomOpen(false); refresh(); }); }}
-                    className="rounded-full border border-neutral-200 text-neutral-500 px-4 hover:text-[#CF0000]"
-                  >
-                    Delete
-                  </button>
+                  <ConfirmButton
+                    onConfirm={() => deleteRoom(roomEditingId, job.id).then(() => { setRoomOpen(false); refresh(); })}
+                    label="Delete"
+                    confirmLabel="Delete room"
+                    className="rounded-full border border-neutral-200 text-neutral-500 px-4 py-2.5 hover:text-[#CF0000]"
+                    armedClassName="rounded-full bg-[#CF0000] text-white px-4 py-2.5 text-sm font-bold"
+                  />
                 )}
               </div>
             </div>

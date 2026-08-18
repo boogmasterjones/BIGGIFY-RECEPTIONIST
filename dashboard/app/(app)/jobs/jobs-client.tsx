@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useOptimistic, useRef, useState, startTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import ConfirmButton from '@/components/confirm-button';
 import { createJob, updateJob, setJobStage, deleteJob } from './actions';
 
 export type Stage = { id: string; name: string; color: string; position: number };
@@ -185,7 +186,6 @@ export default function JobsClient({
   }
 
   async function remove(j: Job) {
-    if (!confirm('Delete this job?')) return;
     await deleteJob(j.id);
     router.refresh();
   }
@@ -345,9 +345,7 @@ export default function JobsClient({
                       <button onClick={() => startEdit(j)} className="text-neutral-400 hover:text-[#CF0000] text-sm mr-3">
                         Edit
                       </button>
-                      <button onClick={() => remove(j)} className="text-neutral-300 hover:text-[#CF0000] text-sm">
-                        Delete
-                      </button>
+                      <ConfirmButton onConfirm={() => remove(j)} className="text-neutral-300 hover:text-[#CF0000] text-sm" />
                     </td>
                   </tr>
                 );

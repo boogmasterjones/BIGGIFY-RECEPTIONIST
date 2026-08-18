@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import ConfirmButton from '@/components/confirm-button';
 import { createContact, updateContact, deleteContact } from './actions';
 
 export type Contact = {
@@ -77,7 +78,6 @@ export default function ContactsClient({
   }
 
   async function remove(c: Contact) {
-    if (!confirm(`Delete ${c.name || 'this contact'}?`)) return;
     await deleteContact(c.id);
     router.refresh();
   }
@@ -133,12 +133,7 @@ export default function ContactsClient({
                     <button onClick={() => startEdit(c)} className="text-neutral-400 hover:text-[#CF0000] text-sm mr-3">
                       Edit
                     </button>
-                    <button
-                      onClick={() => remove(c)}
-                      className="text-neutral-300 hover:text-[#CF0000] text-sm"
-                    >
-                      Delete
-                    </button>
+                    <ConfirmButton onConfirm={() => remove(c)} className="text-neutral-300 hover:text-[#CF0000] text-sm" />
                   </td>
                 </tr>
               ))}

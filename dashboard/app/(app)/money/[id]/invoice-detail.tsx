@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { addInvoiceItem, deleteInvoiceItem, updateInvoice, deleteInvoice } from '../actions';
 import { burst } from '@/components/confetti';
+import ConfirmButton from '@/components/confirm-button';
 
 export type Item = { id: string; description: string | null; quantity: number; unit_price_cents: number; position: number };
 export type Invoice = {
@@ -71,7 +72,6 @@ export default function InvoiceDetail({
     router.refresh();
   }
   async function remove() {
-    if (!confirm('Delete this invoice?')) return;
     await deleteInvoice(invoice.id);
     router.push('/money');
   }
@@ -169,7 +169,9 @@ export default function InvoiceDetail({
         </div>
       </div>
 
-      <button onClick={remove} className="mt-6 text-sm text-neutral-400 hover:text-[#CF0000]">Delete invoice</button>
+      <div className="mt-6">
+        <ConfirmButton onConfirm={remove} label="Delete invoice" confirmLabel="Delete for good" className="text-sm text-neutral-400 hover:text-[#CF0000]" />
+      </div>
     </div>
   );
 }
