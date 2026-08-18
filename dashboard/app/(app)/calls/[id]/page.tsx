@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getUserAndBusiness } from '@/lib/data';
 import { TranscriptThread } from '@/components/call-card';
+import BackLink from '@/components/back-link';
 import { textOn } from '@/lib/colors';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -59,7 +60,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
   return (
     <div>
-      <Link href="/calls" className="text-sm text-neutral-400 hover:text-neutral-700">← Calls</Link>
+      <BackLink fallback="/calls" />
 
       <div className="flex items-start justify-between mt-2 mb-5 gap-4">
         <div>

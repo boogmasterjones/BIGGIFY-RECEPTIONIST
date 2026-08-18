@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CallCard, { type CallLite } from '@/components/call-card';
 import ConfirmButton from '@/components/confirm-button';
+import BackLink from '@/components/back-link';
 import { textOn } from '@/lib/colors';
 import {
   updateJobMeta,
@@ -346,9 +347,7 @@ export default function JobDetail({
 
   return (
     <div>
-      <Link href="/jobs" className="text-sm text-neutral-400 hover:text-neutral-700">
-        ← Jobs
-      </Link>
+      <BackLink fallback="/jobs" />
 
       {/* Title + customer */}
       <div className="mt-2 mb-5">

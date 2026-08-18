@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import CallCard from '@/components/call-card';
+import BackLink from '@/components/back-link';
 import { textOn } from '@/lib/colors';
 
 export type Contact = {
@@ -62,7 +63,7 @@ export default function ContactDetail({
 
   return (
     <div>
-      <Link href="/contacts" className="text-sm text-neutral-400 hover:text-neutral-700">← Contacts</Link>
+      <BackLink fallback="/contacts" />
 
       <div className="flex items-center gap-4 mt-2 mb-6">
         <div className="w-14 h-14 rounded-full bg-[#FFF6E1] grid place-items-center text-xl font-extrabold text-[#CF0000]">

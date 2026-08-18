@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { addInvoiceItem, deleteInvoiceItem, updateInvoice, deleteInvoice } from '../actions';
 import { burst } from '@/components/confetti';
 import ConfirmButton from '@/components/confirm-button';
+import BackLink from '@/components/back-link';
 import { textOn } from '@/lib/colors';
 
 export type Item = { id: string; description: string | null; quantity: number; unit_price_cents: number; position: number };
@@ -81,7 +82,7 @@ export default function InvoiceDetail({
 
   return (
     <div>
-      <Link href="/money" className="text-sm text-neutral-400 hover:text-neutral-700">← Money</Link>
+      <BackLink fallback="/money" />
 
       <div className="flex items-start justify-between mt-2 mb-5">
         <div>
