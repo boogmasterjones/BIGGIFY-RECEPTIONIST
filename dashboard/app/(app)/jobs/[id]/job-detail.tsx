@@ -21,6 +21,7 @@ import {
   updateRoom,
   deleteRoom,
   uploadJobFiles,
+  updateJobFile,
   deleteJobFile,
   postJobMessage,
   draftInvoiceFromJob,
@@ -59,6 +60,8 @@ export type Material = {
 export type JobFile = {
   id: string;
   name: string | null;
+  caption: string | null;
+  note: string | null;
   storage_path: string;
   mime: string | null;
   size_bytes: number | null;
@@ -158,6 +161,8 @@ export default function JobDetail({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadBusy, setUploadBusy] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [fileEditing, setFileEditing] = useState<JobFile | null>(null);
+  const [fileForm, setFileForm] = useState<{ caption: string; note: string }>({ caption: '', note: '' });
   const [matOpen, setMatOpen] = useState(false);
   const [matEditingId, setMatEditingId] = useState<string | null>(null);
   const [mat, setMat] = useState<MaterialInput>(emptyMat);
@@ -220,6 +225,19 @@ export default function JobDetail({
   }
   async function removeFile(f: JobFile) {
     await deleteJobFile(f.id, job.id, f.storage_path);
+    setFileEditing(null);
+    refresh();
+  }
+  function openFile(f: JobFile) {
+    setFileEditing(f);
+    setFileForm({ caption: f.caption ?? '', note: f.note ?? '' });
+  }
+  async function saveFile() {
+    if (!fileEditing) return;
+    setBusy(true);
+    await updateJobFile(fileEditing.id, job.id, fileForm);
+    setBusy(false);
+    setFileEditing(null);
     refresh();
   }
 
@@ -597,39 +615,82 @@ export default function JobDetail({
             {files.map((f) => {
               const isImg = (f.mime || '').startsWith('image/') && f.url;
               return (
-                <div key={f.id} className="group relative">
-                  <a
-                    href={f.url || '#'}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block border border-neutral-100 rounded-xl overflow-hidden hover:border-[#CF0000]"
-                  >
-                    {isImg ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={f.url!} alt={f.name || ''} className="w-full aspect-square object-cover bg-neutral-50" />
+                <button
+                  key={f.id}
+                  onClick={() => openFile(f)}
+                  title="Rename, add a note, or delete"
+                  className="group text-left block border border-neutral-100 rounded-xl overflow-hidden hover:border-[#CF0000]"
+                >
+                  {isImg ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={f.url!} alt={f.caption || f.name || ''} className="w-full aspect-square object-cover bg-neutral-50" />
+                  ) : (
+                    <div className="w-full aspect-square bg-[#FFF6E1] flex items-center justify-center text-2xl">📄</div>
+                  )}
+                  <div className="p-2">
+                    <div className="text-xs font-semibold truncate">{f.caption || f.name || 'File'}</div>
+                    {f.note ? (
+                      <div className="text-[10px] text-neutral-400 truncate">{f.note}</div>
                     ) : (
-                      <div className="w-full aspect-square bg-[#FFF6E1] flex items-center justify-center text-2xl">
-                        📄
-                      </div>
+                      <div className="text-[10px] text-neutral-300">{fileSize(f.size_bytes)}</div>
                     )}
-                    <div className="p-2">
-                      <div className="text-xs font-semibold truncate">{f.name || 'File'}</div>
-                      <div className="text-[10px] text-neutral-400">{fileSize(f.size_bytes)}</div>
-                    </div>
-                  </a>
-                  <button
-                    onClick={() => removeFile(f)}
-                    title="Delete"
-                    className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-white/90 border border-neutral-200 text-neutral-400 hover:text-[#CF0000] opacity-0 group-hover:opacity-100 text-xs"
-                  >
-                    ✕
-                  </button>
-                </div>
+                  </div>
+                </button>
               );
             })}
           </div>
         )}
       </div>
+
+      {/* File editor slide-over: name it, add a note, open, or delete */}
+      {fileEditing && (
+        <div className="fixed inset-0 z-50 flex justify-end" role="dialog">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setFileEditing(null)} />
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl p-6 overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-extrabold">Photo details</h2>
+              <button onClick={() => setFileEditing(null)} className="text-neutral-400 hover:text-neutral-700">✕</button>
+            </div>
+            {(fileEditing.mime || '').startsWith('image/') && fileEditing.url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={fileEditing.url} alt={fileEditing.caption || fileEditing.name || ''} className="w-full rounded-xl mb-3 bg-neutral-50" />
+            ) : (
+              <div className="w-full aspect-video bg-[#FFF6E1] rounded-xl mb-3 flex items-center justify-center text-4xl">📄</div>
+            )}
+            <div className="text-xs text-neutral-400 mb-3 flex items-center justify-between">
+              <span className="truncate">{fileEditing.name} · {fileSize(fileEditing.size_bytes)}</span>
+              {fileEditing.url && <a href={fileEditing.url} target="_blank" rel="noreferrer" className="text-[#CF0000] font-semibold shrink-0 ml-2">Open ↗</a>}
+            </div>
+            <div className="space-y-3">
+              <input
+                value={fileForm.caption}
+                onChange={(e) => setFileForm({ ...fileForm, caption: e.target.value })}
+                placeholder="Name this photo (e.g. Before — water damage)"
+                className={input}
+              />
+              <textarea
+                value={fileForm.note}
+                onChange={(e) => setFileForm({ ...fileForm, note: e.target.value })}
+                placeholder="Add a note about this photo…"
+                rows={4}
+                className={input}
+              />
+              <div className="flex gap-2">
+                <button onClick={saveFile} disabled={busy} className="flex-1 rounded-full bg-[#CF0000] text-white font-bold py-2.5 disabled:opacity-60">
+                  {busy ? 'Saving…' : 'Save'}
+                </button>
+                <ConfirmButton
+                  onConfirm={() => removeFile(fileEditing)}
+                  label="Delete"
+                  confirmLabel="Delete for good"
+                  className="rounded-full border border-neutral-200 text-neutral-500 px-4 py-2.5 hover:text-[#CF0000]"
+                  armedClassName="rounded-full bg-[#CF0000] text-white px-4 py-2.5 text-sm font-bold"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Money */}
       <div className="rounded-2xl bg-white border border-[#ece3ca] p-5 mt-6">

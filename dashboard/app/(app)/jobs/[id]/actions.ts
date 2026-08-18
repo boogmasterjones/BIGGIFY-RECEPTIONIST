@@ -131,6 +131,21 @@ export async function uploadJobFiles(
   return { ok: true };
 }
 
+export async function updateJobFile(
+  id: string,
+  jobId: string,
+  input: { caption?: string; note?: string }
+): Promise<Result> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from('job_files')
+    .update({ caption: input.caption?.trim() || null, note: input.note?.trim() || null })
+    .eq('id', id);
+  if (error) return { ok: false, error: error.message };
+  touch(jobId);
+  return { ok: true };
+}
+
 export async function deleteJobFile(id: string, jobId: string, storagePath: string): Promise<Result> {
   const supabase = await createClient();
   await supabase.storage.from('job-files').remove([storagePath]);
