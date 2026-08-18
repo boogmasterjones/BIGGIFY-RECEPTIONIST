@@ -25,11 +25,16 @@ export async function runStageAutomations(jobId: string, newStageId: string) {
     const stage = stages.find((s) => s.id === newStageId);
     if (!stage) return;
     const last = stages[stages.length - 1];
+    const isFinal = stage.id === last.id;
+
+    // Stamp completion time when a job reaches the final stage (clear it if it
+    // moves back) — drives call-transcript retention (see migration 009).
+    await supabase.from('jobs').update({ completed_at: isFinal ? new Date().toISOString() : null }).eq('id', jobId);
 
     await notify(businessId, 'job_updated', `${jobName} moved to ${stage.name}`);
 
     // Reached the final stage → auto-draft an invoice (once).
-    if (stage.id === last.id) {
+    if (isFinal) {
       const { count } = await supabase.from('invoices').select('*', { count: 'exact', head: true }).eq('job_id', jobId);
       if (!count) {
         const res = await createInvoice(businessId, { job_id: jobId });

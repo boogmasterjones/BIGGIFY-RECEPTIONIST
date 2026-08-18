@@ -64,10 +64,20 @@ export default async function Page() {
 
   return (
     <div>
-      <div className="mb-6">
+      <div className="mb-4">
         <h1 className="text-2xl font-extrabold tracking-tight">Calls</h1>
         <p className="text-neutral-500 text-sm">Every call your receptionist answered — with the full transcript.</p>
       </div>
+
+      {calls.length > 0 && (
+        <div className="mb-5 flex items-start gap-2.5 rounded-xl border border-[#ece3ca] bg-[#FFFBF0] px-4 py-3 text-[13px] text-neutral-500">
+          <span className="text-base leading-none">🗑️</span>
+          <span>
+            <b className="text-neutral-700">Auto-cleanup:</b> a call is kept until <b className="text-neutral-700">30 days after the caller&apos;s
+            most recent completed job</b> — or 30 days after the call if they have no completed job — then it&apos;s deleted automatically.
+          </span>
+        </div>
+      )}
 
       {calls.length === 0 ? (
         <div className="rounded-2xl bg-white border border-[#ece3ca] p-12 text-center text-neutral-400">
