@@ -129,6 +129,7 @@ async function runTool(name, input, leadId, business) {
       contactId: lead?.dbContactId,
       startsAt: input.starts_at,
       notes: `Booked by AI receptionist. Cal.com: ${result.calBookingId || 'n/a'}`,
+      calBookingId: result.calBookingId,
     });
     if (apptId) updateLead(leadId, { dbApptId: apptId });
     return JSON.stringify({

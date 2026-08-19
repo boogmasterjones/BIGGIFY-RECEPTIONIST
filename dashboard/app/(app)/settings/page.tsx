@@ -3,6 +3,7 @@ import { getUserAndBusiness } from '@/lib/data';
 import SettingsForm from './settings-form';
 import StagesManager, { type Stage } from './stages-manager';
 import AutomationsForm from './automations-form';
+import StripeForm from './stripe-form';
 
 export default async function SettingsPage() {
   const { business } = await getUserAndBusiness();
@@ -28,6 +29,7 @@ export default async function SettingsPage() {
       </p>
       <div className="space-y-6 max-w-2xl">
         <SettingsForm business={business} />
+        {business.features.invoicing && <StripeForm business={business} />}
         {business.features.jobs && <AutomationsForm business={business} />}
         {business.features.jobs && <StagesManager businessId={business.id} stages={stages} />}
       </div>

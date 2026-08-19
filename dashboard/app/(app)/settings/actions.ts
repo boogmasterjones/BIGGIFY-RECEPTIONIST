@@ -56,3 +56,25 @@ export async function updateAutomations(
   revalidatePath('/settings');
   return { ok: true };
 }
+
+// Stripe API keys (per-business, for payment collection).
+export async function updateStripeKeys(
+  businessId: string,
+  _prev: SaveState,
+  formData: FormData
+): Promise<SaveState> {
+  const supabase = await createClient();
+  const secretKey = String(formData.get('stripe_secret_key') || '').trim() || null;
+  const publishableKey = String(formData.get('stripe_publishable_key') || '').trim() || null;
+
+  const { error } = await supabase
+    .from('businesses')
+    .update({
+      stripe_secret_key: secretKey,
+      stripe_publishable_key: publishableKey,
+    })
+    .eq('id', businessId);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath('/settings');
+  return { ok: true };
+}

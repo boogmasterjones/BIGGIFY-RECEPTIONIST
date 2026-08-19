@@ -146,12 +146,12 @@ export async function upsertContactByPhone({ businessId, phone, name }) {
   }
 }
 
-export async function createAppointment({ businessId, contactId, startsAt, notes }) {
+export async function createAppointment({ businessId, contactId, startsAt, notes, calBookingId }) {
   if (!supabase || !businessId || !startsAt) return null;
   try {
     const { data, error } = await supabase
       .from('appointments')
-      .insert({ business_id: businessId, contact_id: contactId || null, starts_at: startsAt, status: 'scheduled', notes: notes || null })
+      .insert({ business_id: businessId, contact_id: contactId || null, starts_at: startsAt, status: 'scheduled', notes: notes || null, cal_booking_id: calBookingId || null })
       .select('id')
       .single();
     if (error) throw error;

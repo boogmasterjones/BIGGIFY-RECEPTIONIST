@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { addInvoiceItem, deleteInvoiceItem, updateInvoice, deleteInvoice } from '../actions';
+import { addInvoiceItem, deleteInvoiceItem, updateInvoice, deleteInvoice, requestPayment } from '../actions';
 import { burst } from '@/components/confetti';
 import ConfirmButton from '@/components/confirm-button';
 import BackLink from '@/components/back-link';
@@ -50,6 +50,9 @@ export default function InvoiceDetail({
   const [qty, setQty] = useState('1');
   const [price, setPrice] = useState('');
   const [status, setStatusLocal] = useState(invoice.status); // optimistic
+  const [paymentLink, setPaymentLink] = useState<{ url: string; linkId: string } | null>(null);
+  const [requesting, setRequesting] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const total = items.reduce((s, it) => s + it.quantity * it.unit_price_cents, 0);
 
   async function add() {
@@ -76,6 +79,32 @@ export default function InvoiceDetail({
   async function remove() {
     await deleteInvoice(invoice.id);
     router.push('/money');
+  }
+  async function requestPaymentLink() {
+    if (total === 0) {
+      setPaymentError('Invoice total must be greater than $0');
+      return;
+    }
+    setRequesting(true);
+    setPaymentError(null);
+    const result = await requestPayment(
+      businessId,
+      invoice.id,
+      invoice.number,
+      total,
+      invoice.contact?.email || undefined,
+      invoice.contact?.name || undefined
+    );
+    setRequesting(false);
+    if (!result.ok) {
+      setPaymentError(result.error || 'Failed to create payment link');
+      return;
+    }
+    setPaymentLink({ url: result.url!, linkId: result.linkId! });
+    // Update status to "sent"
+    await updateInvoice(invoice.id, { status: 'sent' });
+    setStatusLocal('sent');
+    router.refresh();
   }
 
   const st = STATUS[status] || STATUS.draft;
@@ -116,6 +145,31 @@ export default function InvoiceDetail({
           <input type="date" defaultValue={invoice.due_at ?? ''} onChange={(e) => setDue(e.target.value)} className={input} />
         </div>
       </div>
+
+      {/* Payment link section */}
+      {paymentLink ? (
+        <div className="mb-6 rounded-2xl bg-emerald-50 border border-emerald-200 p-4">
+          <div className="text-sm font-semibold text-emerald-900 mb-2">💰 Payment link ready</div>
+          <div className="flex items-center gap-2 mb-2">
+            <input type="text" readOnly value={paymentLink.url} className="flex-1 rounded-lg border border-emerald-200 px-3 py-2 text-xs font-mono bg-white" />
+            <button onClick={() => { navigator.clipboard.writeText(paymentLink.url); }} className="rounded-lg bg-emerald-600 text-white px-3 py-2 text-xs font-bold hover:bg-emerald-700">
+              Copy
+            </button>
+          </div>
+          <div className="text-xs text-emerald-700">Share this link with your customer to collect payment. They pay through Stripe's secure checkout.</div>
+        </div>
+      ) : (
+        <div className="mb-6">
+          <button
+            onClick={requestPaymentLink}
+            disabled={requesting || status === 'paid'}
+            className="rounded-lg bg-emerald-600 text-white px-4 py-2 text-sm font-bold hover:bg-emerald-700 disabled:opacity-60"
+          >
+            {requesting ? 'Generating…' : '💳 Request Payment'}
+          </button>
+          {paymentError && <div className="text-xs text-[#b00000] mt-2">{paymentError}</div>}
+        </div>
+      )}
 
       <div className="rounded-2xl bg-white border border-[#ece3ca] p-6 max-w-2xl">
         <div className="flex items-center justify-between mb-5">

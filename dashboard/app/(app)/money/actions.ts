@@ -48,14 +48,22 @@ export async function createInvoice(
     .single();
   if (error) return { ok: false, error: error.message };
 
-  // Auto-draft line items from the job's materials.
+  // Auto-draft line items from the job's materials + labor.
   if (input.job_id) {
+    const { data: job } = await supabase
+      .from('jobs')
+      .select('value_cents')
+      .eq('id', input.job_id)
+      .maybeSingle();
+    const jobValue = (job?.value_cents as number) || 0;
+
     const { data: mats } = await supabase
       .from('job_materials')
       .select('name, price_cents, quantity, position')
       .eq('job_id', input.job_id)
       .order('position');
-    const items = (mats || [])
+
+    const materialItems = (mats || [])
       .filter((m) => m.name || m.price_cents)
       .map((m, i) => ({
         invoice_id: inv.id,
@@ -65,7 +73,23 @@ export async function createInvoice(
         unit_price_cents: (m.price_cents as number) || 0,
         position: i,
       }));
-    if (items.length) await supabase.from('invoice_items').insert(items);
+
+    const materialTotal = materialItems.reduce((sum, item) => sum + item.quantity * item.unit_price_cents, 0);
+    const laborCents = jobValue - materialTotal;
+
+    const allItems = [...materialItems];
+    if (laborCents > 0) {
+      allItems.push({
+        invoice_id: inv.id,
+        business_id: businessId,
+        description: 'Labor',
+        quantity: 1,
+        unit_price_cents: laborCents,
+        position: materialItems.length,
+      });
+    }
+
+    if (allItems.length) await supabase.from('invoice_items').insert(allItems);
   }
 
   revalidatePath('/money');
@@ -156,4 +180,36 @@ export async function deleteExpense(id: string): Promise<Result> {
   if (error) return { ok: false, error: error.message };
   revalidatePath('/money');
   return { ok: true };
+}
+
+// Request payment: create a Stripe payment link for this invoice
+export async function requestPayment(
+  businessId: string,
+  invoiceId: string,
+  invoiceNumber: string | null,
+  totalCents: number,
+  customerEmail?: string,
+  customerName?: string
+): Promise<{ ok: boolean; error?: string; url?: string; linkId?: string }> {
+  const serverUrl = process.env.VOICE_SERVER_URL || process.env.NEXT_PUBLIC_VOICE_SERVER_URL || 'https://biggify-receptionist.onrender.com';
+  try {
+    const res = await fetch(`${serverUrl}/api/stripe/create-payment-link`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        businessId,
+        invoiceId,
+        amountCents: totalCents,
+        description: `Invoice ${invoiceNumber || 'Payment'}`,
+        customerEmail: customerEmail || undefined,
+        customerName: customerName || undefined,
+      }),
+    });
+    const result = await res.json();
+    if (!result.ok) return { ok: false, error: result.error || 'Payment link creation failed' };
+    revalidatePath(`/money/${invoiceId}`);
+    return { ok: true, url: result.url, linkId: result.linkId };
+  } catch (err) {
+    return { ok: false, error: (err as Error).message };
+  }
 }

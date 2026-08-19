@@ -16,6 +16,8 @@ import { alertOwner } from './twilioSms.js';
 import { surveyPage, thankYouPage, dashboardPage, testChatPage } from './pages.js';
 import { isSupabaseLive, lookupBusinessByNumber, envBusiness, logCall, upsertContactByPhone, updateCall } from './supabase.js';
 import { startOutreachScheduler, runOutreachSweep } from './outreach.js';
+import { syncCreateAppointment, syncUpdateAppointment, syncDeleteAppointment } from './calendar-sync.js';
+import { createPaymentLink, handleWebhook } from './stripe.js';
 
 // Resolve which business a call is for by the dialed number, falling back to
 // the single-business env config.
@@ -28,8 +30,15 @@ async function resolveBusiness(toNumber) {
 }
 
 const app = express();
+// Stripe webhook needs raw body, so capture it before JSON parsing
+app.use((req, res, next) => {
+  if (req.path === '/api/stripe/webhook') {
+    express.raw({ type: 'application/json' })(req, res, next);
+  } else {
+    express.json()(req, res, next);
+  }
+});
 app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public'))); // serves /logo.png
 
 // --- Health check ---
@@ -84,6 +93,59 @@ app.get('/run-outreach', async (_req, res) => {
   if (!isSupabaseLive) return res.type('text').send('Outreach needs the DB live (set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY).');
   const out = await runOutreachSweep();
   res.type('text').send(`Outreach sweep done. Quote follow-ups sent: ${out.quote ?? 0} · Review requests sent: ${out.review ?? 0}` + (isSmsLive ? '' : '\n(SMS is in MOCK mode — messages were logged, not sent. Set Twilio creds to send for real.)'));
+});
+
+// --- Calendar sync: dashboard → Cal.com ---
+app.post('/api/calendar/create', async (req, res) => {
+  const { businessId, apptId, startsAt, name, phone, notes } = req.body;
+  if (!businessId || !apptId) return res.status(400).json({ error: 'businessId and apptId required' });
+  const calBookingId = await syncCreateAppointment(apptId, { businessId, startsAt, name, phone, notes });
+  res.json({ ok: !!calBookingId, calBookingId });
+});
+
+app.put('/api/calendar/:apptId', async (req, res) => {
+  const { businessId, calBookingId, startsAt, name, phone, notes } = req.body;
+  if (!businessId || !req.params.apptId) return res.status(400).json({ error: 'businessId required' });
+  const newCalBookingId = await syncUpdateAppointment(req.params.apptId, calBookingId, { businessId, startsAt, name, phone, notes });
+  res.json({ ok: !!newCalBookingId, calBookingId: newCalBookingId });
+});
+
+app.delete('/api/calendar/:apptId', async (req, res) => {
+  const { businessId, calBookingId } = req.body;
+  if (!businessId || !calBookingId) return res.status(400).json({ error: 'businessId and calBookingId required' });
+  const ok = await syncDeleteAppointment(businessId, calBookingId);
+  res.json({ ok });
+});
+
+// --- Stripe payment collection ---
+app.post('/api/stripe/create-payment-link', async (req, res) => {
+  const { businessId, invoiceId, amountCents, description, customerEmail, customerName } = req.body;
+  if (!businessId || !invoiceId || !amountCents) return res.status(400).json({ error: 'businessId, invoiceId, amountCents required' });
+  const result = await createPaymentLink(businessId, invoiceId, { amountCents, description, customerEmail, customerName });
+  res.json(result);
+});
+
+app.post('/api/stripe/webhook', async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+  const body = req.rawBody; // need to capture raw body before JSON parsing
+  const result = await handleWebhook(body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+  res.status(result.ok ? 200 : 400).json(result);
+});
+
+// Payment success redirect (after customer pays)
+app.get('/payment-success', (_req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head><title>Payment Received</title></head>
+      <body style="font-family: sans-serif; text-align: center; padding: 40px;">
+        <h1>✓ Payment Received</h1>
+        <p>Thank you! Your payment has been processed successfully.</p>
+        <p>The business will confirm the details shortly.</p>
+        <a href="/" style="color: #CF0000;">Back to home</a>
+      </body>
+    </html>
+  `);
 });
 
 // --- Twilio voice webhook: returns TwiML that connects the call to ConversationRelay ---

@@ -161,7 +161,7 @@ export default function AppointmentsClient({
       starts_at: new Date(start).toISOString(),
       ends_at: end ? new Date(end).toISOString() : '',
     };
-    const res = editingId ? await updateAppointment(editingId, payload) : await createAppointment(businessId, payload);
+    const res = editingId ? await updateAppointment(editingId, payload, businessId) : await createAppointment(businessId, payload);
     setBusy(false);
     if (!res.ok) {
       setError(res.error || 'Something went wrong');
@@ -172,7 +172,7 @@ export default function AppointmentsClient({
   }
   async function remove() {
     if (!editingId) return;
-    await deleteAppointment(editingId);
+    await deleteAppointment(editingId, businessId);
     setOpen(false);
     refresh();
   }
