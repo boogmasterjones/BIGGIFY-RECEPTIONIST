@@ -21,6 +21,8 @@ export type Business = {
   review_url?: string | null;
   quote_followups_enabled?: boolean;
   review_requests_enabled?: boolean;
+  stripe_secret_key?: string | null;
+  stripe_publishable_key?: string | null;
 };
 
 export type Role = 'owner' | 'admin' | 'staff';
