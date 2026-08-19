@@ -8,11 +8,6 @@ export default async function LandingPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // If logged in, go to dashboard
-  if (user) {
-    redirect('/jobs');
-  }
-
   return (
     <div className="min-h-screen bg-[#FFF6E1] flex flex-col">
       {/* Header */}
@@ -22,8 +17,8 @@ export default async function LandingPage() {
             <span className="text-[#CF0000]">BIGG</span>
             <span className="text-neutral-900">ify</span>
           </div>
-          <Link href="/login" className="rounded-full bg-[#CF0000] text-white font-bold px-6 py-2.5 hover:bg-red-700">
-            Sign in
+          <Link href={user ? "/jobs" : "/login"} className="rounded-full bg-[#CF0000] text-white font-bold px-6 py-2.5 hover:bg-red-700">
+            {user ? "Dashboard" : "Sign in"}
           </Link>
         </div>
       </header>
