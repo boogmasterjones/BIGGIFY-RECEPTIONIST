@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,7 +20,7 @@ export default function LoginPage() {
     setError(null);
     const fn =
       mode === 'signin'
-        ? supabase.auth.signInWithPassword({ email, password })
+        ? supabase.auth.signInWithPassword({ email, password, options: { shouldCreateUser: false } })
         : supabase.auth.signUp({ email, password });
     const { error } = await fn;
     setBusy(false);
@@ -57,6 +58,15 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-[15px] outline-none focus:border-[#CF0000]"
           />
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="w-4 h-4 rounded border-neutral-200 cursor-pointer accent-[#CF0000]"
+            />
+            <span className="text-neutral-600">Keep me signed in</span>
+          </label>
           {error && <p className="text-sm text-[#b00000]">{error}</p>}
           <button
             type="submit"
