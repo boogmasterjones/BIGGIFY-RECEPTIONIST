@@ -180,6 +180,12 @@ export default function LandingPage() {
     }
 
     document.getElementById('yr')!.textContent = new Date().getFullYear().toString();
+
+    // Load Calendly script
+    const script = document.createElement('script');
+    script.src = 'https://assets.calendly.com/assets/external/widget.js';
+    script.async = true;
+    document.body.appendChild(script);
   }, []);
 
   return (
@@ -202,6 +208,7 @@ export default function LandingPage() {
                 </div>
               </div>
               <a className="nav-phone" href="tel:+19413279667">📞 (941) 327-9667</a>
+              <a className="btn btn-primary" href="/login">Sign in</a>
               <a className="btn btn-primary" href="#contact">Get a Free Demo</a>
             </div>
           </nav>
