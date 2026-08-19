@@ -61,6 +61,9 @@ export async function createPaymentLink(businessId, invoiceId, { amountCents, de
       },
       customer_email: customerEmail || undefined,
       metadata: { businessId, invoiceId },
+      // Disable Managed Payments for MVP (avoids tax code requirement)
+      // @ts-ignore
+      managed_payments: { enabled: false },
     });
 
     // Store the payment link ID in the invoice
