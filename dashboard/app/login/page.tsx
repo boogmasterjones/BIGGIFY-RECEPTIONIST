@@ -20,7 +20,7 @@ export default function LoginPage() {
     setError(null);
     const fn =
       mode === 'signin'
-        ? supabase.auth.signInWithPassword({ email, password, options: { shouldCreateUser: false } })
+        ? supabase.auth.signInWithPassword({ email, password })
         : supabase.auth.signUp({ email, password });
     const { error } = await fn;
     setBusy(false);
