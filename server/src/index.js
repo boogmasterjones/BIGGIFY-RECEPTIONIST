@@ -150,22 +150,31 @@ app.get('/payment-success', (_req, res) => {
 
 // --- Twilio voice webhook: returns TwiML that connects the call to ConversationRelay ---
 app.post('/incoming-call', async (req, res) => {
-  // Twilio posts the dialed number as "To" — use it to pick the business so the
-  // greeting/voice match the tenant this number belongs to.
-  const business = await resolveBusiness(req.body.To);
-  const wsUrl = (config.publicUrl.replace(/^http/, 'ws') || 'ws://localhost:' + config.port) + '/ws';
-  const greeting = escapeXml(greetingFor(business));
-  const voice = business.voice || config.voice;
-  const provider = business.ttsProvider || config.ttsProvider;
-  const ttsAttr = provider ? ` ttsProvider="${escapeXml(provider)}"` : '';
-  const twiml =
-    `<?xml version="1.0" encoding="UTF-8"?>` +
-    `<Response>` +
-    `<Connect>` +
-    `<ConversationRelay url="${wsUrl}" welcomeGreeting="${greeting}" voice="${escapeXml(voice)}"${ttsAttr} interruptible="true" />` +
-    `</Connect>` +
-    `</Response>`;
-  res.type('text/xml').send(twiml);
+  console.log(`[incoming-call] request received, To=${req.body?.To}`);
+  try {
+    // Twilio posts the dialed number as "To" — use it to pick the business so the
+    // greeting/voice match the tenant this number belongs to.
+    const business = await resolveBusiness(req.body.To);
+    const wsUrl = (config.publicUrl.replace(/^http/, 'ws') || 'ws://localhost:' + config.port) + '/ws';
+    const greeting = escapeXml(greetingFor(business));
+    const voice = business.voice || config.voice;
+    const provider = business.ttsProvider || config.ttsProvider;
+    const ttsAttr = provider ? ` ttsProvider="${escapeXml(provider)}"` : '';
+    const twiml =
+      `<?xml version="1.0" encoding="UTF-8"?>` +
+      `<Response>` +
+      `<Connect>` +
+      `<ConversationRelay url="${wsUrl}" welcomeGreeting="${greeting}" voice="${escapeXml(voice)}"${ttsAttr} interruptible="true" />` +
+      `</Connect>` +
+      `</Response>`;
+    console.log(`[incoming-call] resolved business=${business.name}, wsUrl=${wsUrl}`);
+    res.type('text/xml').send(twiml);
+  } catch (err) {
+    console.error('[incoming-call] ERROR:', err.stack || err.message);
+    res.status(500).type('text/xml').send(
+      `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Sorry, we hit a technical issue. Please try again shortly.</Say></Response>`
+    );
+  }
 });
 
 // --- Branded SMS survey form ---
