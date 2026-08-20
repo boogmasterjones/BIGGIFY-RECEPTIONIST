@@ -77,9 +77,9 @@ export async function getAvailableSlots(count = 3, cal = null, timeZone = 'Ameri
     // from each day, in date order, so we offer the soonest time today + the
     // soonest on the next open day (not two times on the same day).
     const buckets = json?.data || {};
-    // Small buffer so we never offer a slot that's technically future but only
-    // by seconds (caller wouldn't be able to make it anyway).
-    const cutoff = Date.now() + 5 * 60 * 1000;
+    // Never offer a slot the team can't realistically make — require at least
+    // an hour of lead time.
+    const cutoff = Date.now() + 60 * 60 * 1000;
     const picked = [];
     for (const day of Object.keys(buckets).sort()) {
       const daySlots = buckets[day];
@@ -158,7 +158,7 @@ export async function createBooking({ startsAt, name, phone, service, cal = null
 // per weekday, starting today if a slot is still in the future — never odd hours.
 function mockSlots(count) {
   const out = [];
-  const soon = Date.now() + 30 * 60 * 1000;
+  const soon = Date.now() + 60 * 60 * 1000;
   for (let i = 0; out.length < count && i < 12; i++) {
     const d = new Date();
     d.setDate(d.getDate() + i);

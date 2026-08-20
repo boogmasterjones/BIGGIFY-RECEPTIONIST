@@ -110,12 +110,23 @@ async function runTool(name, input, leadId, business) {
       });
     }
 
-    // Defensive: never book a time that's already passed, even if it was
-    // offered earlier in the call (slots can go stale on a long call).
-    if (new Date(input.starts_at).getTime() < Date.now()) {
+    // Defensive: the model has to type out starts_at by hand, and can mis-transcribe
+    // it (e.g. treating a local 9am as UTC). Never trust a free-form timestamp — only
+    // accept one that exactly matches a slot we actually handed out this call.
+    const cachedSlots = lead?.availabilityCache || [];
+    const matchedSlot = cachedSlots.find((s) => s.startsAt === input.starts_at);
+    if (!matchedSlot) {
       return JSON.stringify({
         booked: false,
-        message: 'That time has already passed. Apologize briefly, call check_availability again, and offer the new times.',
+        message: 'That starts_at value does not match any time from check_availability — never retype or reconstruct a timestamp. Call check_availability again if needed, then pass its starts_at value back exactly as given, unmodified.',
+      });
+    }
+
+    // Must be at least an hour out — never book something the team can't realistically make.
+    if (new Date(input.starts_at).getTime() < Date.now() + 60 * 60 * 1000) {
+      return JSON.stringify({
+        booked: false,
+        message: 'That time is too soon (must be at least an hour from now). Apologize briefly, call check_availability again, and offer the new times.',
       });
     }
 
