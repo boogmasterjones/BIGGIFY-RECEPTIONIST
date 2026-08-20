@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { config } from './config.js';
 import { systemPrompt, greetingFor } from './prompt.js';
-import { getAvailableSlots, createBooking } from './calcom.js';
+import { getAvailableSlots, createBooking, cancelBooking } from './calcom.js';
 import { updateLead, getLead } from './store.js';
 import { alertOwner } from './twilioSms.js';
 import { upsertContactByPhone, createAppointment as sbCreateAppointment, createJob as sbCreateJob, updateCall, updateAppointment as sbUpdateAppointment, createNotification } from './supabase.js';
@@ -232,11 +232,18 @@ async function runTool(name, input, leadId, business) {
   }
 
   if (name === 'cancel_appointment') {
-    updateLead(leadId, { status: 'canceled', cancelReason: input.reason || 'out of scope' });
     const lead = getLead(leadId);
+    const calBookingId = lead?.appointment?.calBookingId;
+    const calResult = calBookingId ? await cancelBooking(calBookingId, biz.cal, input.reason) : { ok: true };
+    updateLead(leadId, { status: 'canceled', cancelReason: input.reason || 'out of scope' });
     if (lead?.dbApptId) sbUpdateAppointment(lead.dbApptId, { status: 'canceled' });
     if (lead?.dbCallId) updateCall(lead.dbCallId, { outcome: 'canceled' });
-    return JSON.stringify({ canceled: true, message: 'Appointment canceled. Let the caller know politely.' });
+    return JSON.stringify({
+      canceled: calResult.ok,
+      message: calResult.ok
+        ? 'Appointment canceled. Let the caller know politely.'
+        : 'Cancellation hit a snag on our end — tell the caller the team will follow up to confirm it, then wrap up.',
+    });
   }
 
   return JSON.stringify({ error: `unknown tool ${name}` });

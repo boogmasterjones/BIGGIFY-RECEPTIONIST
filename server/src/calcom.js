@@ -178,6 +178,33 @@ export async function createBooking({ startsAt, name, phone, service, cal = null
   }
 }
 
+// Cancels a real Cal.com booking. Returns { ok }. No-op (ok: true) for mock
+// bookings or when Cal.com isn't live for this business.
+export async function cancelBooking(calBookingId, cal = null, reason = '') {
+  if (!calBookingId || calBookingId.startsWith('mock-')) return { ok: true };
+  const creds = calCreds(cal);
+  if (!calLive(cal)) return { ok: true };
+  try {
+    const res = await fetch(`${CAL_BASE}/bookings/${encodeURIComponent(calBookingId)}/cancel`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${creds.apiKey}`,
+        'cal-api-version': '2024-08-13',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ cancellationReason: reason || 'Caller canceled' }),
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`Cal.com cancel ${res.status}: ${body}`);
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error('[calcom] cancel failed:', err.message);
+    return { ok: false, error: err.message };
+  }
+}
+
 // Fallback only (used if Cal.com is unreachable). Sane business-hour slots, one
 // per weekday, starting today if a slot is still in the future — never odd hours.
 function mockSlots(count) {

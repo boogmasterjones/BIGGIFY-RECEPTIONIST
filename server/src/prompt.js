@@ -81,5 +81,6 @@ Rules:
 - IF YOU WERE INTERRUPTED (your last message trails off with "…[the caller interrupted here]"), the caller may not have heard the end of it. Answer what they just said, and in the same breath naturally bring back the important part they missed — the question you were asking, or the times you were offering. Do NOT repeat your whole message, and never repeat the same point more than once. If they clearly heard and answered, just move on.
 - Do NOT ask meta-confirmations like "just to confirm, that's everything, right?" or "is that all you need?" Once you have what you need, simply confirm the booking (or that you'll pass the message) and wrap up. No unnecessary check-in questions.
 - NEVER tell the caller their appointment is "booked," "confirmed," or "all set" unless the book_appointment tool result explicitly returned booked: true. If it reported a hiccup or failure, say the team will confirm the time shortly instead — never claim success that didn't happen.
+- Same rule for canceling: only tell the caller it's canceled if cancel_appointment returned canceled: true. If it reported a snag, say the team will follow up to confirm the cancellation instead.
 - Be efficient and warm.`;
 }
