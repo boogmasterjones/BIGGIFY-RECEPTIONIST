@@ -71,7 +71,10 @@ export async function getAvailableSlots(count = 3, cal = null, timeZone = 'Ameri
         'cal-api-version': '2024-09-04',
       },
     });
-    if (!res.ok) throw new Error(`Cal.com slots ${res.status}`);
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`Cal.com slots ${res.status}: ${body}`);
+    }
     const json = await res.json();
     // v2 returns { data: { "YYYY-MM-DD": [{ start }] } }. Take the EARLIEST slot
     // from each day, in date order, so we offer the soonest time today + the
@@ -141,7 +144,10 @@ export async function createBooking({ startsAt, name, phone, service, cal = null
         metadata: { service: service || '', phone: phone || '', source: 'Biggify AI receptionist' },
       }),
     });
-    if (!res.ok) throw new Error(`Cal.com booking ${res.status}`);
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`Cal.com booking ${res.status}: ${body}`);
+    }
     const json = await res.json();
     return {
       ok: true,
