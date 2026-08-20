@@ -29,6 +29,7 @@ import {
   type MaterialInput,
   type RoomInput,
 } from './actions';
+import { deleteJob } from '../actions';
 
 export type Stage = { id: string; name: string; color: string; position: number };
 export type Task = { id: string; title: string; done: boolean; position: number };
@@ -402,9 +403,22 @@ export default function JobDetail({
   const revenue = invoices.length ? invoicedTotal : job.value_cents ?? 0;
   const profit = revenue - cost;
 
+  async function removeJob() {
+    await deleteJob(job.id);
+    router.push('/jobs');
+  }
+
   return (
     <div>
-      <BackLink fallback="/jobs" />
+      <div className="flex items-center justify-between">
+        <BackLink fallback="/jobs" />
+        <ConfirmButton
+          onConfirm={removeJob}
+          label="Delete job"
+          confirmLabel="Delete for good"
+          className="text-xs text-neutral-300 hover:text-[#CF0000] font-semibold"
+        />
+      </div>
 
       {/* Title + customer */}
       <div className="mt-2 mb-5">

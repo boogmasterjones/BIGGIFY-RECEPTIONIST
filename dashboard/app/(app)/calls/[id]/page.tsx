@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getUserAndBusiness } from '@/lib/data';
 import { TranscriptThread } from '@/components/call-card';
 import BackLink from '@/components/back-link';
+import DeleteCallButton from './delete-call-button';
 import { textOn } from '@/lib/colors';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -60,7 +61,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
 
   return (
     <div>
-      <BackLink fallback="/calls" />
+      <div className="flex items-center justify-between">
+        <BackLink fallback="/calls" />
+        <DeleteCallButton id={c.id} />
+      </div>
 
       <div className="flex items-start justify-between mt-2 mb-5 gap-4">
         <div>

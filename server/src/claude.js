@@ -153,14 +153,17 @@ async function runTool(name, input, leadId, business) {
       appointment: { startsAt: input.starts_at, humanTime: result.humanTime, calBookingId: result.calBookingId },
     });
     // Persist the appointment to Supabase (best-effort, no-ops without a business id).
-    const apptId = await sbCreateAppointment({
+    // Fire-and-forget — the caller doesn't need to wait on our own DB write to
+    // hear their confirmation; the real-time-critical part (Cal.com) is already done.
+    sbCreateAppointment({
       businessId: biz.id,
       contactId: lead?.dbContactId,
       startsAt: input.starts_at,
       notes: `Booked by AI receptionist. Cal.com: ${result.calBookingId || 'n/a'}`,
       calBookingId: result.calBookingId,
-    });
-    if (apptId) updateLead(leadId, { dbApptId: apptId });
+    })
+      .then((apptId) => { if (apptId) updateLead(leadId, { dbApptId: apptId }); })
+      .catch((e) => console.error('[supabase] book_appointment:', e.message));
     return JSON.stringify({
       booked: result.ok,
       when: result.humanTime,
@@ -324,7 +327,9 @@ export class CallSession {
       const stream = client.messages.stream(
         {
           model: config.claudeModel,
-          max_tokens: 512,
+          // Replies are 1-2 spoken sentences (+ maybe a tool call) — 512 was way
+          // more headroom than ever needed and adds nothing but worst-case latency.
+          max_tokens: 300,
           // Cache the (static) system prompt so time-to-first-token drops on every
           // follow-up turn in the call — and on later calls within the cache window.
           system: [{ type: 'text', text: systemPrompt(this.business, this.slots, this.greeting), cache_control: { type: 'ephemeral' } }],

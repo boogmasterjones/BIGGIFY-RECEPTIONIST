@@ -5,8 +5,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import CallCard from '@/components/call-card';
 import BackLink from '@/components/back-link';
+import ConfirmButton from '@/components/confirm-button';
 import { textOn } from '@/lib/colors';
-import { updateContact } from '../actions';
+import { updateContact, deleteContact } from '../actions';
 
 export type Contact = {
   id: string;
@@ -76,6 +77,11 @@ export default function ContactDetail({
     router.refresh();
   }
 
+  async function remove() {
+    await deleteContact(contact.id);
+    router.push('/contacts');
+  }
+
   const editInput = 'w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-[15px] outline-none focus:border-[#CF0000]';
 
   const lifetime = invoices.filter((i) => i.status === 'paid').reduce((s, i) => s + invTotal(i), 0);
@@ -90,7 +96,15 @@ export default function ContactDetail({
 
   return (
     <div>
-      <BackLink fallback="/contacts" />
+      <div className="flex items-center justify-between">
+        <BackLink fallback="/contacts" />
+        <ConfirmButton
+          onConfirm={remove}
+          label="Delete contact"
+          confirmLabel="Delete for good"
+          className="text-xs text-neutral-300 hover:text-[#CF0000] font-semibold"
+        />
+      </div>
 
       <div className="flex items-center gap-4 mt-2 mb-6">
         <div className="w-14 h-14 rounded-full bg-[#FFF6E1] grid place-items-center text-xl font-extrabold text-[#CF0000] shrink-0">

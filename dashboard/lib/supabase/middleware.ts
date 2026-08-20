@@ -35,9 +35,11 @@ export async function updateSession(request: NextRequest) {
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
-  if (user && path.startsWith('/login')) {
+  // Logged-in users have no reason to see the marketing landing page or the
+  // login form — send them straight into the dashboard instead.
+  if (user && (path === '/' || path.startsWith('/login'))) {
     const url = request.nextUrl.clone();
-    url.pathname = '/jobs';
+    url.pathname = '/home';
     return NextResponse.redirect(url);
   }
 

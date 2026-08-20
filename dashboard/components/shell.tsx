@@ -80,7 +80,7 @@ export default function Shell({
   // Every module is gated by the business's feature flags — a client only sees
   // what their plan includes, so it feels like software built just for them.
   const nav: NavItem[] = [
-    { href: '/', label: 'Home', icon: '🏠', show: true },
+    { href: '/home', label: 'Home', icon: '🏠', show: true },
     { href: '/contacts', label: 'Contacts', icon: '👥', show: !!f.contacts },
     { href: '/jobs', label: 'Jobs', icon: '🧰', show: !!f.jobs },
     { href: '/appointments', label: 'Appointments', icon: '📅', show: !!f.appointments || !!f.calendar },
