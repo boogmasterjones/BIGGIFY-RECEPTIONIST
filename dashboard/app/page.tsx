@@ -30,7 +30,15 @@ const css = `
   .btn-primary:hover{transform:translateY(-2px)}
   .btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.25)}
   .btn-ghost:hover{background:rgba(255,255,255,.16)}
+  .btn-outline{background:#fff;color:var(--ink);border:1.5px solid var(--line);box-shadow:0 4px 16px -12px rgba(20,16,80,.4)}
+  .btn-outline:hover{border-color:var(--brand);color:var(--brand)}
   .eyebrow{display:inline-block;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:12.5px;color:var(--brand);background:rgba(207,0,0,.08);padding:6px 14px;border-radius:999px}
+
+  /* Mid-page CTA strip — inserted between sections so buttons alternate down the page */
+  .cta-strip{padding:56px 0}
+  .cta-strip .wrap{text-align:center}
+  .cta-strip h3{font-size:clamp(22px,2.6vw,28px);letter-spacing:-.02em;margin-bottom:20px;font-weight:800}
+  .cta-strip .cta-buttons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
 
   /* NAV */
   header{position:sticky;top:0;z-index:50;background:rgba(255,246,225,.92);backdrop-filter:blur(10px);border-bottom:1px solid #ece3ca}
@@ -279,6 +287,16 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section className="cta-strip">
+        <div className="wrap">
+          <h3>Ready to stop missing calls?</h3>
+          <div className="cta-buttons">
+            <a className="btn btn-primary" href="#contact">Get a Free Demo</a>
+            <a className="btn btn-outline call-btn" href="tel:+19413279667">📞 Call our receptionist</a>
+          </div>
+        </div>
+      </section>
+
       <section className="features" id="features">
         <div className="wrap">
           <div className="section-head">
@@ -308,6 +326,16 @@ export default function LandingPage() {
             <span className="chip">HVAC</span><span className="chip">Plumbing</span><span className="chip">Electrical</span>
             <span className="chip">Roofing</span><span className="chip">Landscaping</span><span className="chip">Pest Control</span>
             <span className="chip">Garage Doors</span><span className="chip">Cleaning</span><span className="chip">Handyman</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="cta-strip">
+        <div className="wrap">
+          <h3>See it in action before you commit.</h3>
+          <div className="cta-buttons">
+            <a className="btn btn-primary" href="#contact">Get a Free Demo</a>
+            <a className="btn btn-outline call-btn" href="tel:+19413279667">📞 Call our receptionist</a>
           </div>
         </div>
       </section>
