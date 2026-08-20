@@ -34,16 +34,18 @@ const css = `
 
   /* NAV */
   header{position:sticky;top:0;z-index:50;background:rgba(255,246,225,.92);backdrop-filter:blur(10px);border-bottom:1px solid #ece3ca}
-  nav{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
-  .logo{display:flex;align-items:center;gap:10px}
-  .logo img{height:44px;display:block}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:10px 0;gap:10px}
+  .logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .logo img{height:44px;display:block;flex-shrink:0}
   .nav-links{display:flex;align-items:center;gap:28px;color:var(--ink-soft);font-weight:600;font-size:15px}
   .nav-links a:hover{color:var(--ink)}
-  .nav-cta{display:flex;gap:14px;align-items:center}
+  .nav-cta{display:flex;gap:14px;align-items:center;flex-shrink:0}
   .nav-phone{font-weight:700;color:var(--ink);font-size:15px;white-space:nowrap;display:flex;align-items:center;gap:6px}
   .nav-phone:hover{color:var(--brand)}
+  .nav-signin{white-space:nowrap}
+  .menu-only{display:none}
   /* dropdown menu — plain 3-line icon button (no <details> marker) */
-  .menu{position:relative}
+  .menu{position:relative;flex-shrink:0}
   .menu-btn{border:none;background:none;cursor:pointer;color:var(--ink-soft);padding:6px;display:flex;align-items:center;justify-content:center}
   .menu-btn svg{display:block}
   .menu-btn:hover{color:var(--brand)}
@@ -51,10 +53,12 @@ const css = `
   .menu-panel[hidden]{display:none}
   .menu-panel a{padding:10px 14px;border-radius:8px;color:var(--ink-soft);font-weight:600;font-size:15px}
   .menu-panel a:hover{background:var(--cream);color:var(--ink)}
-  @media(max-width:560px){
-    .nav-phone{font-size:14px}
-    .nav-cta{gap:9px}
-    .btn{padding:12px 18px;font-size:14px}
+  @media(max-width:640px){
+    .nav-phone{display:none}
+    .nav-signin{display:none}
+    .menu-only{display:block}
+    .nav-cta{gap:8px}
+    .btn{padding:11px 16px;font-size:13.5px}
   }
 
   /* HERO */
@@ -181,11 +185,14 @@ export default function LandingPage() {
 
     document.getElementById('yr')!.textContent = new Date().getFullYear().toString();
 
-    // Load Calendly script
-    const script = document.createElement('script');
-    script.src = 'https://assets.calendly.com/assets/external/widget.js';
-    script.async = true;
-    document.body.appendChild(script);
+    // Load Calendly script (guarded against double-injection from React
+    // Strict Mode's dev-only double effect invocation).
+    if (!document.querySelector('script[src*="calendly.com/assets/external/widget.js"]')) {
+      const script = document.createElement('script');
+      script.src = 'https://assets.calendly.com/assets/external/widget.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
   }, []);
 
   return (
@@ -205,10 +212,12 @@ export default function LandingPage() {
                   <a href="#features">Features</a>
                   <a href="#pricing">Pricing</a>
                   <a href="#faq">FAQ</a>
+                  <a className="menu-only" href="/login">Sign in</a>
+                  <a className="menu-only" href="tel:+19413279667">📞 (941) 327-9667</a>
                 </div>
               </div>
               <a className="nav-phone" href="tel:+19413279667">📞 (941) 327-9667</a>
-              <a className="btn btn-primary" href="/login">Sign in</a>
+              <a className="btn btn-primary nav-signin" href="/login">Sign in</a>
               <a className="btn btn-primary" href="#contact">Get a Free Demo</a>
             </div>
           </nav>
@@ -349,8 +358,16 @@ export default function LandingPage() {
           <div style={{display:'flex',gap:'14px',justifyContent:'center',flexWrap:'wrap',marginBottom:'36px'}}>
             <a className="btn btn-primary call-btn" href="tel:+19413279667" style={{background:'#fff',color:'var(--brand)'}}>📞 Call our receptionist</a>
           </div>
-          <div className="calendly-inline-widget" data-url="https://calendly.com/boogmasterjones/biggify-appointment?hide_event_type_details=1&hide_gdpr_banner=1" style={{minWidth:'320px',height:'700px',background:'#fff',borderRadius:'16px',overflow:'hidden',boxShadow:'var(--shadow)'}}></div>
-          <script async src="https://assets.calendly.com/assets/external/widget.js"></script>
+          {/* Calendly's script mutates this container directly (adds the iframe, its own
+              classes/inline styles) — suppressHydrationWarning is the React-recommended
+              way to opt a specific node out of hydration mismatch checks for exactly
+              this "third-party script owns this DOM node" scenario. */}
+          <div
+            className="calendly-inline-widget"
+            data-url="https://calendly.com/boogmasterjones/biggify-appointment?hide_event_type_details=1&hide_gdpr_banner=1"
+            style={{minWidth:'320px',height:'700px',background:'#fff',borderRadius:'16px',overflow:'hidden',boxShadow:'var(--shadow)'}}
+            suppressHydrationWarning
+          ></div>
           <p style={{marginTop:'22px',fontSize:'15px'}}>Or email us: <a href="mailto:gobiggify@gmail.com" style={{color:'#fff',textDecoration:'underline'}}>gobiggify@gmail.com</a></p>
         </div>
       </section>
@@ -366,7 +383,7 @@ export default function LandingPage() {
               <a href="#how">How it works</a>
               <a href="#pricing">Pricing</a>
               <a href="#faq">FAQ</a>
-              <a href="/privacy.html">Privacy Policy</a>
+              <a href="/privacy">Privacy Policy</a>
               <a href="mailto:gobiggify@gmail.com">Contact</a>
             </div>
           </div>
