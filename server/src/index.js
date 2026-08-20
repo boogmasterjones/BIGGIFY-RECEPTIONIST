@@ -285,7 +285,7 @@ wss.on('connection', (ws) => {
       // Pre-fetch this business's availability so the AI can offer times on its
       // first reply without a Cal.com + extra model round-trip mid-call.
       let slots = null;
-      try { slots = await getAvailableSlots(2, business.cal); } catch (e) { console.error('[call] slot prefetch:', e.message); }
+      try { slots = await getAvailableSlots(2, business.cal, business.timezone); } catch (e) { console.error('[call] slot prefetch:', e.message); }
       session = new CallSession(business, lead.id, slots);
       console.log(`[call] setup ${msg.callSid} to ${msg.to} -> ${business.name} (lead ${lead.id})`);
       return;

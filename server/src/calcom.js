@@ -27,35 +27,42 @@ function ordinal(n) {
 
 // TTS-friendly, comma-free time phrase — says "today"/"tomorrow" when it applies,
 // else "Monday August 18th". Commas make the voice pause, so we avoid them.
-function humanizeSlot(iso) {
+// Always reads the wall-clock time in the BUSINESS's timezone (not the server's),
+// so "9 AM" is only ever spoken when it's actually 9 AM there.
+function humanizeSlot(iso, timeZone = 'America/New_York') {
   const d = new Date(iso);
-  const startOfDay = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
-  const dayDiff = Math.round((startOfDay(d) - startOfDay(new Date())) / 86400000);
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric', month: 'long', day: 'numeric', weekday: 'long',
+    hour: 'numeric', minute: '2-digit', hour12: true,
+  }).formatToParts(d);
+  const get = (type) => parts.find((p) => p.type === type)?.value;
+  const dayKeyFor = (date) => {
+    const p = new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric', month: 'long', day: 'numeric' }).formatToParts(date);
+    return `${p.find((x) => x.type === 'year')?.value}-${p.find((x) => x.type === 'month')?.value}-${p.find((x) => x.type === 'day')?.value}`;
+  };
+  const zonedDayKey = `${get('year')}-${get('month')}-${get('day')}`;
   let dayLabel;
-  if (dayDiff === 0) dayLabel = 'today';
-  else if (dayDiff === 1) dayLabel = 'tomorrow';
-  else {
-    const weekday = d.toLocaleString('en-US', { weekday: 'long' });
-    const month = d.toLocaleString('en-US', { month: 'long' });
-    dayLabel = `${weekday} ${month} ${ordinal(d.getDate())}`;
-  }
-  let h = d.getHours();
-  const min = d.getMinutes();
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  h = h % 12 || 12;
-  const time = min === 0 ? `${h} ${ampm}` : `${h}:${String(min).padStart(2, '0')} ${ampm}`;
+  if (zonedDayKey === dayKeyFor(new Date())) dayLabel = 'today';
+  else if (zonedDayKey === dayKeyFor(new Date(Date.now() + 86400000))) dayLabel = 'tomorrow';
+  else dayLabel = `${get('weekday')} ${get('month')} ${ordinal(Number(get('day')))}`;
+  const hour = get('hour');
+  const minute = get('minute');
+  const ampm = get('dayPeriod') || (Number(hour) >= 12 ? 'PM' : 'AM');
+  const time = minute === '00' ? `${hour} ${ampm}` : `${hour}:${minute} ${ampm}`;
   return `${dayLabel} at ${time}`;
 }
 
 // Returns up to `count` upcoming slots as [{ startsAt, humanTime }].
-export async function getAvailableSlots(count = 3, cal = null) {
+export async function getAvailableSlots(count = 3, cal = null, timeZone = 'America/New_York') {
   const creds = calCreds(cal);
   if (!calLive(cal)) return mockSlots(count);
 
   const start = new Date();
   const end = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const url = `${CAL_BASE}/slots?eventTypeId=${encodeURIComponent(creds.eventTypeId)}` +
-    `&startTime=${start.toISOString()}&endTime=${end.toISOString()}`;
+    `&startTime=${start.toISOString()}&endTime=${end.toISOString()}` +
+    `&timeZone=${encodeURIComponent(timeZone)}`;
 
   try {
     const res = await fetch(url, {
@@ -70,15 +77,25 @@ export async function getAvailableSlots(count = 3, cal = null) {
     // from each day, in date order, so we offer the soonest time today + the
     // soonest on the next open day (not two times on the same day).
     const buckets = json?.data || {};
+    // Small buffer so we never offer a slot that's technically future but only
+    // by seconds (caller wouldn't be able to make it anyway).
+    const cutoff = Date.now() + 5 * 60 * 1000;
     const picked = [];
     for (const day of Object.keys(buckets).sort()) {
       const daySlots = buckets[day];
       if (!daySlots || !daySlots.length) continue;
-      const iso = daySlots[0].start || daySlots[0].time || daySlots[0];
+      // Defensive: never trust a slot blindly — skip anything not actually
+      // in the future, regardless of what Cal.com's day bucket claims.
+      const future = daySlots.find((s) => {
+        const iso = s.start || s.time || s;
+        return new Date(iso).getTime() > cutoff;
+      });
+      if (!future) continue;
+      const iso = future.start || future.time || future;
       picked.push(iso);
       if (picked.length >= count) break;
     }
-    return picked.map((iso) => ({ startsAt: iso, humanTime: humanizeSlot(iso) }));
+    return picked.map((iso) => ({ startsAt: iso, humanTime: humanizeSlot(iso, timeZone) }));
   } catch (err) {
     console.error('[calcom] slots failed, using mock:', err.message);
     return mockSlots(count);
@@ -96,7 +113,7 @@ function attendeeEmail(phone) {
 export async function createBooking({ startsAt, name, phone, service, cal = null, ownerEmail = '', timeZone = 'America/New_York' }) {
   const creds = calCreds(cal);
   if (!calLive(cal)) {
-    return { ok: true, calBookingId: `mock-${Date.now()}`, humanTime: humanizeSlot(startsAt) };
+    return { ok: true, calBookingId: `mock-${Date.now()}`, humanTime: humanizeSlot(startsAt, timeZone) };
   }
   try {
     const res = await fetch(`${CAL_BASE}/bookings`, {
@@ -129,11 +146,11 @@ export async function createBooking({ startsAt, name, phone, service, cal = null
     return {
       ok: true,
       calBookingId: json?.data?.uid || json?.data?.id || 'unknown',
-      humanTime: humanizeSlot(startsAt),
+      humanTime: humanizeSlot(startsAt, timeZone),
     };
   } catch (err) {
     console.error('[calcom] booking failed:', err.message);
-    return { ok: false, error: err.message, humanTime: humanizeSlot(startsAt) };
+    return { ok: false, error: err.message, humanTime: humanizeSlot(startsAt, timeZone) };
   }
 }
 

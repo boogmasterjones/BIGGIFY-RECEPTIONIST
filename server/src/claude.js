@@ -90,7 +90,7 @@ const tools = [
 async function runTool(name, input, leadId, business) {
   const biz = business || {};
   if (name === 'check_availability') {
-    const slots = await getAvailableSlots(3, biz.cal);
+    const slots = await getAvailableSlots(3, biz.cal, biz.timezone);
     updateLead(leadId, { availabilityCache: slots });
     return JSON.stringify({
       slots: slots.map((s) => ({ starts_at: s.startsAt, when: s.humanTime })),
@@ -107,6 +107,15 @@ async function runTool(name, input, leadId, business) {
         booked: false,
         callback: true,
         message: 'Callback request recorded. Now ask for their name and what they need.',
+      });
+    }
+
+    // Defensive: never book a time that's already passed, even if it was
+    // offered earlier in the call (slots can go stale on a long call).
+    if (new Date(input.starts_at).getTime() < Date.now()) {
+      return JSON.stringify({
+        booked: false,
+        message: 'That time has already passed. Apologize briefly, call check_availability again, and offer the new times.',
       });
     }
 
