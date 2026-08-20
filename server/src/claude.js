@@ -279,7 +279,15 @@ export class CallSession {
       } else if (m.role === 'assistant') {
         let text = '';
         if (typeof m.content === 'string') text = m.content;
-        else if (Array.isArray(m.content)) text = m.content.filter((b) => b.type === 'text').map((b) => b.text).join(' ');
+        else if (Array.isArray(m.content)) {
+          // Text alongside a real tool call is lead-in narration that
+          // handleUtterance deliberately never speaks — skip it here so the
+          // transcript matches what the caller actually heard. Text alongside
+          // ONLY an end_call is the spoken goodbye, which IS voiced — keep it.
+          const toolUses = m.content.filter((b) => b.type === 'tool_use');
+          const hasRealTool = toolUses.some((b) => b.name !== 'end_call');
+          if (!hasRealTool) text = m.content.filter((b) => b.type === 'text').map((b) => b.text).join(' ');
+        }
         text = text.replace(/\s*…?\[[^\]]*\]/g, '').trim(); // strip interrupt markers
         if (text) turns.push({ role: 'assistant', text });
       }
@@ -351,7 +359,14 @@ export class CallSession {
 
       // If the model called tools (other than end_call), run them and continue.
       if (res.stop_reason === 'tool_use' && !endCall) {
-        flush(); // speak any lead-in text before running tools
+        // Never speak text that leads into a tool call, even though the prompt
+        // tells the model not to generate any — models narrate anyway sometimes
+        // ("let me check that", "great news, that works"), and each flush() was
+        // sending that as its own separate spoken line, making multi-tool turns
+        // sound like disjointed thinking-out-loud. Discard it instead: only the
+        // text from the FINAL, tool-free turn ever reaches the caller's ears.
+        buffer = '';
+        spoken = '';
         const toolResults = [];
         for (const block of res.content) {
           if (block.type === 'tool_use') {
