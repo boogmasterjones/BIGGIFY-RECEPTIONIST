@@ -301,7 +301,17 @@ wss.on('connection', (ws) => {
     }
 
     if (msg.type === 'prompt' && msg.last && session) {
-      await runPrompt(msg.voicePrompt || '');
+      const text = (msg.voicePrompt || '').trim();
+      if (!text) {
+        // Empty transcript — usually a false barge-in (background noise, a
+        // breath) rather than real speech, often right after we just canceled
+        // the in-flight reply on 'interrupt'. Asking the model to respond to
+        // nothing is what produces confused "actually, let me wait..." lines.
+        // Just stay silent and wait for the caller's next real utterance.
+        console.log('[call] empty prompt after interrupt — skipping reply');
+        return;
+      }
+      await runPrompt(text);
       return;
     }
 
