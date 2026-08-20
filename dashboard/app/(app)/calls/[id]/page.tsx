@@ -55,7 +55,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const turns: { role: string; text: string }[] = Array.isArray(c.transcript) ? c.transcript : [];
   const dur = duration(c.started_at, c.ended_at);
   const started = c.started_at
-    ? new Date(c.started_at).toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+    ? new Date(c.started_at).toLocaleString('en-US', { timeZone: business.timezone, weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
     : null;
 
   return (

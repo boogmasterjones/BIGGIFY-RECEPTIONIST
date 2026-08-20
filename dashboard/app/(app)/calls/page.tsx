@@ -33,13 +33,22 @@ function duration(a: string | null, b: string | null) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
-function whenLabel(iso: string) {
+// Formats a call time in the BUSINESS's timezone (not the server's — Vercel
+// runs in UTC, which previously made every call time look ~4-5 hours off).
+function whenLabel(iso: string, timeZone: string) {
   const d = new Date(iso);
-  const day = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  const today = new Date();
-  const diff = Math.round((day - new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime()) / 86400000);
-  const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-  const dayStr = diff === 0 ? 'Today' : diff === -1 ? 'Yesterday' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const dayKey = (date: Date) => {
+    const p = new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(date);
+    return `${p.find((x) => x.type === 'year')?.value}-${p.find((x) => x.type === 'month')?.value}-${p.find((x) => x.type === 'day')?.value}`;
+  };
+  const time = d.toLocaleTimeString('en-US', { timeZone, hour: 'numeric', minute: '2-digit' });
+  const thisKey = dayKey(d);
+  const dayStr =
+    thisKey === dayKey(new Date())
+      ? 'Today'
+      : thisKey === dayKey(new Date(Date.now() - 86400000))
+      ? 'Yesterday'
+      : d.toLocaleDateString('en-US', { timeZone, month: 'short', day: 'numeric' });
   return `${dayStr} · ${time}`;
 }
 
@@ -107,7 +116,7 @@ export default async function Page() {
                   <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{ backgroundColor: chip.color, color: textOn(chip.color) }}>
                     {chip.label}
                   </span>
-                  <div className="text-xs text-neutral-400 mt-1">{whenLabel(c.started_at)}</div>
+                  <div className="text-xs text-neutral-400 mt-1">{whenLabel(c.started_at, business.timezone)}</div>
                 </div>
               </Link>
             );
