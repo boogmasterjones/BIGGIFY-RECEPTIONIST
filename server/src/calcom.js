@@ -61,7 +61,7 @@ export async function getAvailableSlots(count = 3, cal = null, timeZone = 'Ameri
   const start = new Date();
   const end = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const url = `${CAL_BASE}/slots?eventTypeId=${encodeURIComponent(creds.eventTypeId)}` +
-    `&startTime=${start.toISOString()}&endTime=${end.toISOString()}` +
+    `&start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}` +
     `&timeZone=${encodeURIComponent(timeZone)}`;
 
   try {
