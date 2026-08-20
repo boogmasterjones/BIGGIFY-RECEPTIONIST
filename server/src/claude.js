@@ -12,8 +12,17 @@ const tools = [
   {
     name: 'check_availability',
     description:
-      'Get the next available appointment openings. Call this before offering the caller any times. Returns real slots — only offer times this returns.',
-    input_schema: { type: 'object', properties: {}, additionalProperties: false },
+      'Get the next available appointment openings. Call this before offering the caller any times. Returns real slots — only offer times this returns. If the caller named a specific day/time (e.g. "tomorrow at 4pm"), pass preferred_time so you get the closest real opening to that instead of just the soonest one.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        preferred_time: {
+          type: 'string',
+          description: 'ISO 8601 timestamp for the day/time the caller asked about, your best-effort guess (e.g. tomorrow 4pm in the business timezone). Only used to find the closest real opening on that day — omit if the caller has no specific preference.',
+        },
+      },
+      additionalProperties: false,
+    },
   },
   {
     name: 'book_appointment',
@@ -90,7 +99,7 @@ const tools = [
 async function runTool(name, input, leadId, business) {
   const biz = business || {};
   if (name === 'check_availability') {
-    const slots = await getAvailableSlots(3, biz.cal, biz.timezone);
+    const slots = await getAvailableSlots(3, biz.cal, biz.timezone, input.preferred_time || null);
     updateLead(leadId, { availabilityCache: slots });
     return JSON.stringify({
       slots: slots.map((s) => ({ starts_at: s.startsAt, when: s.humanTime })),

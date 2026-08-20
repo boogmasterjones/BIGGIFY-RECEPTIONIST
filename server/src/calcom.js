@@ -25,6 +25,13 @@ function ordinal(n) {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
+// The calendar day (in the given timezone) a moment falls on, as "YYYY-Month-D" —
+// used to compare two timestamps' local dates regardless of the server's own zone.
+function isoDayKey(date, timeZone = 'America/New_York') {
+  const p = new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric', month: 'long', day: 'numeric' }).formatToParts(date);
+  return `${p.find((x) => x.type === 'year')?.value}-${p.find((x) => x.type === 'month')?.value}-${p.find((x) => x.type === 'day')?.value}`;
+}
+
 // TTS-friendly, comma-free time phrase — says "today"/"tomorrow" when it applies,
 // else "Monday August 18th". Commas make the voice pause, so we avoid them.
 // Always reads the wall-clock time in the BUSINESS's timezone (not the server's),
@@ -37,14 +44,10 @@ function humanizeSlot(iso, timeZone = 'America/New_York') {
     hour: 'numeric', minute: '2-digit', hour12: true,
   }).formatToParts(d);
   const get = (type) => parts.find((p) => p.type === type)?.value;
-  const dayKeyFor = (date) => {
-    const p = new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric', month: 'long', day: 'numeric' }).formatToParts(date);
-    return `${p.find((x) => x.type === 'year')?.value}-${p.find((x) => x.type === 'month')?.value}-${p.find((x) => x.type === 'day')?.value}`;
-  };
   const zonedDayKey = `${get('year')}-${get('month')}-${get('day')}`;
   let dayLabel;
-  if (zonedDayKey === dayKeyFor(new Date())) dayLabel = 'today';
-  else if (zonedDayKey === dayKeyFor(new Date(Date.now() + 86400000))) dayLabel = 'tomorrow';
+  if (zonedDayKey === isoDayKey(new Date(), timeZone)) dayLabel = 'today';
+  else if (zonedDayKey === isoDayKey(new Date(Date.now() + 86400000), timeZone)) dayLabel = 'tomorrow';
   else dayLabel = `${get('weekday')} ${get('month')} ${ordinal(Number(get('day')))}`;
   const hour = get('hour');
   const minute = get('minute');
@@ -53,8 +56,12 @@ function humanizeSlot(iso, timeZone = 'America/New_York') {
   return `${dayLabel} at ${time}`;
 }
 
-// Returns up to `count` upcoming slots as [{ startsAt, humanTime }].
-export async function getAvailableSlots(count = 3, cal = null, timeZone = 'America/New_York') {
+// Returns up to `count` upcoming slots as [{ startsAt, humanTime }]. If
+// `preferredIso` is given (the caller named a specific day/time), picks the
+// closest actual opening to it on that same day instead of just the day's
+// earliest slot — so "tomorrow at 4pm" finds the nearest real 4pm-ish slot
+// rather than defaulting to whatever opens first.
+export async function getAvailableSlots(count = 3, cal = null, timeZone = 'America/New_York', preferredIso = null) {
   const creds = calCreds(cal);
   if (!calLive(cal)) return mockSlots(count);
 
@@ -63,6 +70,9 @@ export async function getAvailableSlots(count = 3, cal = null, timeZone = 'Ameri
   const url = `${CAL_BASE}/slots?eventTypeId=${encodeURIComponent(creds.eventTypeId)}` +
     `&start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}` +
     `&timeZone=${encodeURIComponent(timeZone)}`;
+
+  const preferredDate = preferredIso ? new Date(preferredIso) : null;
+  const preferredDayKey = preferredDate && !isNaN(preferredDate) ? isoDayKey(preferredDate, timeZone) : null;
 
   try {
     const res = await fetch(url, {
@@ -76,9 +86,7 @@ export async function getAvailableSlots(count = 3, cal = null, timeZone = 'Ameri
       throw new Error(`Cal.com slots ${res.status}: ${body}`);
     }
     const json = await res.json();
-    // v2 returns { data: { "YYYY-MM-DD": [{ start }] } }. Take the EARLIEST slot
-    // from each day, in date order, so we offer the soonest time today + the
-    // soonest on the next open day (not two times on the same day).
+    // v2 returns { data: { "YYYY-MM-DD": [{ start }] } }.
     const buckets = json?.data || {};
     // Never offer a slot the team can't realistically make — require at least
     // an hour of lead time.
@@ -89,12 +97,22 @@ export async function getAvailableSlots(count = 3, cal = null, timeZone = 'Ameri
       if (!daySlots || !daySlots.length) continue;
       // Defensive: never trust a slot blindly — skip anything not actually
       // in the future, regardless of what Cal.com's day bucket claims.
-      const future = daySlots.find((s) => {
-        const iso = s.start || s.time || s;
-        return new Date(iso).getTime() > cutoff;
-      });
-      if (!future) continue;
-      const iso = future.start || future.time || future;
+      const futureSlots = daySlots
+        .map((s) => s.start || s.time || s)
+        .filter((iso) => new Date(iso).getTime() > cutoff);
+      if (!futureSlots.length) continue;
+
+      let iso;
+      if (preferredDayKey && isoDayKey(new Date(futureSlots[0]), timeZone) === preferredDayKey) {
+        // This is the day the caller asked about — pick the slot closest to
+        // the time they named, not just the earliest one.
+        const target = preferredDate.getTime();
+        iso = futureSlots.reduce((closest, cur) =>
+          Math.abs(new Date(cur).getTime() - target) < Math.abs(new Date(closest).getTime() - target) ? cur : closest
+        );
+      } else {
+        iso = futureSlots[0]; // earliest that day
+      }
       picked.push(iso);
       if (picked.length >= count) break;
     }

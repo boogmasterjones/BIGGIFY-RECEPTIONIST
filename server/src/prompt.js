@@ -39,7 +39,8 @@ export function systemPrompt(business, slots = null, greeting = '') {
   const step1 = `1. The greeting already asked whether they'd like a CALLBACK or to LEAVE A MESSAGE. Go by their answer:
    - Callback: ${offerTimes}. Don't ask about the job yet.
    - Leave a message: skip scheduling entirely — go straight to the "leaving a message" flow below.
-   - If it's unclear which they want, briefly ask which they'd prefer.`;
+   - If it's unclear which they want, briefly ask which they'd prefer.
+   - If the caller names a specific day/time themselves (e.g. "can you do tomorrow at 4pm?") instead of picking from what you offered, call check_availability again with preferred_time set to your best-effort ISO guess for that day/time — it will return the closest REAL opening to it, which may not be the exact time they asked for. Offer that closest time back to them ("4pm isn't open, but I have 4:30 — does that work?"). Never assume their exact requested time is available without checking.`;
 
   return `You are the automated scheduling assistant for ${b.name}, a ${b.trade} business serving ${b.serviceArea} (hours: ${b.hours}). You pick up when the team can't answer live, and your job is to schedule a callback at a time that works for the caller.
 
