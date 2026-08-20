@@ -76,11 +76,11 @@ const tools = [
   {
     name: 'cancel_appointment',
     description:
-      "Cancel the appointment you just booked for this caller — use when the job is outside what the business offers or outside the service area and the caller agrees to cancel.",
+      "Cancel the callback appointment you just booked for this caller. Use this ANY time the caller wants it canceled — they directly ask to cancel, they change their mind, or the job turns out to be outside what the business offers and they agree to cancel.",
     input_schema: {
       type: 'object',
       properties: {
-        reason: { type: 'string', description: 'Short reason, e.g. "out of service area" or "service not offered"' },
+        reason: { type: 'string', description: 'Short reason, e.g. "caller asked to cancel", "out of service area", or "service not offered"' },
       },
       additionalProperties: false,
     },
