@@ -2,15 +2,15 @@
 # In Render: New → Blueprint → connect this repo. Render reads this file,
 # then prompts you for the one secret it needs (ANTHROPIC_API_KEY).
 #
-# Note: the "free" plan sleeps after inactivity and cold-starts in ~30s — fine
-# for the browser chat test, but upgrade to a paid instance before taking real
-# phone calls (a cold start would drop an incoming call).
+# Plan is "starter" ($7/mo, always-on) — real phone calls need this, since the
+# free plan sleeps after inactivity and cold-starts in ~30s, which would drop
+# an incoming call that arrives while the server is asleep.
 
 services:
   - type: web
     name: biggify-receptionist
     runtime: node
-    plan: free
+    plan: starter
     rootDir: server
     buildCommand: npm install
     startCommand: npm start
