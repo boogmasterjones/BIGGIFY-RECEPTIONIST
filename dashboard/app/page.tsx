@@ -8,6 +8,7 @@ const css = `
     --bg-2:#0f1630;
     --surface:#ffffff;
     --cream:#FFF6E1;
+    --cream-2:#f7efd9;
     --ink:#0d1224;
     --ink-soft:#4a5372;
     --muted:#6b7390;
@@ -18,49 +19,44 @@ const css = `
     --accent:#ffd166;
     --radius:16px;
     --shadow:0 20px 50px -20px rgba(20,16,80,.35);
+    --card-shadow:0 6px 24px -18px rgba(20,16,80,.4);
     --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
   body{font-family:var(--font);color:var(--ink);background:var(--cream);line-height:1.6;-webkit-font-smoothing:antialiased}
   a{color:inherit;text-decoration:none}
+  img{max-width:100%}
   .wrap{width:min(1140px,92vw);margin-inline:auto}
   .btn{display:inline-block;padding:14px 26px;border-radius:999px;font-weight:700;font-size:15px;cursor:pointer;border:none;transition:transform .15s ease,box-shadow .15s ease}
   .btn-primary{background:var(--brand-grad);color:#fff;box-shadow:0 12px 30px -10px rgba(207,0,0,.45)}
   .btn-primary:hover{transform:translateY(-2px)}
   .btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.25)}
   .btn-ghost:hover{background:rgba(255,255,255,.16)}
-  .btn-outline{background:#fff;color:var(--ink);border:1.5px solid var(--line);box-shadow:0 4px 16px -12px rgba(20,16,80,.4)}
-  .btn-outline:hover{border-color:var(--brand);color:var(--brand)}
   .eyebrow{display:inline-block;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:12.5px;color:var(--brand);background:rgba(207,0,0,.08);padding:6px 14px;border-radius:999px}
-
-  /* Mid-page CTA strip — inserted between sections so buttons alternate down the page */
-  .cta-strip{padding:56px 0}
-  .cta-strip .wrap{text-align:center}
-  .cta-strip h3{font-size:clamp(22px,2.6vw,28px);letter-spacing:-.02em;margin-bottom:20px;font-weight:800}
-  .cta-strip .cta-buttons{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .eyebrow.light{color:#fff;background:rgba(255,255,255,.12)}
+  .link{color:var(--brand);font-weight:700;text-decoration:underline}
 
   /* NAV */
   header{position:sticky;top:0;z-index:50;background:rgba(255,246,225,.92);backdrop-filter:blur(10px);border-bottom:1px solid #ece3ca}
   nav{display:flex;align-items:center;justify-content:space-between;padding:10px 0;gap:10px}
   .logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
   .logo img{height:44px;display:block;flex-shrink:0}
-  .nav-links{display:flex;align-items:center;gap:28px;color:var(--ink-soft);font-weight:600;font-size:15px}
-  .nav-links a:hover{color:var(--ink)}
   .nav-cta{display:flex;gap:14px;align-items:center;flex-shrink:0}
   .nav-phone{font-weight:700;color:var(--ink);font-size:15px;white-space:nowrap;display:flex;align-items:center;gap:6px}
   .nav-phone:hover{color:var(--brand)}
   .nav-signin{white-space:nowrap}
   .menu-only{display:none}
-  /* dropdown menu — plain 3-line icon button (no <details> marker) */
   .menu{position:relative;flex-shrink:0}
   .menu-btn{border:none;background:none;cursor:pointer;color:var(--ink-soft);padding:6px;display:flex;align-items:center;justify-content:center}
   .menu-btn svg{display:block}
   .menu-btn:hover{color:var(--brand)}
-  .menu-panel{position:absolute;top:calc(100% + 8px);left:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:8px;min-width:190px;display:flex;flex-direction:column;gap:2px;z-index:60}
+  .menu-panel{position:absolute;top:calc(100% + 8px);left:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:8px;min-width:210px;display:flex;flex-direction:column;gap:2px;z-index:60}
   .menu-panel[hidden]{display:none}
   .menu-panel a{padding:10px 14px;border-radius:8px;color:var(--ink-soft);font-weight:600;font-size:15px}
   .menu-panel a:hover{background:var(--cream);color:var(--ink)}
+  .menu-panel .sub{padding-left:28px;font-size:14px;font-weight:500}
+  .menu-panel hr{border:none;border-top:1px solid var(--line);margin:4px 8px}
   @media(max-width:640px){
     .nav-phone{display:none}
     .nav-signin{display:none}
@@ -80,8 +76,86 @@ const css = `
   .trust b{color:#fff}
   @media(max-width:900px){.hero-inner{grid-template-columns:1fr;padding:60px 0 70px}}
 
-  /* Phone mock */
-  .phone{justify-self:center;width:290px;background:#0c1330;border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:16px;box-shadow:var(--shadow)}
+  /* growth stack (hero visual) */
+  .stack{justify-self:center;width:min(360px,100%);background:#0c1330;border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+  .stack .head{display:flex;align-items:center;gap:10px;padding:4px 6px 14px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:8px}
+  .stack .head .dot{width:9px;height:9px;border-radius:50%;background:#2ec77b;box-shadow:0 0 0 4px rgba(46,199,123,.18)}
+  .stack .head span{color:#c9cde3;font-size:13px;font-weight:600}
+  .stack .row{display:flex;gap:14px;align-items:flex-start;padding:13px 8px;border-radius:14px}
+  .stack .row + .row{border-top:1px solid rgba(255,255,255,.06)}
+  .stack .row .ico{width:40px;height:40px;flex:none;border-radius:11px;background:rgba(255,255,255,.07);display:grid;place-items:center;font-size:19px}
+  .stack .row b{display:block;color:#fff;font-size:15px}
+  .stack .row small{display:block;color:#aeb4d2;font-size:13px;line-height:1.45}
+  .stack .row.hot .ico{background:var(--brand-grad)}
+  .stack .foot{margin-top:8px;padding:12px 8px 4px;border-top:1px solid rgba(255,255,255,.08);color:#8a91b4;font-size:12.5px;text-align:center}
+
+  /* SECTIONS */
+  section{padding:88px 0}
+  section.alt{background:var(--cream-2)}
+  section.dark{background:linear-gradient(180deg,#0b1020,#141a38);color:#fff}
+  .section-head{text-align:center;max-width:720px;margin:0 auto 54px}
+  .section-head h2{font-size:clamp(28px,3.6vw,42px);letter-spacing:-.02em;line-height:1.1;margin:14px 0 12px;font-weight:800}
+  .section-head p{color:var(--ink-soft);font-size:18px}
+  .dark .section-head p{color:#c9cde3}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  .split h2{font-size:clamp(26px,3.2vw,38px);letter-spacing:-.02em;line-height:1.12;margin:14px 0 14px;font-weight:800}
+  .split p{color:var(--ink-soft);font-size:17px}
+  .split .lead{font-size:17.5px;margin-bottom:18px}
+  .split .actions{display:flex;gap:14px;margin-top:26px;flex-wrap:wrap;align-items:center}
+  @media(max-width:900px){.split{grid-template-columns:1fr;gap:34px}.split.rev > :first-child{order:2}}
+  .checks{list-style:none;margin-top:6px}
+  .checks li{padding:8px 0 8px 32px;position:relative;color:var(--ink-soft);font-size:15.5px}
+  .checks li:before{content:"✓";position:absolute;left:0;top:7px;width:22px;height:22px;border-radius:50%;background:rgba(207,0,0,.1);color:var(--brand);font-weight:800;font-size:13px;display:grid;place-items:center}
+  .checks li b{color:var(--ink)}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:30px;box-shadow:var(--card-shadow)}
+
+  /* leak */
+  .leak{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  .leak .stage{font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .leak h3{font-size:22px;letter-spacing:-.01em;margin:8px 0 10px}
+  .leak p{color:var(--ink-soft);font-size:15.5px}
+  .leak .fix{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:14.5px;color:var(--ink)}
+  .leak .fix b{color:var(--brand)}
+  @media(max-width:820px){.leak{grid-template-columns:1fr}}
+
+  /* services overview */
+  .svc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+  .svc{background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px;display:flex;flex-direction:column;transition:transform .15s ease,box-shadow .15s ease}
+  .svc:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+  .svc .ico{width:46px;height:46px;border-radius:12px;background:rgba(207,0,0,.1);display:grid;place-items:center;font-size:22px;margin-bottom:14px}
+  .svc h3{font-size:18px;margin-bottom:6px}
+  .svc p{color:var(--ink-soft);font-size:15px;flex:1}
+  .svc .more{margin-top:14px;color:var(--brand);font-weight:700;font-size:14px}
+  @media(max-width:1000px){.svc-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.svc-grid{grid-template-columns:1fr}}
+
+  /* our work */
+  .work-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:26px}
+  .work{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--card-shadow)}
+  .work .shots{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--line)}
+  .work.single .shots{grid-template-columns:1fr}
+  .work .shot{position:relative;background:#f3f4f8}
+  .work .shot img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top}
+  .work .shot .tag{position:absolute;top:10px;left:10px;font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:rgba(13,18,36,.72);color:#fff;backdrop-filter:blur(4px)}
+  .work .shot.after .tag{background:var(--brand-grad)}
+  .work .shot.soon{aspect-ratio:16/10;display:grid;place-items:center;text-align:center;color:var(--muted);font-weight:700;font-size:14.5px;padding:20px;background:repeating-linear-gradient(135deg,#f3f4f8 0 12px,#eceef4 12px 24px)}
+  .work .meta{padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .work .meta h3{font-size:17px;letter-spacing:-.01em}
+  .work .meta .trade{display:block;color:var(--muted);font-size:13.5px;font-weight:500}
+  .work .meta a{color:var(--brand);font-weight:700;font-size:14px;white-space:nowrap}
+  .work .meta .note{color:var(--muted);font-size:13.5px}
+  @media(max-width:900px){.work-grid{grid-template-columns:1fr}}
+
+  /* stats */
+  .stats{background:linear-gradient(180deg,#0b1020,#0f1630);color:#fff;padding:64px 0}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;text-align:center}
+  .stat{padding:20px}
+  .stat .n{font-size:44px;font-weight:800;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.02em}
+  .stat .l{color:#aeb4d2;font-size:15px;margin-top:4px}
+  @media(max-width:760px){.stat-grid{grid-template-columns:1fr;gap:8px}}
+
+  /* phone mock */
+  .phone{justify-self:center;width:290px;background:#0c1330;border:1px solid rgba(255,255,255,.12);border-radius:30px;padding:16px;box-shadow:var(--shadow);color:#fff}
   .phone .bar{height:26px;display:flex;align-items:center;gap:8px;color:#8a91b4;font-size:12px;padding:0 6px 6px}
   .bubble{padding:11px 14px;border-radius:14px;margin:8px 0;font-size:14px;max-width:85%}
   .b-in{background:#182046;color:#dfe3f5;border-bottom-left-radius:4px}
@@ -90,63 +164,58 @@ const css = `
   .call-head .dot{width:9px;height:9px;border-radius:50%;background:#2ec77b;box-shadow:0 0 0 4px rgba(46,199,123,.18)}
   .call-head span{color:#c9cde3;font-size:13px;font-weight:600}
 
-  /* SECTIONS */
-  section{padding:88px 0}
-  .section-head{text-align:center;max-width:680px;margin:0 auto 54px}
-  .section-head h2{font-size:clamp(28px,3.6vw,42px);letter-spacing:-.02em;line-height:1.1;margin:14px 0 12px;font-weight:800}
-  .section-head p{color:var(--ink-soft);font-size:18px}
+  /* case studies */
+  .case-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .case{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:28px;box-shadow:var(--card-shadow);display:flex;flex-direction:column}
+  .case .who{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .case .metric{font-size:40px;font-weight:800;letter-spacing:-.02em;margin:10px 0 2px;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .case .what{font-weight:700;font-size:16px;margin-bottom:10px}
+  .case p{color:var(--ink-soft);font-size:15px;flex:1}
+  .case blockquote{margin-top:16px;padding:14px 16px;border-left:3px solid var(--brand);background:var(--cream);border-radius:0 10px 10px 0;color:var(--ink);font-size:14.5px;font-style:italic}
+  .case-soon{max-width:720px;margin:0 auto;text-align:center;background:#fff;border:1px dashed #cfd3e0;border-radius:var(--radius);padding:36px 30px}
+  .case-soon h3{font-size:20px;margin-bottom:8px}
+  .case-soon p{color:var(--ink-soft);font-size:15.5px}
+  @media(max-width:900px){.case-grid{grid-template-columns:1fr}}
 
-  /* stats */
-  .stats{background:linear-gradient(180deg,#0b1020,#0f1630);color:#fff}
-  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;text-align:center}
-  .stat{padding:20px}
-  .stat .n{font-size:44px;font-weight:800;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.02em}
-  .stat .l{color:#aeb4d2;font-size:15px;margin-top:4px}
-  @media(max-width:760px){.stat-grid{grid-template-columns:1fr;gap:8px}}
-
-  /* steps */
-  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
-  .step{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:30px;position:relative;box-shadow:0 6px 24px -18px rgba(20,16,80,.4)}
-  .step .num{width:44px;height:44px;border-radius:12px;background:var(--brand-grad);color:#fff;font-weight:800;display:grid;place-items:center;font-size:19px;margin-bottom:16px}
-  .step h3{font-size:20px;margin-bottom:8px;letter-spacing:-.01em}
-  .step p{color:var(--ink-soft);font-size:15.5px}
-  @media(max-width:820px){.steps{grid-template-columns:1fr}}
-
-  /* features */
-  .features{background:#f7efd9}
-  .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-  .feat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px}
-  .feat .ico{width:46px;height:46px;border-radius:12px;background:rgba(207,0,0,.1);display:grid;place-items:center;font-size:22px;margin-bottom:14px}
-  .feat h3{font-size:18px;margin-bottom:6px}
-  .feat p{color:var(--ink-soft);font-size:15px}
-  @media(max-width:820px){.feat-grid{grid-template-columns:1fr}}
-
-  /* who */
-  .chips{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px}
-  .chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:12px 22px;font-weight:700;color:var(--ink);box-shadow:0 4px 16px -12px rgba(20,16,80,.4)}
-
-  /* pricing */
-  .pricing{background:linear-gradient(180deg,#0b1020,#141a38);color:#fff}
-  .price-card{max-width:560px;margin:0 auto;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:40px;text-align:center;box-shadow:var(--shadow)}
-  .price-card .tag{display:inline-block;background:var(--accent);color:#3a2c00;font-weight:800;font-size:13px;padding:6px 14px;border-radius:999px;margin-bottom:16px}
-  .price-card .p{font-size:52px;font-weight:800;letter-spacing:-.02em}
-  .price-card .p small{font-size:18px;color:#aeb4d2;font-weight:600}
-  .price-list{text-align:left;max-width:360px;margin:22px auto 26px;color:#dfe3f5}
-  .price-list li{list-style:none;padding:8px 0 8px 30px;position:relative}
-  .price-list li:before{content:"✓";position:absolute;left:0;color:var(--brand-2);font-weight:800}
+  /* plans */
+  .plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:stretch}
+  .plan{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:34px 30px;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+  .plan.featured{background:rgba(255,255,255,.07);border-color:rgba(255,209,102,.55);position:relative}
+  .plan .tag{display:inline-block;align-self:flex-start;background:var(--accent);color:#3a2c00;font-weight:800;font-size:12.5px;padding:5px 12px;border-radius:999px;margin-bottom:14px}
+  .plan .tier{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#aeb4d2}
+  .plan h3{font-size:28px;letter-spacing:-.02em;margin:6px 0 6px}
+  .plan .for{color:#c9cde3;font-size:15px;min-height:46px}
+  .plan .price{margin:18px 0 6px;font-size:22px;font-weight:800}
+  .plan .price small{display:block;font-size:13.5px;font-weight:500;color:#8a91b4;margin-top:2px}
+  .plan ul{list-style:none;margin:16px 0 24px;color:#dfe3f5;flex:1}
+  .plan li{padding:7px 0 7px 28px;position:relative;font-size:15px}
+  .plan li:before{content:"✓";position:absolute;left:0;color:#ff6b6b;font-weight:800}
+  .plan li.plus:before{content:"+";color:var(--accent)}
+  .plan .btn{text-align:center}
+  @media(max-width:960px){.plan-grid{grid-template-columns:1fr}}
+  .compare-wrap{margin-top:44px;overflow-x:auto;border:1px solid rgba(255,255,255,.14);border-radius:16px;background:rgba(255,255,255,.03)}
+  .compare{width:100%;min-width:680px;border-collapse:collapse;font-size:15px}
+  .compare th,.compare td{padding:14px 18px;text-align:left;border-bottom:1px solid rgba(255,255,255,.08);vertical-align:top}
+  .compare th{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:#aeb4d2;background:rgba(255,255,255,.04)}
+  .compare th.hi{color:var(--accent)}
+  .compare td:first-child{font-weight:700;color:#fff;white-space:nowrap}
+  .compare td{color:#dfe3f5}
+  .compare tr:last-child td{border-bottom:none}
+  .compare .no{color:#6b7390}
+  .plans-note{text-align:center;color:#8a91b4;font-size:14px;margin-top:18px}
 
   /* faq */
   details{border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin-bottom:14px;background:#fff}
-  details summary{font-weight:700;cursor:pointer;font-size:17px;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  details summary{font-weight:700;cursor:pointer;font-size:17px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:14px}
   details summary::-webkit-details-marker{display:none}
-  details summary:after{content:"+";font-size:24px;color:var(--brand);font-weight:400}
+  details summary:after{content:"+";font-size:24px;color:var(--brand);font-weight:400;flex:none}
   details[open] summary:after{content:"–"}
   details p{color:var(--ink-soft);margin-top:12px;font-size:15.5px}
 
   /* CTA */
   .cta-final{background:var(--brand-grad);color:#fff;text-align:center}
   .cta-final h2{font-size:clamp(28px,3.6vw,42px);letter-spacing:-.02em;margin-bottom:14px;font-weight:800}
-  .cta-final p{font-size:18px;opacity:.95;max-width:560px;margin:0 auto 28px}
+  .cta-final p{font-size:18px;opacity:.95;max-width:600px;margin:0 auto 28px}
   .cta-final .btn-primary{background:#fff;color:var(--brand)}
 
   /* footer */
@@ -174,7 +243,6 @@ export default function LandingPage() {
       });
     });
 
-    // header dropdown: toggle on click, close on link click / outside click
     const menuBtn = document.querySelector('.menu-btn');
     const menuPanel = document.querySelector('.menu-panel') as any;
     if (menuBtn && menuPanel) {
@@ -216,9 +284,16 @@ export default function LandingPage() {
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
                 </button>
                 <div className="menu-panel" hidden>
-                  <a href="#how">How it works</a>
-                  <a href="#features">Features</a>
-                  <a href="#pricing">Pricing</a>
+                  <a href="#services">Services</a>
+                  <a className="sub" href="#websites">Websites</a>
+                  <a className="sub" href="#gbp">Google Business Profile</a>
+                  <a className="sub" href="#social">Social Media</a>
+                  <a className="sub" href="#receptionist">AI Receptionist</a>
+                  <hr />
+                  <a href="#work">Our Work</a>
+                  <a href="#case-studies">Case Studies</a>
+                  <a href="#plans">Plans</a>
+                  <a href="/how-it-works">How it works</a>
                   <a href="#faq">FAQ</a>
                   <a className="menu-only" href="/login">Sign in</a>
                   <a className="menu-only" href="tel:+19413279667">📞 (941) 327-9667</a>
@@ -226,27 +301,291 @@ export default function LandingPage() {
               </div>
               <a className="nav-phone" href="tel:+19413279667">📞 (941) 327-9667</a>
               <a className="btn btn-primary nav-signin" href="/login">Sign in</a>
-              <a className="btn btn-primary" href="#contact">Get a Free Demo</a>
+              <a className="btn btn-primary" href="#contact">Get a Free Quote</a>
             </div>
           </nav>
         </div>
       </header>
 
-      <section className="hero" id="top" style={{padding:0}}>
+      {/* HERO */}
+      <section className="hero" id="top" style={{ padding: 0 }}>
         <div className="wrap">
           <div className="hero-inner">
             <div>
-              <span className="eyebrow">AI Receptionist for Home Services</span>
-              <h1>Never miss another <span className="grad">job</span> again.</h1>
-              <p className="lead">Biggify answers every call, books the appointment, and instantly texts your customer a quick survey — so you show up prepared and never lose a lead to a missed call.</p>
+              <span className="eyebrow light">Marketing + AI Receptionist for Home Services</span>
+              <h1>Get found. Get chosen. <span className="grad">Never miss the call.</span></h1>
+              <p className="lead">Biggify builds your website, runs your Google Business Profile and social media, and answers your phone 24/7 with an AI receptionist — so your business stops leaking jobs at every step.</p>
               <div className="hero-cta">
-                <a className="btn btn-primary" href="#contact">Get a Free Demo</a>
+                <a className="btn btn-primary" href="#contact">Get a Free Quote</a>
                 <a className="btn btn-ghost call-btn" href="tel:+19413279667">📞 Call our receptionist</a>
               </div>
               <div className="trust">
-                <span><b>24/7</b> call answering</span>
-                <span><b>&lt;3 min</b> customer survey</span>
-                <span><b>Books</b> straight to your calendar</span>
+                <span><b>Website</b> that converts</span>
+                <span><b>Google</b> Business Profile</span>
+                <span><b>Social</b> media</span>
+                <span><b>24/7</b> AI receptionist</span>
+              </div>
+            </div>
+
+            <div className="stack" aria-label="What Biggify handles">
+              <div className="head"><span className="dot"></span><span>Your whole front end, handled by Biggify</span></div>
+              <div className="row"><div className="ico">🔍</div><div><b>Google Business Profile</b><small>Show up when someone searches "plumber near me."</small></div></div>
+              <div className="row"><div className="ico">🌐</div><div><b>Website</b><small>Turn that click into a call, not a bounce.</small></div></div>
+              <div className="row"><div className="ico">📱</div><div><b>Social Media</b><small>Stay top of mind between jobs.</small></div></div>
+              <div className="row hot"><div className="ico">📞</div><div><b>AI Receptionist</b><small>Answer every call and book the job — day or night.</small></div></div>
+              <div className="foot">One team. One plan. The whole funnel.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* WHERE JOBS GET LOST */}
+      <section>
+        <div className="wrap">
+          <div className="section-head">
+            <span className="eyebrow">The problem</span>
+            <h2>Jobs leak out at three points. We plug all three.</h2>
+            <p>Most home-service businesses don't have a demand problem — they have a leak problem. Here's where the work slips away before it ever hits your schedule.</p>
+          </div>
+          <div className="leak">
+            <div className="card">
+              <div className="stage">Leak 1</div>
+              <h3>They never find you</h3>
+              <p>When someone searches for your trade in your town, the businesses on the map get the call. If your Google profile is thin or your website isn't ranking, you're invisible at the exact moment they're ready to buy.</p>
+              <div className="fix">Fixed by: <b>Google Business Profile</b> + <b>Website</b></div>
+            </div>
+            <div className="card">
+              <div className="stage">Leak 2</div>
+              <h3>They find you, but don't pick you</h3>
+              <p>An outdated site, no reviews, no photos of your work — and they hit the back button and call the next name. You lost the job without ever knowing they looked.</p>
+              <div className="fix">Fixed by: <b>Website</b> + <b>Social Media</b></div>
+            </div>
+            <div className="card">
+              <div className="stage">Leak 3</div>
+              <h3>They call, and nobody answers</h3>
+              <p>You're on a ladder or under a sink. The call goes to voicemail. Most callers won't leave one — they call your competitor, who picks up.</p>
+              <div className="fix">Fixed by: <b>AI Receptionist</b></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SERVICES OVERVIEW */}
+      <section className="alt" id="services">
+        <div className="wrap">
+          <div className="section-head">
+            <span className="eyebrow">What we do</span>
+            <h2>Four services. One goal: more booked jobs.</h2>
+            <p>Take the whole stack, or start with the one piece that's leaking the most.</p>
+          </div>
+          <div className="svc-grid">
+            <a className="svc" href="#websites"><div className="ico">🌐</div><h3>Website Design</h3><p>A fast, mobile-first site built to turn visitors into phone calls — with your reviews, your work, and click-to-call everywhere.</p><span className="more">See our work →</span></a>
+            <a className="svc" href="#gbp"><div className="ico">🔍</div><h3>Google Business Profile</h3><p>Own the map pack in the towns you serve. Optimized profile, active posting, citations, and a steady stream of reviews.</p><span className="more">Learn more →</span></a>
+            <a className="svc" href="#social"><div className="ico">📱</div><h3>Social Media</h3><p>Consistent posting that turns your everyday job photos into proof — so you stay top of mind without touching it.</p><span className="more">Learn more →</span></a>
+            <a className="svc" href="#receptionist"><div className="ico">📞</div><h3>AI Receptionist</h3><p>Answers every call 24/7 in a natural voice, books the appointment onto your calendar, and texts the customer for details.</p><span className="more">Hear it work →</span></a>
+          </div>
+        </div>
+      </section>
+
+      {/* WEBSITES */}
+      <section id="websites">
+        <div className="wrap">
+          <div className="split">
+            <div>
+              <span className="eyebrow">Website Design</span>
+              <h2>A website that's built to get the phone to ring</h2>
+              <p className="lead">Most contractor websites are online brochures nobody reads. We build yours like a salesperson: it loads fast, speaks to the towns you serve, shows your work, and makes calling you the obvious next step.</p>
+              <ul className="checks">
+                <li><b>Mobile-first and fast</b> — most of your customers are searching from their phone, on the couch, mid-emergency.</li>
+                <li><b>Click-to-call everywhere</b> — your number is one tap away from every screen.</li>
+                <li><b>Pages for the towns you work</b> — so you show up for "water heater repair Sarasota," not just your business name.</li>
+                <li><b>Reviews, licenses, and real photos up front</b> — the trust signals people check before they call.</li>
+                <li><b>Wired to your receptionist</b> — chat and call buttons connect straight to Biggify, so the site doesn't just look good, it books.</li>
+              </ul>
+              <div className="actions">
+                <a className="btn btn-primary" href="#contact">Get a Free Quote</a>
+                <a className="link" href="#work">See before &amp; afters ↓</a>
+              </div>
+            </div>
+            <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+              <img src="/work/tropicalbaybuilders-after.jpg" alt="Tropical Bay Builders website built by Biggify" loading="lazy" style={{ display: 'block', width: '100%', aspectRatio: '16/10', objectFit: 'cover', objectPosition: 'top' }} />
+              <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                <div><b>Tropical Bay Builders</b><span style={{ display: 'block', color: 'var(--muted)', fontSize: '13.5px' }}>Remodeling &amp; construction · North Port, FL</span></div>
+                <a className="link" href="https://tropicalbaybuilders.netlify.app" target="_blank" rel="noopener" style={{ fontSize: '14px' }}>View live site ↗</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* OUR WORK */}
+      <section className="alt" id="work">
+        <div className="wrap">
+          <div className="section-head">
+            <span className="eyebrow">Our work</span>
+            <h2>Before &amp; after</h2>
+            <p>Real Southwest Florida businesses. Same company, same trade — a website that finally works as hard as they do.</p>
+          </div>
+          <div className="work-grid">
+            <div className="work">
+              <div className="shots">
+                <div className="shot before"><span className="tag">Before</span><img src="/work/tropicalbaybuilders-before.jpg" alt="Tropical Bay Builders — old website" loading="lazy" /></div>
+                <div className="shot after"><span className="tag">After</span><img src="/work/tropicalbaybuilders-after.jpg" alt="Tropical Bay Builders — new website by Biggify" loading="lazy" /></div>
+              </div>
+              <div className="meta">
+                <h3>Tropical Bay Builders<span className="trade">Remodeling &amp; construction · North Port</span></h3>
+                <a href="https://tropicalbaybuilders.netlify.app" target="_blank" rel="noopener">View new site ↗</a>
+              </div>
+            </div>
+
+            <div className="work">
+              <div className="shots">
+                <div className="shot before"><span className="tag">Before</span><img src="/work/rapidwaterheater-before.jpg" alt="Rapid Water Heater — old website" loading="lazy" /></div>
+                <div className="shot after"><span className="tag">After</span><img src="/work/rapidwaterheater-after.jpg" alt="Rapid Water Heater — new website by Biggify" loading="lazy" /></div>
+              </div>
+              <div className="meta">
+                <h3>Rapid Water Heater<span className="trade">Plumbing &amp; water heaters · Sarasota</span></h3>
+                <a href="https://rapidwaterheater.netlify.app" target="_blank" rel="noopener">View new site ↗</a>
+              </div>
+            </div>
+
+            <div className="work">
+              <div className="shots">
+                <div className="shot before"><span className="tag">Before</span><img src="/work/clearvant-before.jpg" alt="Clearvant Window Washing — old website" loading="lazy" /></div>
+                <div className="shot after"><span className="tag">After</span><img src="/work/clearvant-after.jpg" alt="Clearvant Window Washing — new website by Biggify" loading="lazy" /></div>
+              </div>
+              <div className="meta">
+                <h3>Clearvant Window Washing Co<span className="trade">Window cleaning · North Port</span></h3>
+                <a href="https://clearvantwc.com" target="_blank" rel="noopener">View new site ↗</a>
+              </div>
+            </div>
+
+            <div className="work">
+              <div className="shots">
+                <div className="shot before"><span className="tag">Before</span><img src="/work/rsitile-before.jpg" alt="Rock Solid Tile — current website" loading="lazy" /></div>
+                <div className="shot soon">New site in progress —<br />check back soon</div>
+              </div>
+              <div className="meta">
+                <h3>Rock Solid Tile<span className="trade">Tile installation · Southwest Florida</span></h3>
+                <span className="note">Redesign underway</span>
+              </div>
+            </div>
+
+            <div className="work single">
+              <div className="shots">
+                <div className="shot after"><span className="tag">Redesign · Live</span><img src="/work/tropicalbayrentals-after.jpg" alt="Tropical Bay Rentals — website by Biggify" loading="lazy" /></div>
+              </div>
+              <div className="meta">
+                <h3>Tropical Bay Rentals<span className="trade">E-bike &amp; jet ski rentals · Venice to Boca Grande</span></h3>
+                <a href="https://tropicalbayrentals.com" target="_blank" rel="noopener">View live site ↗</a>
+              </div>
+            </div>
+
+            <div className="work single">
+              <div className="shots">
+                <div className="shot after"><span className="tag">Fresh build · No site before</span><img src="/work/jasonsmobilemechanics-after.jpg" alt="Jason's Mobile Mechanics — website by Biggify" loading="lazy" /></div>
+              </div>
+              <div className="meta">
+                <h3>Jason's Mobile Mechanics<span className="trade">Mobile auto repair · Port Charlotte</span></h3>
+                <a href="https://jasonsmobilemechanicsfl.com" target="_blank" rel="noopener">View live site ↗</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* GOOGLE BUSINESS PROFILE */}
+      <section id="gbp">
+        <div className="wrap">
+          <div className="split rev">
+            <div className="card">
+              <div style={{ fontSize: '13px', fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '12px' }}>What's included</div>
+              <ul className="checks" style={{ marginTop: 0 }}>
+                <li><b>Profile optimization</b> — categories, services, hours, service areas, photos, and description dialed in.</li>
+                <li><b>Regular posts</b> — 4 Google posts a month on Growth, 10 a month on Super Growth, so Google sees an active business.</li>
+                <li><b>Service-area targeting</b> — from your home town on Growth to 3–5 towns on Super Growth.</li>
+                <li><b>Keyword coverage</b> — your core services, expanding to your full service line and long-tail searches.</li>
+                <li><b>Citations &amp; links</b> — foundational listings, then active link-building as you scale.</li>
+                <li><b>Reviews</b> — a request system that runs itself, or a fully managed review campaign.</li>
+                <li><b>Reporting</b> — a monthly summary, or full attribution: calls → booked → closed.</li>
+              </ul>
+            </div>
+            <div>
+              <span className="eyebrow">Google Business Profile</span>
+              <h2>Own the map in the towns you serve</h2>
+              <p className="lead">When someone searches "AC repair near me," the three businesses in the map pack get the calls. Getting there — and staying there — takes consistent work most owners don't have time for. We do it every week.</p>
+              <p>Your profile gets optimized and kept active with posts and photos. Your reviews grow on a schedule instead of by luck. And your listing gets backed up by the citations and content Google wants to see before it trusts you with the top spot.</p>
+              <div className="actions">
+                <a className="btn btn-primary" href="#contact">Get a Free Quote</a>
+                <a className="link" href="#plans">Compare plans ↓</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SOCIAL MEDIA */}
+      <section className="alt" id="social">
+        <div className="wrap">
+          <div className="split">
+            <div>
+              <span className="eyebrow">Social Media</span>
+              <h2>Stay top of mind between jobs — without posting a thing</h2>
+              <p className="lead">Nobody hires a roofer off a viral post. But when a neighbor asks for a recommendation, the business they've been seeing all month is the one that gets the name-drop. That's what consistent social does.</p>
+              <ul className="checks">
+                <li><b>Your job photos become posts</b> — send us the before-and-afters from the truck and we turn them into proof.</li>
+                <li><b>Consistent cadence</b> — 4 posts a month on Growth, 10 on Super Growth, across Facebook, Instagram, and your Google profile — so you never go dark.</li>
+                <li><b>Local voice</b> — posts that sound like a business people know, not a marketing agency.</li>
+                <li><b>Reviews get reused</b> — every new five-star review becomes content that works twice.</li>
+              </ul>
+              <div className="actions">
+                <a className="btn btn-primary" href="#contact">Get a Free Quote</a>
+              </div>
+            </div>
+            <div className="card" style={{ background: '#0c1330', borderColor: 'rgba(255,255,255,.12)', color: '#fff' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                <span style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'var(--brand-grad)', display: 'grid', placeItems: 'center', fontWeight: 800 }}>R</span>
+                <div><b style={{ display: 'block', fontSize: '14.5px' }}>Rapid Water Heater</b><span style={{ fontSize: '12.5px', color: '#8a91b4' }}>Sarasota, FL · Just now</span></div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '14px' }}>
+                <div style={{ aspectRatio: '1', borderRadius: '12px', background: 'linear-gradient(135deg,#2a3358,#182046)', display: 'grid', placeItems: 'center', color: '#8a91b4', fontSize: '12.5px', fontWeight: 700 }}>BEFORE</div>
+                <div style={{ aspectRatio: '1', borderRadius: '12px', background: 'linear-gradient(135deg,#7a1a1a,#cf0000)', display: 'grid', placeItems: 'center', color: '#fff', fontSize: '12.5px', fontWeight: 700 }}>AFTER</div>
+              </div>
+              <p style={{ color: '#dfe3f5', fontSize: '14.5px', margin: 0 }}>Same-day tankless swap in Venice — old unit was leaking, new one installed and running hot water by 2 PM. Hot water now, no monkey business. 🔧</p>
+              <div style={{ display: 'flex', gap: '18px', marginTop: '14px', color: '#8a91b4', fontSize: '13px' }}><span>👍 Like</span><span>💬 Comment</span><span>↗ Share</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* AI RECEPTIONIST */}
+      <div className="stats" id="receptionist">
+        <div className="wrap">
+          <div className="stat-grid">
+            <div className="stat"><div className="n">62%</div><div className="l">of calls to small businesses go unanswered</div></div>
+            <div className="stat"><div className="n">$1,200+</div><div className="l">average value of a single service job</div></div>
+            <div className="stat"><div className="n">85%</div><div className="l">of missed callers won't call back — they call a competitor</div></div>
+          </div>
+        </div>
+      </div>
+      <section>
+        <div className="wrap">
+          <div className="split">
+            <div>
+              <span className="eyebrow">AI Receptionist</span>
+              <h2>Every call answered. Every job booked. Even at 9 PM on a Sunday.</h2>
+              <p className="lead">Marketing brings the calls. The receptionist makes sure none of them slip away. It picks up instantly in a natural voice, answers questions about your services, books the appointment onto your real calendar, and texts the customer for the details — while you keep working.</p>
+              <ul className="checks">
+                <li><b>Answers 24/7</b> — no voicemail, no hold music, no "we'll call you back."</li>
+                <li><b>Books straight to your calendar</b> while the customer is still on the line.</li>
+                <li><b>Texts a quick survey</b> — address, issue, preferred time — so you show up ready.</li>
+                <li><b>Alerts you instantly</b> by text and email with everything attached.</li>
+                <li><b>Keep your number</b> — forward the calls you can't grab, or all of them.</li>
+                <li><b>Your own dashboard</b> — every call, booking, and conversation logged in one place.</li>
+              </ul>
+              <div className="actions">
+                <a className="btn btn-primary call-btn" href="tel:+19413279667">📞 Call it right now</a>
+                <a className="link" href="/how-it-works#calculator">What are missed calls costing you? →</a>
               </div>
             </div>
             <div className="phone">
@@ -262,141 +601,175 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="stats">
-        <div className="wrap">
-          <div className="stat-grid">
-            <div className="stat"><div className="n">62%</div><div className="l">of calls to small businesses go unanswered</div></div>
-            <div className="stat"><div className="n">$1,200+</div><div className="l">average value of a single service job</div></div>
-            <div className="stat"><div className="n">85%</div><div className="l">of missed callers won't call back — they call a competitor</div></div>
-          </div>
-        </div>
-      </section>
-
-      <section id="how">
+      {/* CASE STUDIES */}
+      <section className="alt" id="case-studies">
         <div className="wrap">
           <div className="section-head">
-            <span className="eyebrow">How it works</span>
-            <h2>Your front desk, fully automated</h2>
-            <p>Biggify picks up when you can't — on the job, after hours, or when the phone's already ringing off the hook.</p>
+            <span className="eyebrow">Case studies</span>
+            <h2>Proof, not promises</h2>
+            <p>Real call data from real businesses using the Biggify receptionist — calls answered, jobs booked, and what it added up to.</p>
           </div>
-          <div className="steps">
-            <div className="step"><div className="num">1</div><h3>Answers every call</h3><p>A professional AI receptionist greets every caller instantly, day or night — no voicemail, no hold music, no missed lead.</p></div>
-            <div className="step"><div className="num">2</div><h3>Books the appointment</h3><p>It checks your availability and books the job straight into your calendar while the customer is still on the line.</p></div>
-            <div className="step"><div className="num">3</div><h3>Texts a quick survey</h3><p>Right after, the caller gets a short text — address, issue, preferred time — so you have everything you need before you call back.</p></div>
+
+          <div className="case-soon">
+            <h3>First case studies publishing soon</h3>
+            <p>We're collecting the first 90 days of call data from our founding clients so the numbers here are real, not projected. Want to see live results before then? <a className="link" href="#contact">Book a demo</a> and we'll walk you through a dashboard.</p>
+          </div>
+
+          {/* CASE STUDY TEMPLATE — remove `hidden` and fill in one card per client. Keep
+              metrics to things the dashboard actually records: calls answered, after-hours
+              calls, appointments booked, jobs from AI calls, estimated revenue from those jobs. */}
+          <div className="case-grid" hidden>
+            <div className="case">
+              <div className="who">[Client name] · [Trade] · [City]</div>
+              <div className="metric">[XX]</div>
+              <div className="what">[after-hours calls answered in 30 days]</div>
+              <p>[One or two sentences: what was happening before, what changed after Biggify started answering.]</p>
+              <blockquote>"[Short quote from the owner.]" — [Name], Owner</blockquote>
+            </div>
+            <div className="case">
+              <div className="who">[Client name] · [Trade] · [City]</div>
+              <div className="metric">[XX]</div>
+              <div className="what">[jobs booked by the receptionist]</div>
+              <p>[Context.]</p>
+              <blockquote>"[Quote.]" — [Name], Owner</blockquote>
+            </div>
+            <div className="case">
+              <div className="who">[Client name] · [Trade] · [City]</div>
+              <div className="metric">$[X,XXX]</div>
+              <div className="what">[estimated revenue from AI-booked jobs]</div>
+              <p>[Context.]</p>
+              <blockquote>"[Quote.]" — [Name], Owner</blockquote>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="cta-strip">
-        <div className="wrap">
-          <h3>Ready to stop missing calls?</h3>
-          <div className="cta-buttons">
-            <a className="btn btn-primary" href="#contact">Get a Free Demo</a>
-            <a className="btn btn-outline call-btn" href="tel:+19413279667">📞 Call our receptionist</a>
-          </div>
-        </div>
-      </section>
-
-      <section className="features" id="features">
+      {/* PLANS */}
+      <section className="dark" id="plans">
         <div className="wrap">
           <div className="section-head">
-            <span className="eyebrow">Features</span>
-            <h2>Built for the trades</h2>
-            <p>Everything a busy home-service business needs to capture every lead — nothing it doesn't.</p>
+            <span className="eyebrow light">Plans</span>
+            <h2 style={{ color: '#fff' }}>Pick your level of growth</h2>
+            <p>Every plan is quoted to your business — your trade, your service area, your goals. No two shops are the same, so no price tags here. Tell us about yours and we'll build the number.</p>
           </div>
-          <div className="feat-grid">
-            <div className="feat"><div className="ico">📞</div><h3>24/7 call answering</h3><p>Never send a paying customer to voicemail again. Biggify answers on the first ring, around the clock.</p></div>
-            <div className="feat"><div className="ico">📅</div><h3>Instant booking</h3><p>Appointments drop straight into your calendar. No back-and-forth, no double-booking.</p></div>
-            <div className="feat"><div className="ico">💬</div><h3>Smart SMS survey</h3><p>A 3-question text captures the job details so your team shows up ready to work.</p></div>
-            <div className="feat"><div className="ico">🔔</div><h3>Instant alerts</h3><p>Get a text and email the second a new job comes in — with all the details attached.</p></div>
-            <div className="feat"><div className="ico">📊</div><h3>Your own dashboard</h3><p>Every call, booking, and survey in one clean, branded place. It's your tool, your brand.</p></div>
-            <div className="feat"><div className="ico">📵</div><h3>Catches missed calls</h3><p>Forward your existing line so calls you can't grab roll to Biggify — you keep your number.</p></div>
+
+          <div className="plan-grid">
+            <div className="plan">
+              <div className="tier">Tier 1</div>
+              <h3>Growth</h3>
+              <p className="for">For the shop that needs to get found and get chosen in its home town.</p>
+              <div className="price">Custom quote<small>Built around your business</small></div>
+              <ul>
+                <li>Custom, mobile-first website</li>
+                <li>Google Business Profile optimization</li>
+                <li>4 Google Business posts per month</li>
+                <li>1 city/town targeted</li>
+                <li>Core-service keywords</li>
+                <li>1–2 new content pages per month</li>
+                <li>Foundational citations</li>
+                <li>Review-request setup</li>
+                <li>Social media — 4 posts per month</li>
+                <li>Monthly summary report</li>
+              </ul>
+              <a className="btn btn-ghost" href="#contact">Get a custom quote</a>
+            </div>
+
+            <div className="plan featured">
+              <span className="tag">⭐ Most complete</span>
+              <div className="tier">Tier 2</div>
+              <h3>Super Growth</h3>
+              <p className="for">For the shop ready to dominate multiple towns and stop missing calls entirely.</p>
+              <div className="price">Custom quote<small>Built around your business</small></div>
+              <ul>
+                <li>Everything in Growth</li>
+                <li className="plus">3–5 towns targeted</li>
+                <li className="plus">10 Google Business posts per month</li>
+                <li className="plus">Full service line + long-tail keywords</li>
+                <li className="plus">4–6 new content pages per month</li>
+                <li className="plus">Active link-building + citations</li>
+                <li className="plus">Managed review campaign</li>
+                <li className="plus">Social media — 10 posts per month</li>
+                <li className="plus">Attribution reporting: calls → booked → closed</li>
+                <li className="plus"><b>AI Receptionist included</b> — 24/7 answering &amp; booking</li>
+              </ul>
+              <a className="btn btn-primary" href="#contact">Get a custom quote</a>
+            </div>
+
+            <div className="plan">
+              <div className="tier">Standalone</div>
+              <h3>Receptionist Only</h3>
+              <p className="for">Already have your marketing handled? Just stop missing the calls it brings in.</p>
+              <div className="price">Custom quote<small>Built around your call volume</small></div>
+              <ul>
+                <li>24/7 AI call answering</li>
+                <li>Appointment booking to your calendar</li>
+                <li>Automated SMS customer survey</li>
+                <li>Instant text &amp; email lead alerts</li>
+                <li>Your own branded dashboard</li>
+                <li>Setup &amp; onboarding included</li>
+              </ul>
+              <a className="btn btn-ghost" href="#contact">Get a custom quote</a>
+            </div>
           </div>
+
+          <div className="compare-wrap">
+            <table className="compare">
+              <thead>
+                <tr><th>What you get</th><th>Growth</th><th className="hi">Super Growth</th><th>Receptionist Only</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Website</td><td>Custom build</td><td>Custom build</td><td className="no">—</td></tr>
+                <tr><td>Service areas</td><td>1 city/town</td><td>3–5 towns</td><td className="no">—</td></tr>
+                <tr><td>Google Business posts</td><td>4 / month</td><td>10 / month</td><td className="no">—</td></tr>
+                <tr><td>Keywords</td><td>Core services</td><td>Full service line + long-tail</td><td className="no">—</td></tr>
+                <tr><td>Content cadence</td><td>1–2 pages/mo</td><td>4–6 pages/mo</td><td className="no">—</td></tr>
+                <tr><td>Off-page</td><td>Foundational citations</td><td>Active links + citations</td><td className="no">—</td></tr>
+                <tr><td>Reviews</td><td>Basic request setup</td><td>Managed campaign</td><td className="no">—</td></tr>
+                <tr><td>Social media posts</td><td>4 / month</td><td>10 / month</td><td className="no">—</td></tr>
+                <tr><td>Reporting</td><td>Monthly summary</td><td>+ attribution loop (calls → booked → closed)</td><td>Call &amp; booking dashboard</td></tr>
+                <tr><td>AI Receptionist</td><td className="no">Add-on</td><td>Included</td><td>Included</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="plans-note">Not sure which fits? <a href="#contact" style={{ color: '#fff', textDecoration: 'underline' }}>Book a 15-minute call</a> — we'll tell you honestly where your leak is.</p>
         </div>
       </section>
 
-      <section>
-        <div className="wrap">
-          <div className="section-head">
-            <span className="eyebrow">Who it's for</span>
-            <h2>Made for home service pros</h2>
-            <p>If a missed call means a lost job, Biggify pays for itself the first week.</p>
-          </div>
-          <div className="chips">
-            <span className="chip">HVAC</span><span className="chip">Plumbing</span><span className="chip">Electrical</span>
-            <span className="chip">Roofing</span><span className="chip">Landscaping</span><span className="chip">Pest Control</span>
-            <span className="chip">Garage Doors</span><span className="chip">Cleaning</span><span className="chip">Handyman</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="cta-strip">
-        <div className="wrap">
-          <h3>See it in action before you commit.</h3>
-          <div className="cta-buttons">
-            <a className="btn btn-primary" href="#contact">Get a Free Demo</a>
-            <a className="btn btn-outline call-btn" href="tel:+19413279667">📞 Call our receptionist</a>
-          </div>
-        </div>
-      </section>
-
-      <section className="pricing" id="pricing">
-        <div className="wrap">
-          <div className="section-head" style={{color:'#fff'}}>
-            <span className="eyebrow" style={{color:'#fff',background:'rgba(255,255,255,.12)'}}>Pricing</span>
-            <h2 style={{color:'#fff'}}>Simple, honest pricing</h2>
-            <p style={{color:'#c9cde3'}}>One missed job usually costs more than a whole month of Biggify.</p>
-          </div>
-          <div className="price-card">
-            <span className="tag">⭐ Founding Client Offer</span>
-            <div className="p">$<span>147</span><small>/mo</small></div>
-            <ul className="price-list">
-              <li>24/7 AI call answering</li>
-              <li>Appointment booking to your calendar</li>
-              <li>Automated SMS customer survey</li>
-              <li>Instant text &amp; email lead alerts</li>
-              <li>Your own branded dashboard</li>
-              <li>Setup &amp; onboarding included</li>
-            </ul>
-            <a className="btn btn-primary" href="#contact" style={{background:'#fff',color:'var(--brand)'}}>Claim your demo</a>
-            <p style={{color:'#c9cde3',fontSize:'14.5px',marginTop:'18px'}}>Need something different? <a href="#contact" style={{color:'#fff',textDecoration:'underline'}}>Book a call</a> and we'll build a plan around your business.</p>
-            <p style={{color:'#8a91b4',fontSize:'13.5px',marginTop:'10px'}}>Limited founding-client spots. Lock in this rate before we raise prices.</p>
-          </div>
-        </div>
-      </section>
-
+      {/* FAQ */}
       <section id="faq">
-        <div className="wrap" style={{maxWidth:'820px'}}>
+        <div className="wrap" style={{ maxWidth: '820px' }}>
           <div className="section-head">
             <span className="eyebrow">FAQ</span>
             <h2>Questions, answered</h2>
           </div>
-          <details open><summary>Do I have to change my phone number?</summary><p>No. You keep your existing number. You simply forward calls you can't answer to Biggify, so the calls you'd otherwise miss get caught — while you still take every call you can.</p></details>
-          <details><summary>Will it sound like a robot?</summary><p>No. Biggify uses a natural, professional AI voice that greets callers, answers common questions, and books the job like a great front-desk receptionist would.</p></details>
+          <details open><summary>Do I have to take everything, or can I start with one service?</summary><p>Start wherever your biggest leak is. Plenty of businesses begin with just the receptionist, or just Growth, and add on later. The plans are built so the pieces work on their own and work better together.</p></details>
+          <details><summary>Do I have to change my phone number?</summary><p>No. You keep your existing number. You simply forward calls you can't answer to Biggify, so the calls you'd otherwise miss get caught — while you still take every call you can.</p></details>
+          <details><summary>Will the receptionist sound like a robot?</summary><p>No. Biggify uses a natural, professional AI voice that greets callers, answers common questions, and books the job like a great front-desk receptionist would. Call <a className="link" href="tel:+19413279667">(941) 327-9667</a> right now and hear it.</p></details>
+          <details><summary>Do I own my website and domain?</summary><p>Yes. Your domain stays in your name and the site is yours. We build it, host it, and keep it updated while you're with us — but it's your business's asset, not ours.</p></details>
           <details><summary>How does the text survey work?</summary><p>After a call, the customer receives a short text with a few quick questions so you have the address, the issue, and their preferred time before you follow up. Customers can reply STOP at any time to opt out.</p></details>
-          <details><summary>How fast can I get set up?</summary><p>Most businesses are live within a few days. We handle the setup and walk you through everything.</p></details>
-          <details><summary>What does it cost me if I miss the value?</summary><p>Nothing to lose — we start with a free demo using your real business scenario so you can hear it before you commit.</p></details>
+          <details><summary>What do the reports actually show me?</summary><p>On Growth you get a monthly summary of your rankings, profile activity, and reviews. On Super Growth you get the full attribution loop — which calls came from where, which ones got booked, and which ones closed — so you can see marketing turn into money.</p></details>
+          <details><summary>How fast can I get set up?</summary><p>The receptionist is usually live within a few days. Website and marketing timelines depend on your plan and how much we're building — we'll give you a clear schedule in your quote.</p></details>
+          <details><summary>What does it cost me to find out?</summary><p>Nothing. We start with a free 15-minute call and a demo using your real business scenario, so you can see and hear it before you commit to anything.</p></details>
         </div>
       </section>
 
+      {/* CTA */}
       <section className="cta-final" id="contact">
         <div className="wrap">
-          <h2>Hear it answer your phone today</h2>
-          <p>Call our receptionist right now and hear it for yourself — or book a free 15-minute demo below.</p>
-          <div style={{display:'flex',gap:'14px',justifyContent:'center',flexWrap:'wrap',marginBottom:'36px'}}>
-            <a className="btn btn-primary call-btn" href="tel:+19413279667" style={{background:'#fff',color:'var(--brand)'}}>📞 Call our receptionist</a>
+          <h2>Let's find your leak</h2>
+          <p>Book a free 15-minute call. We'll look at how you're showing up online, tell you honestly where the jobs are slipping, and quote a plan that fits — or call our receptionist right now and hear it for yourself.</p>
+          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '36px' }}>
+            <a className="btn btn-primary call-btn" href="tel:+19413279667" style={{ background: '#fff', color: 'var(--brand)' }}>📞 Call our receptionist</a>
           </div>
-          {/* Calendly's script mutates this container directly (adds the iframe, its own
-              classes/inline styles) — suppressHydrationWarning is the React-recommended
-              way to opt a specific node out of hydration mismatch checks for exactly
-              this "third-party script owns this DOM node" scenario. */}
+          {/* Calendly's script mutates this container directly — suppressHydrationWarning
+              opts this node out of hydration mismatch checks. */}
           <div
             className="calendly-inline-widget"
             data-url="https://calendly.com/boogmasterjones/biggify-appointment?hide_event_type_details=1&hide_gdpr_banner=1"
-            style={{minWidth:'320px',height:'700px',background:'#fff',borderRadius:'16px',overflow:'hidden',boxShadow:'var(--shadow)'}}
+            style={{ minWidth: '320px', height: '700px', background: '#fff', borderRadius: '16px', overflow: 'hidden', boxShadow: 'var(--shadow)' }}
             suppressHydrationWarning
           ></div>
-          <p style={{marginTop:'22px',fontSize:'15px'}}>Or email us: <a href="mailto:gobiggify@gmail.com" style={{color:'#fff',textDecoration:'underline'}}>gobiggify@gmail.com</a></p>
+          <p style={{ marginTop: '22px', fontSize: '15px' }}>Or email us: <a href="mailto:gobiggify@gmail.com" style={{ color: '#fff', textDecoration: 'underline' }}>gobiggify@gmail.com</a></p>
         </div>
       </section>
 
@@ -404,12 +777,14 @@ export default function LandingPage() {
         <div className="wrap">
           <div className="foot-top">
             <div>
-              <a className="logo" href="#top"><img src="/LOGO-light.png" alt="Biggify" style={{height:'38px'}} /></a>
-              <p style={{maxWidth:'320px',marginTop:'10px'}}>AI receptionist &amp; automation for home service businesses. Never miss another job.</p>
+              <a className="logo" href="#top"><img src="/LOGO-light.png" alt="Biggify" style={{ height: '38px' }} /></a>
+              <p style={{ maxWidth: '340px', marginTop: '10px' }}>Marketing &amp; AI receptionist for home service businesses. Get found, get chosen, never miss the call.</p>
             </div>
             <div className="foot-links">
-              <a href="#how">How it works</a>
-              <a href="#pricing">Pricing</a>
+              <a href="#services">Services</a>
+              <a href="#work">Our Work</a>
+              <a href="#plans">Plans</a>
+              <a href="/how-it-works">How it works</a>
               <a href="#faq">FAQ</a>
               <a href="/privacy">Privacy Policy</a>
               <a href="mailto:gobiggify@gmail.com">Contact</a>

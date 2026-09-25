@@ -1,0 +1,501 @@
+'use client';
+
+import { useEffect } from 'react';
+
+const css = `
+  :root{
+    --bg:#0b1020;
+    --bg-2:#0f1630;
+    --surface:#ffffff;
+    --cream:#FFF6E1;
+    --cream-2:#f7efd9;
+    --ink:#0d1224;
+    --ink-soft:#4a5372;
+    --muted:#6b7390;
+    --line:#e7e9f2;
+    --brand:#cf0000;
+    --brand-2:#a30000;
+    --brand-grad:linear-gradient(120deg,#e11a1a 0%,#cf0000 55%,#a30000 100%);
+    --accent:#ffd166;
+    --radius:16px;
+    --shadow:0 20px 50px -20px rgba(20,16,80,.35);
+    --card-shadow:0 6px 24px -18px rgba(20,16,80,.4);
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--font);color:var(--ink);background:var(--cream);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%}
+  .wrap{width:min(1140px,92vw);margin-inline:auto}
+  .btn{display:inline-block;padding:14px 26px;border-radius:999px;font-weight:700;font-size:15px;cursor:pointer;border:none;transition:transform .15s ease,box-shadow .15s ease}
+  .btn-primary{background:var(--brand-grad);color:#fff;box-shadow:0 12px 30px -10px rgba(207,0,0,.45)}
+  .btn-primary:hover{transform:translateY(-2px)}
+  .btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.25)}
+  .btn-ghost:hover{background:rgba(255,255,255,.16)}
+  .eyebrow{display:inline-block;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:12.5px;color:var(--brand);background:rgba(207,0,0,.08);padding:6px 14px;border-radius:999px}
+  .eyebrow.light{color:#fff;background:rgba(255,255,255,.12)}
+  .link{color:var(--brand);font-weight:700;text-decoration:underline}
+
+  /* NAV */
+  header{position:sticky;top:0;z-index:50;background:rgba(255,246,225,.92);backdrop-filter:blur(10px);border-bottom:1px solid #ece3ca}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:10px 0;gap:10px}
+  .logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .logo img{height:44px;display:block;flex-shrink:0}
+  .nav-cta{display:flex;gap:14px;align-items:center;flex-shrink:0}
+  .nav-phone{font-weight:700;color:var(--ink);font-size:15px;white-space:nowrap;display:flex;align-items:center;gap:6px}
+  .nav-phone:hover{color:var(--brand)}
+  .nav-signin{white-space:nowrap}
+  .menu-only{display:none}
+  .menu{position:relative;flex-shrink:0}
+  .menu-btn{border:none;background:none;cursor:pointer;color:var(--ink-soft);padding:6px;display:flex;align-items:center;justify-content:center}
+  .menu-btn svg{display:block}
+  .menu-btn:hover{color:var(--brand)}
+  .menu-panel{position:absolute;top:calc(100% + 8px);left:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:8px;min-width:210px;display:flex;flex-direction:column;gap:2px;z-index:60}
+  .menu-panel[hidden]{display:none}
+  .menu-panel a{padding:10px 14px;border-radius:8px;color:var(--ink-soft);font-weight:600;font-size:15px}
+  .menu-panel a:hover{background:var(--cream);color:var(--ink)}
+  .menu-panel .sub{padding-left:28px;font-size:14px;font-weight:500}
+  .menu-panel hr{border:none;border-top:1px solid var(--line);margin:4px 8px}
+  @media(max-width:640px){
+    .nav-phone{display:none}
+    .nav-signin{display:none}
+    .menu-only{display:block}
+    .nav-cta{gap:8px}
+    .btn{padding:11px 16px;font-size:13.5px}
+  }
+
+  section{padding:80px 0}
+  section.alt{background:var(--cream-2)}
+  .section-head{text-align:center;max-width:720px;margin:0 auto 50px}
+  .section-head h2{font-size:clamp(28px,3.6vw,42px);letter-spacing:-.02em;line-height:1.1;margin:14px 0 12px;font-weight:800}
+  .section-head p{color:var(--ink-soft);font-size:18px}
+
+  .page-hero{background:radial-gradient(1200px 600px at 70% -10%,rgba(207,0,0,.34),transparent 60%),radial-gradient(900px 500px at 10% 10%,rgba(255,90,60,.16),transparent 55%),var(--bg);color:#fff;text-align:center;padding:74px 0 64px}
+  .page-hero h1{font-size:clamp(34px,4.6vw,52px);letter-spacing:-.03em;font-weight:800;margin:18px 0 16px;line-height:1.08}
+  .page-hero h1 .grad{background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .page-hero p{font-size:18px;color:#c9cde3;max-width:660px;margin:0 auto}
+
+  .journey{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:-34px;position:relative;z-index:2}
+  .journey a{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 20px 18px;box-shadow:var(--shadow);display:block;transition:transform .15s ease}
+  .journey a:hover{transform:translateY(-3px)}
+  .journey .n{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--brand)}
+  .journey b{display:block;font-size:18px;margin:4px 0 4px;letter-spacing:-.01em}
+  .journey small{display:block;color:var(--muted);font-size:13.5px;line-height:1.45}
+  @media(max-width:900px){.journey{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.journey{grid-template-columns:1fr}}
+
+  .step-head{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:start;max-width:820px;margin:0 auto 38px}
+  .step-head .num{width:56px;height:56px;border-radius:16px;background:var(--brand-grad);color:#fff;font-weight:800;display:grid;place-items:center;font-size:24px;box-shadow:0 12px 30px -10px rgba(207,0,0,.45)}
+  .step-head h2{font-size:clamp(26px,3.2vw,36px);letter-spacing:-.02em;line-height:1.12;margin:2px 0 8px;font-weight:800}
+  .step-head p{color:var(--ink-soft);font-size:17px}
+  .step-head .svc{display:inline-flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .step-head .svc span{font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:999px;background:rgba(207,0,0,.08);color:var(--brand)}
+  .wedo{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;align-items:stretch}
+  .wedo .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:28px 30px;box-shadow:var(--card-shadow)}
+  .wedo .card h3{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .wedo .you{background:#0c1330;border-color:rgba(255,255,255,.12);color:#fff}
+  .wedo .you h3{color:#8a91b4}
+  .checks{list-style:none}
+  .checks li{padding:8px 0 8px 32px;position:relative;color:var(--ink-soft);font-size:15.5px}
+  .checks li:before{content:"✓";position:absolute;left:0;top:7px;width:22px;height:22px;border-radius:50%;background:rgba(207,0,0,.1);color:var(--brand);font-weight:800;font-size:13px;display:grid;place-items:center}
+  .checks li b{color:var(--ink)}
+  .you .checks li{color:#dfe3f5}
+  .you .checks li b{color:#fff}
+  .you .checks li:before{background:rgba(255,255,255,.1);color:var(--accent)}
+  .you .tiny{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);color:#8a91b4;font-size:13.5px}
+  @media(max-width:900px){.wedo{grid-template-columns:1fr}.step-head{grid-template-columns:1fr}.step-head .num{width:48px;height:48px;font-size:20px}}
+
+  .stats{background:linear-gradient(180deg,#0b1020,#0f1630);color:#fff;padding:60px 0}
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;text-align:center}
+  .stat{padding:20px}
+  .stat .n{font-size:44px;font-weight:800;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.02em}
+  .stat .l{color:#aeb4d2;font-size:15px;margin-top:4px}
+  @media(max-width:760px){.stat-grid{grid-template-columns:1fr;gap:8px}}
+
+  .calc-section{background:linear-gradient(180deg,#0b1020,#141a38);color:#fff}
+  .calc-section .section-head p{color:#c9cde3}
+  .calc-card{max-width:820px;margin:0 auto;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:40px;box-shadow:var(--shadow)}
+  .calc-row{margin-bottom:30px}
+  .calc-row label{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;font-size:15.5px;margin-bottom:10px}
+  .calc-row label .val{color:var(--accent);font-weight:800;font-size:17px}
+  input[type=range]{width:100%;appearance:none;-webkit-appearance:none;height:8px;border-radius:999px;background:rgba(255,255,255,.15);outline:none}
+  input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--brand-grad);box-shadow:0 4px 12px rgba(207,0,0,.5);cursor:pointer;border:3px solid #fff}
+  input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:var(--brand-2);cursor:pointer;border:3px solid #fff}
+  .calc-scale{display:flex;justify-content:space-between;font-size:12.5px;color:#8a91b4;margin-top:6px}
+  .toggle-group{display:flex;gap:10px;flex-wrap:wrap}
+  .toggle-opt{flex:1;min-width:150px;text-align:center;padding:14px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.04);cursor:pointer;font-weight:700;font-size:14.5px;color:#c9cde3;transition:all .15s ease}
+  .toggle-opt:hover{background:rgba(255,255,255,.09)}
+  .toggle-opt.active{background:var(--brand-grad);border-color:transparent;color:#fff;box-shadow:0 8px 20px -8px rgba(207,0,0,.5)}
+  .calc-result{margin-top:8px;text-align:center;padding:30px 20px;background:rgba(255,255,255,.06);border-radius:16px;border:1px solid rgba(255,255,255,.12)}
+  .calc-result .label{color:#aeb4d2;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+  .calc-result .range{font-size:clamp(30px,5vw,46px);font-weight:800;letter-spacing:-.02em;margin:10px 0;background:var(--brand-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .calc-result .sub{color:#8a91b4;font-size:13.5px;max-width:480px;margin:0 auto}
+  .calc-caveat{margin-top:18px;padding:16px 20px;background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.4);border-radius:12px;color:#ffe9ad;font-size:14.5px;font-weight:600;text-align:center;line-height:1.5}
+  .calc-caveat em{font-style:normal;text-decoration:underline}
+
+  .cta-final{background:var(--brand-grad);color:#fff;text-align:center}
+  .cta-final h2{font-size:clamp(28px,3.6vw,42px);letter-spacing:-.02em;margin-bottom:14px;font-weight:800}
+  .cta-final p{font-size:18px;opacity:.95;max-width:560px;margin:0 auto 28px}
+  .cta-final .btn-primary{background:#fff;color:var(--brand)}
+
+  footer{background:#080c19;color:#8a91b4;padding:54px 0 40px;font-size:14.5px}
+  .foot-top{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;padding-bottom:26px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .foot-top .logo{margin-bottom:10px}
+  .foot-links{display:flex;gap:26px;flex-wrap:wrap}
+  .foot-links a:hover{color:#fff}
+  .foot-bot{padding-top:22px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+`;
+
+export default function HowItWorksPage() {
+  useEffect(() => {
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent)
+      || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+    const NUMBER = '(941) 327-9667';
+    document.querySelectorAll('.call-btn').forEach((btn: any) => {
+      btn.addEventListener('click', (e: any) => {
+        if (isMobile) return;
+        e.preventDefault();
+        if (btn.dataset.revealed) return;
+        btn.dataset.revealed = '1';
+        btn.textContent = '📞 ' + NUMBER;
+      });
+    });
+
+    const menuBtn = document.querySelector('.menu-btn');
+    const menuPanel = document.querySelector('.menu-panel') as any;
+    if (menuBtn && menuPanel) {
+      const closeMenu = () => { menuPanel.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); };
+      menuBtn.addEventListener('click', (e: any) => {
+        e.stopPropagation();
+        const willOpen = menuPanel.hidden;
+        menuPanel.hidden = !willOpen;
+        menuBtn.setAttribute('aria-expanded', String(willOpen));
+      });
+      menuPanel.querySelectorAll('a').forEach((a: any) => { a.addEventListener('click', closeMenu); });
+      document.addEventListener('click', (e: any) => {
+        if (!menuPanel.hidden && !e.target.closest('.menu')) closeMenu();
+      });
+    }
+
+    document.getElementById('yr')!.textContent = new Date().getFullYear().toString();
+
+    // ---- savings calculator ----
+    const jobValueEl = document.getElementById('jobValue') as HTMLInputElement;
+    const callsEl = document.getElementById('calls') as HTMLInputElement;
+    const jobValueLabel = document.getElementById('jobValueLabel')!;
+    const callsLabel = document.getElementById('callsLabel')!;
+    const toggleOpts = document.querySelectorAll('#missToggle .toggle-opt');
+    const resultRange = document.getElementById('resultRange')!;
+
+    const fmtMoney = (n: number) => '$' + (Math.round(n / 100) * 100).toLocaleString('en-US');
+    let activeMiss = { low: 0.20, high: 0.35 };
+
+    const recalc = () => {
+      const jobValue = Number(jobValueEl.value);
+      const calls = Number(callsEl.value);
+      jobValueLabel.textContent = '$' + jobValue.toLocaleString('en-US');
+      callsLabel.textContent = calls.toLocaleString('en-US');
+
+      // Missed calls per month, using the low/high band for the selected answer pattern.
+      const missedLow = calls * activeMiss.low;
+      const missedHigh = calls * activeMiss.high;
+      // Of missed calls, most callers don't call back (60%-85%; 85% matches the stat above).
+      const lostJobsLow = missedLow * 0.60;
+      const lostJobsHigh = missedHigh * 0.85;
+      // Biggify doesn't recover every one of those — 70%-95% capture rate.
+      const annualLow = lostJobsLow * 0.70 * jobValue * 12;
+      const annualHigh = lostJobsHigh * 0.95 * jobValue * 12;
+      resultRange.textContent = fmtMoney(annualLow) + ' – ' + fmtMoney(annualHigh);
+    };
+
+    jobValueEl.addEventListener('input', recalc);
+    callsEl.addEventListener('input', recalc);
+    toggleOpts.forEach((opt: any) => {
+      opt.addEventListener('click', () => {
+        toggleOpts.forEach((o) => o.classList.remove('active'));
+        opt.classList.add('active');
+        activeMiss = { low: Number(opt.dataset.low), high: Number(opt.dataset.high) };
+        recalc();
+      });
+    });
+    recalc();
+  }, []);
+
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: css }} />
+      <header>
+        <div className="wrap">
+          <nav>
+            <a className="logo" href="/#top"><img src="/LOGO.png" alt="Biggify" /></a>
+            <div className="nav-cta">
+              <div className="menu">
+                <button type="button" className="menu-btn" aria-label="Menu" aria-expanded="false">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+                </button>
+                <div className="menu-panel" hidden>
+                  <a href="/#services">Services</a>
+                  <a className="sub" href="/#websites">Websites</a>
+                  <a className="sub" href="/#gbp">Google Business Profile</a>
+                  <a className="sub" href="/#social">Social Media</a>
+                  <a className="sub" href="/#receptionist">AI Receptionist</a>
+                  <hr />
+                  <a href="/#work">Our Work</a>
+                  <a href="/#case-studies">Case Studies</a>
+                  <a href="/#plans">Plans</a>
+                  <a href="/how-it-works">How it works</a>
+                  <a href="/#faq">FAQ</a>
+                  <a className="menu-only" href="/login">Sign in</a>
+                  <a className="menu-only" href="tel:+19413279667">📞 (941) 327-9667</a>
+                </div>
+              </div>
+              <a className="nav-phone" href="tel:+19413279667">📞 (941) 327-9667</a>
+              <a className="btn btn-primary nav-signin" href="/login">Sign in</a>
+              <a className="btn btn-primary" href="/#contact">Get a Free Quote</a>
+            </div>
+          </nav>
+        </div>
+      </header>
+
+      <section className="page-hero">
+        <div className="wrap">
+          <span className="eyebrow light">How It Works</span>
+          <h1>From "never heard of you" to <span className="grad">booked on your calendar.</span></h1>
+          <p>Here's every step of how Biggify gets your business found, chosen, and answered — what we handle, and the short list of what's on you.</p>
+        </div>
+      </section>
+
+      <div className="wrap">
+        <div className="journey">
+          <a href="#found"><span className="n">Step 1</span><b>Get found</b><small>Google Business Profile + local SEO put you on the map when they search.</small></a>
+          <a href="#chosen"><span className="n">Step 2</span><b>Get chosen</b><small>A website and social presence that make you the obvious call.</small></a>
+          <a href="#booked"><span className="n">Step 3</span><b>Get booked</b><small>The AI receptionist answers every call and books the job.</small></a>
+          <a href="#tracked"><span className="n">Step 4</span><b>See it working</b><small>Reports and a dashboard that show calls turning into money.</small></a>
+        </div>
+      </div>
+
+      {/* STEP 1 */}
+      <section id="found">
+        <div className="wrap">
+          <div className="step-head">
+            <div className="num">1</div>
+            <div>
+              <h2>Get found when they search</h2>
+              <p>Someone's AC just died and they're typing "AC repair near me." The three businesses in Google's map pack get the call. Everyone else might as well not exist. Step one is getting you into that pack — and keeping you there.</p>
+              <div className="svc"><span>Google Business Profile</span><span>Local SEO</span></div>
+            </div>
+          </div>
+          <div className="wedo">
+            <div className="card">
+              <h3>What we do</h3>
+              <ul className="checks">
+                <li><b>Optimize your Google Business Profile</b> — the right categories, every service listed, hours, service areas, photos, and a description written for how people actually search.</li>
+                <li><b>Post to it every week</b> — 4 posts a month on Growth, 10 a month on Super Growth. Google rewards active profiles; most contractors' have been dead for a year.</li>
+                <li><b>Build pages for the towns you serve</b> — your home town on Growth, 3–5 towns on Super Growth — so you rank for "tile installer Venice," not just your business name.</li>
+                <li><b>Publish new content on a schedule</b> — 1–2 pages a month on Growth, 4–6 on Super Growth, covering your core services and expanding to the full service line and long-tail searches.</li>
+                <li><b>Build your citations and links</b> — the directory listings and references Google checks before it trusts you with a top spot. Foundational on Growth, actively expanded on Super Growth.</li>
+                <li><b>Grow your reviews</b> — a request system that asks every customer automatically on Growth, or a fully managed review campaign on Super Growth.</li>
+              </ul>
+            </div>
+            <div className="card you">
+              <h3>What you do</h3>
+              <ul className="checks">
+                <li><b>Tell us your towns.</b> Where do you actually want more work? That's where we aim.</li>
+                <li><b>Send photos from the truck.</b> Real jobs, real trucks, real crew — Google and customers both trust them more than stock.</li>
+                <li><b>Let the review requests go out.</b> We set them up; you just do the good work that earns the five stars.</li>
+              </ul>
+              <div className="tiny">Time on your end: a few minutes a week, mostly texting us photos.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* STEP 2 */}
+      <section className="alt" id="chosen">
+        <div className="wrap">
+          <div className="step-head">
+            <div className="num">2</div>
+            <div>
+              <h2>Get chosen over the other two</h2>
+              <p>They found you. Now they're comparing — you and two competitors, three tabs open, thirty seconds each. An outdated site with no reviews and no photos of your work loses that comparison every time. Step two is winning it.</p>
+              <div className="svc"><span>Website</span><span>Social Media</span></div>
+            </div>
+          </div>
+          <div className="wedo">
+            <div className="card">
+              <h3>What we do</h3>
+              <ul className="checks">
+                <li><b>Build your website like a salesperson</b> — fast, mobile-first, with your phone number one tap away on every screen. <a className="link" href="/#work">See the before &amp; afters.</a></li>
+                <li><b>Put the trust signals up front</b> — reviews, license and insurance, years in business, and real photos of your work, right where people look before they call.</li>
+                <li><b>Wire the site to your receptionist</b> — chat and call buttons connect straight to Biggify, so a visitor at 9 PM still gets booked instead of bouncing.</li>
+                <li><b>Keep your social alive</b> — 4 posts a month on Growth, 10 on Super Growth, across Facebook, Instagram, and your Google profile. Your job photos become before-and-after posts; your new reviews become content.</li>
+                <li><b>Keep the site current</b> — new service pages, updated photos, fresh reviews — so it never turns back into a brochure.</li>
+              </ul>
+            </div>
+            <div className="card you">
+              <h3>What you do</h3>
+              <ul className="checks">
+                <li><b>Give feedback on the draft.</b> You know your customers — tell us what's off, we fix it.</li>
+                <li><b>Keep sending photos.</b> The same ones from Step 1 feed the website and the social posts. One text, three uses.</li>
+              </ul>
+              <div className="tiny">You never have to write a post, edit a page, or log into Facebook.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* STEP 3 */}
+      <div className="stats">
+        <div className="wrap">
+          <div className="stat-grid">
+            <div className="stat"><div className="n">62%</div><div className="l">of calls to small businesses go unanswered</div></div>
+            <div className="stat"><div className="n">$1,200+</div><div className="l">average value of a single service job</div></div>
+            <div className="stat"><div className="n">85%</div><div className="l">of missed callers won't call back — they call a competitor</div></div>
+          </div>
+        </div>
+      </div>
+      <section id="booked">
+        <div className="wrap">
+          <div className="step-head">
+            <div className="num">3</div>
+            <div>
+              <h2>Get booked — even when you can't pick up</h2>
+              <p>Everything above exists to make the phone ring. This step makes sure the ring turns into a job. You're on a ladder, under a sink, or it's Sunday night — the call still gets answered, and the appointment still lands on your calendar.</p>
+              <div className="svc"><span>AI Receptionist</span></div>
+            </div>
+          </div>
+          <div className="wedo">
+            <div className="card">
+              <h3>What happens on a call</h3>
+              <ul className="checks">
+                <li><b>It answers, every time.</b> Calls you can't get to ring through to Biggify instead of voicemail. It picks up immediately, in a natural voice, using your business name, services, and hours.</li>
+                <li><b>It handles the conversation.</b> It answers questions about what you offer and where you work, figures out what the caller needs, and checks your real calendar for open times — no hold music.</li>
+                <li><b>It books the job.</b> If a time works, it puts the appointment on your calendar right then, while the customer is still on the phone.</li>
+                <li><b>It texts the customer.</b> Right after, they get a short text asking for the address, the issue, and anything else you'd normally ask — so the details are waiting for you.</li>
+                <li><b>It alerts you instantly.</b> Text and email the moment a job comes in, with everything attached.</li>
+                <li><b>It logs everything.</b> Every call, booking, and conversation lands in your dashboard so nothing falls through the cracks.</li>
+              </ul>
+            </div>
+            <div className="card you">
+              <h3>What you do</h3>
+              <ul className="checks">
+                <li><b>Forward the calls you can't take.</b> Keep your number. Forward after hours, when you're busy, or all the time — your call.</li>
+                <li><b>Keep your info current.</b> Change your hours or add a service in the dashboard and the receptionist speaks from the new info immediately.</li>
+                <li><b>Check your alerts.</b> That's the whole "monitoring" job.</li>
+              </ul>
+              <div className="tiny">Want to hear it? <a href="tel:+19413279667" className="call-btn" style={{ color: '#fff', textDecoration: 'underline' }}>Call (941) 327-9667</a> — it'll answer.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* STEP 4 */}
+      <section className="alt" id="tracked">
+        <div className="wrap">
+          <div className="step-head">
+            <div className="num">4</div>
+            <div>
+              <h2>See it working — in dollars, not "impressions"</h2>
+              <p>Most marketing reports are a wall of charts that never answer the only question that matters: did this make me money? Ours are built backward from that question.</p>
+              <div className="svc"><span>Reporting</span><span>Your dashboard</span></div>
+            </div>
+          </div>
+          <div className="wedo">
+            <div className="card">
+              <h3>What we do</h3>
+              <ul className="checks">
+                <li><b>Your own dashboard</b> — every call, contact, job, and appointment in one place, branded to your business. Calls the receptionist took, jobs it booked, what came in overnight.</li>
+                <li><b>Monthly summary (Growth)</b> — where you rank, what got posted, how your reviews grew, and how many calls came in.</li>
+                <li><b>Attribution loop (Super Growth)</b> — calls → booked → closed. Which calls came from where, which ones turned into appointments, and which ones turned into paid jobs. Marketing spend on one side, revenue on the other.</li>
+              </ul>
+            </div>
+            <div className="card you">
+              <h3>What you do</h3>
+              <ul className="checks">
+                <li><b>Mark jobs done in the dashboard.</b> That's what closes the loop from "booked" to "paid" — a tap when you finish the job.</li>
+                <li><b>Read the report.</b> Five minutes a month. If a number's going the wrong way, we'll already be on it.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CALCULATOR */}
+      <section className="calc-section" id="calculator">
+        <div className="wrap">
+          <div className="section-head">
+            <span className="eyebrow light">AI Receptionist · Savings calculator</span>
+            <h2 style={{ color: '#fff' }}>What are missed calls costing you right now?</h2>
+            <p>This one's just about Step 3. Move the sliders to match your business — it's a rough estimate, not a promise, but it gives you a real ballpark for what's slipping past voicemail.</p>
+          </div>
+
+          <div className="calc-card">
+            <div className="calc-row">
+              <label>Average value of a job <span className="val" id="jobValueLabel">$500</span></label>
+              <input type="range" id="jobValue" min="100" max="20000" step="50" defaultValue="500" />
+              <div className="calc-scale"><span>$100</span><span>$20,000+</span></div>
+            </div>
+
+            <div className="calc-row">
+              <label>Calls you get per month <span className="val" id="callsLabel">100</span></label>
+              <input type="range" id="calls" min="10" max="500" step="5" defaultValue="100" />
+              <div className="calc-scale"><span>10</span><span>500+</span></div>
+            </div>
+
+            <div className="calc-row">
+              <label style={{ marginBottom: '14px' }}>How often do calls get missed today?</label>
+              <div className="toggle-group" id="missToggle">
+                <div className="toggle-opt" data-low="0.05" data-high="0.15">I answer almost every call</div>
+                <div className="toggle-opt active" data-low="0.20" data-high="0.35">I miss some calls</div>
+                <div className="toggle-opt" data-low="0.40" data-high="0.60">I miss calls often</div>
+              </div>
+            </div>
+
+            <div className="calc-result">
+              <div className="label">Estimated potential revenue per year</div>
+              <div className="range" id="resultRange">$8,000 – $22,000</div>
+              <div className="sub">Based on the calls you'd otherwise miss, that most of those callers won't call you back, and that Biggify recovers most — not all — of that lost business.</div>
+            </div>
+            <div className="calc-caveat">⚠️ This is <em>potential</em> revenue, not guaranteed income. To actually capture all of it, you'd need to supply all of that demand — and most contractors can only take on so many jobs a month. Think of this as the ceiling, not a promise.</div>
+          </div>
+        </div>
+      </section>
+
+      <section className="cta-final" id="contact">
+        <div className="wrap">
+          <h2>Ready to plug the leaks?</h2>
+          <p>Book a free 15-minute call and we'll tell you honestly which step you're losing the most jobs at — or call our receptionist right now and hear Step 3 for yourself.</p>
+          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a className="btn btn-primary call-btn" href="tel:+19413279667" style={{ background: '#fff', color: 'var(--brand)' }}>📞 Call our receptionist</a>
+            <a className="btn btn-ghost" href="/#contact">Get a Free Quote</a>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <div className="wrap">
+          <div className="foot-top">
+            <div>
+              <a className="logo" href="/#top"><img src="/LOGO-light.png" alt="Biggify" style={{ height: '38px' }} /></a>
+              <p style={{ maxWidth: '340px', marginTop: '10px' }}>Marketing &amp; AI receptionist for home service businesses. Get found, get chosen, never miss the call.</p>
+            </div>
+            <div className="foot-links">
+              <a href="/#services">Services</a>
+              <a href="/#work">Our Work</a>
+              <a href="/#plans">Plans</a>
+              <a href="/how-it-works">How it works</a>
+              <a href="/#faq">FAQ</a>
+              <a href="/privacy">Privacy Policy</a>
+              <a href="mailto:gobiggify@gmail.com">Contact</a>
+            </div>
+          </div>
+          <div className="foot-bot">
+            <span>© <span id="yr"></span> Biggify. All rights reserved. Biggify is a service of <strong>Rock Solid Tile</strong>.</span>
+            <span>Made for the trades.</span>
+          </div>
+        </div>
+      </footer>
+    </>
+  );
+}
