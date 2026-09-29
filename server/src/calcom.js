@@ -91,32 +91,41 @@ export async function getAvailableSlots(count = 3, cal = null, timeZone = 'Ameri
     // Never offer a slot the team can't realistically make — require at least
     // an hour of lead time.
     const cutoff = Date.now() + 60 * 60 * 1000;
-    const picked = [];
+    // Collapse Cal.com's day buckets into [{ dayKey, slots }], keeping only
+    // slots that are genuinely in the future — never trust a bucket blindly.
+    const days = [];
     for (const day of Object.keys(buckets).sort()) {
-      const daySlots = buckets[day];
-      if (!daySlots || !daySlots.length) continue;
-      // Defensive: never trust a slot blindly — skip anything not actually
-      // in the future, regardless of what Cal.com's day bucket claims.
-      const futureSlots = daySlots
+      const futureSlots = (buckets[day] || [])
         .map((s) => s.start || s.time || s)
         .filter((iso) => new Date(iso).getTime() > cutoff);
-      if (!futureSlots.length) continue;
+      if (futureSlots.length) days.push({ dayKey: isoDayKey(new Date(futureSlots[0]), timeZone), slots: futureSlots });
+    }
 
-      let iso;
-      if (preferredDayKey && isoDayKey(new Date(futureSlots[0]), timeZone) === preferredDayKey) {
-        // This is the day the caller asked about — pick the slot closest to
-        // the time they named, not just the earliest one.
+    // If the caller named a day, look at that day FIRST. We only return `count`
+    // slots and take one per day, so "can you do next Tuesday?" would otherwise
+    // fall outside the window entirely and get answered with unrelated times.
+    if (preferredDayKey) {
+      const i = days.findIndex((d) => d.dayKey === preferredDayKey);
+      if (i > 0) days.unshift(days.splice(i, 1)[0]);
+    }
+
+    const picked = [];
+    for (const day of days) {
+      if (preferredDayKey && day.dayKey === preferredDayKey) {
+        // The day they actually asked about: offer the openings nearest the
+        // time they named, so "tomorrow at 4" can come back with 3:30 and 4:30
+        // instead of whatever happens to open first that morning.
         const target = preferredDate.getTime();
-        iso = futureSlots.reduce((closest, cur) =>
-          Math.abs(new Date(cur).getTime() - target) < Math.abs(new Date(closest).getTime() - target) ? cur : closest
-        );
+        const nearest = [...day.slots]
+          .sort((a, b) => Math.abs(new Date(a) - target) - Math.abs(new Date(b) - target))
+          .slice(0, 2); // leave room for an alternative day too
+        picked.push(...nearest);
       } else {
-        iso = futureSlots[0]; // earliest that day
+        picked.push(day.slots[0]); // earliest that day
       }
-      picked.push(iso);
       if (picked.length >= count) break;
     }
-    return picked.map((iso) => ({ startsAt: iso, humanTime: humanizeSlot(iso, timeZone) }));
+    return picked.slice(0, count).map((iso) => ({ startsAt: iso, humanTime: humanizeSlot(iso, timeZone) }));
   } catch (err) {
     console.error('[calcom] slots failed, using mock:', err.message);
     return mockSlots(count);

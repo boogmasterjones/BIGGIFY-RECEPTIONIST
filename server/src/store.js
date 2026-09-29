@@ -4,7 +4,13 @@
 
 import { randomUUID } from 'node:crypto';
 
-const leads = new Map(); // id -> lead
+const leads = new Map(); // id -> lead, in insertion order
+
+// Supabase is the real store; this map only backs the legacy /dashboard page and
+// the survey links we text out. Without a cap it grows for the entire life of
+// the process — and this server is meant to stay up for months on a 512 MB
+// instance, holding a full transcript per call.
+const MAX_LEADS = 500;
 
 export function createLead({ callSid, from, to }) {
   const id = randomUUID().slice(0, 8);
@@ -22,6 +28,8 @@ export function createLead({ callSid, from, to }) {
     status: 'new',
   };
   leads.set(id, lead);
+  // Map iterates in insertion order, so the first key is always the oldest.
+  while (leads.size > MAX_LEADS) leads.delete(leads.keys().next().value);
   return lead;
 }
 
