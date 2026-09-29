@@ -15,10 +15,30 @@ export function greetingFor(business) {
 // Kept for the browser test page (single-business, env-based).
 export const WELCOME_GREETING = greetingFor(null);
 
+// The system prompt, as the API `system` array: a big static block for this
+// business followed by a small volatile one holding this call's pre-fetched
+// times.
+//
+// The split is what makes prompt caching actually pay off. The static block is
+// byte-identical for every call to a given business, so it's a cache HIT from
+// the very first turn — the most latency-sensitive moment on the call. When the
+// call's times lived inside the cached block, the prefix changed on every call
+// and turn one always paid full price for ~2,300 tokens of prompt.
+export function systemBlocks(business, slots = null, greeting = '') {
+  const hasSlots = Array.isArray(slots) && slots.length > 0;
+  const times = hasSlots
+    ? `AVAILABLE TIMES for this call — offer these two, and speak only the friendly time, never the ISO:\n` +
+      slots.slice(0, 2).map((s) => `- ${s.humanTime}   [starts_at: ${s.startsAt}]`).join('\n')
+    : `AVAILABLE TIMES: none were pre-fetched for this call. Call check_availability before offering any time.`;
+  return [
+    { type: 'text', text: systemPrompt(business, null, greeting), cache_control: { type: 'ephemeral' } },
+    { type: 'text', text: times },
+  ];
+}
+
 // System prompt for the voice receptionist, driven by the given business config.
-// `slots` (optional) is a pre-fetched [{ startsAt, humanTime }] list injected at
-// call start so the AI can offer times on its very first reply — no tool round
-// trip. `greeting` is the exact opening line the caller already heard.
+// `greeting` is the exact opening line the caller already heard. This text must
+// stay free of anything that changes call to call — see systemBlocks above.
 export function systemPrompt(business, slots = null, greeting = '') {
   const b = business || {
     name: config.business.name,
@@ -28,14 +48,8 @@ export function systemPrompt(business, slots = null, greeting = '') {
     services: config.business.services,
   };
   const g = greeting || greetingFor(b);
-  const hasSlots = Array.isArray(slots) && slots.length > 0;
-  const slotBlock = hasSlots
-    ? `\n\nThe next available callback times are (offer these two, speak only the friendly time, never the ISO):\n` +
-      slots.slice(0, 2).map((s) => `- ${s.humanTime}   [starts_at: ${s.startsAt}]`).join('\n')
-    : '';
-  const offerTimes = hasSlots
-    ? `offer the two callback times listed above and ask which works better (do NOT call check_availability unless they reject both)`
-    : `call check_availability, then offer two callback times and ask which works better`;
+  const slotBlock = '';
+  const offerTimes = `offer the two callback times from the AVAILABLE TIMES block at the end of this prompt and ask which works better (do NOT call check_availability unless they reject both, or that block says no times were pre-fetched)`;
   const step1 = `1. The greeting already asked whether they'd like a CALLBACK or to LEAVE A MESSAGE. Go by their answer:
    - Callback: ${offerTimes}. Don't ask about the job yet.
    - Leave a message: skip scheduling entirely — go straight to the "leaving a message" flow below.
@@ -78,7 +92,9 @@ Rules:
 - Don't guess whether a job is in scope — judge it against the services listed above. Never ask what area or city the caller is in; location doesn't matter for us.
 - If the caller asks something you don't know (exact pricing, specifics), say the team will cover that on the callback, and keep moving.
 - One question at a time while scheduling; but ask the two post-booking details (name, work) together in a single message, then follow up only for anything missing.
-- IF YOU WERE INTERRUPTED (your last message trails off with "…[the caller interrupted here]"), the caller may not have heard the end of it. Answer what they just said, and in the same breath naturally bring back the important part they missed — the question you were asking, or the times you were offering. Do NOT repeat your whole message, and never repeat the same point more than once. If they clearly heard and answered, just move on.
+- IF YOU WERE INTERRUPTED (your last message trails off with "…[the caller interrupted here]"), the caller may not have heard the end of it. Answer what they just said, and in the same breath naturally bring back ONLY the part they actually missed — the question you were asking, or the times you were offering. Do NOT repeat your whole message, and never repeat the same point more than once. If what they said shows they already heard it (they answered the question, or picked one of the times), just move on — say nothing about the interruption.
+- NEVER re-state something the caller has already heard and acknowledged. Say the appointment time once when you confirm the booking, and don't recite it again unless they ask. Don't re-confirm their name, re-describe the job back to them, or restate what you already told them — repeating yourself is the single most robot-sounding thing you can do on a call.
+- Write plain spoken words only: no ellipses ("..."), no text in brackets, no stage directions, no trailing off. Everything you write is read aloud exactly as typed, so punctuation like that turns into strange pauses mid-sentence.
 - Do NOT ask meta-confirmations like "just to confirm, that's everything, right?" or "is that all you need?" Once you have what you need, simply confirm the booking (or that you'll pass the message) and wrap up. No unnecessary check-in questions.
 - NEVER narrate what you're about to do — no "let me grab that," "let me check," "one moment," "now let me book that." Tool calls happen silently and instantly from the caller's perspective; only speak an actual message meant for them.
 - NEVER ask the same question twice in one call. Before asking anything, check whether you already asked it — if so, don't repeat it; just wait for or move on from their answer.

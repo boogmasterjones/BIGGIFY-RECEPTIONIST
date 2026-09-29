@@ -1,9 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { config } from './config.js';
-import { systemPrompt, greetingFor } from './prompt.js';
+import { systemBlocks, greetingFor } from './prompt.js';
 import { getAvailableSlots, createBooking, cancelBooking } from './calcom.js';
 import { updateLead, getLead } from './store.js';
-import { alertOwner } from './twilioSms.js';
+import { alertOwner, alertBookingFailed } from './twilioSms.js';
 import { upsertContactByPhone, createAppointment as sbCreateAppointment, createJob as sbCreateJob, updateCall, updateAppointment as sbUpdateAppointment, createNotification } from './supabase.js';
 
 const client = new Anthropic({ apiKey: config.anthropicApiKey });
@@ -139,7 +139,19 @@ async function runTool(name, input, leadId, business) {
       });
     }
 
-    const result = await createBooking({
+    // Confirm to the caller NOW and send it to Cal.com in the background. The
+    // slot has already been validated twice above — it must be one we handed
+    // out on this call, and at least an hour away — so the reservation is sound.
+    // Awaiting the round trip here meant the caller sat through it in dead
+    // silence, which was the longest single pause on the whole call. If the
+    // write does fail, the owner gets an ACTION NEEDED alert and the lead
+    // itself is never lost.
+    const when = matchedSlot.humanTime;
+    updateLead(leadId, {
+      status: 'booked',
+      appointment: { startsAt: input.starts_at, humanTime: when, calBookingId: null },
+    });
+    createBooking({
       startsAt: input.starts_at,
       name: input.name || lead?.name || 'Caller',
       phone: lead?.phone,
@@ -147,29 +159,29 @@ async function runTool(name, input, leadId, business) {
       cal: biz.cal,
       ownerEmail: biz.ownerAlertEmail,
       timeZone: biz.timezone,
-    });
-    updateLead(leadId, {
-      status: result.ok ? 'booked' : 'booking_failed',
-      appointment: { startsAt: input.starts_at, humanTime: result.humanTime, calBookingId: result.calBookingId },
-    });
-    // Persist the appointment to Supabase (best-effort, no-ops without a business id).
-    // Fire-and-forget — the caller doesn't need to wait on our own DB write to
-    // hear their confirmation; the real-time-critical part (Cal.com) is already done.
-    sbCreateAppointment({
-      businessId: biz.id,
-      contactId: lead?.dbContactId,
-      startsAt: input.starts_at,
-      notes: `Booked by AI receptionist. Cal.com: ${result.calBookingId || 'n/a'}`,
-      calBookingId: result.calBookingId,
     })
-      .then((apptId) => { if (apptId) updateLead(leadId, { dbApptId: apptId }); })
-      .catch((e) => console.error('[supabase] book_appointment:', e.message));
+      .then((result) => {
+        if (!result.ok) {
+          updateLead(leadId, { status: 'booking_failed' });
+          return alertBookingFailed(getLead(leadId), business, result.error);
+        }
+        updateLead(leadId, {
+          appointment: { startsAt: input.starts_at, humanTime: when, calBookingId: result.calBookingId },
+        });
+        return sbCreateAppointment({
+          businessId: biz.id,
+          contactId: lead?.dbContactId,
+          startsAt: input.starts_at,
+          notes: `Booked by AI receptionist. Cal.com: ${result.calBookingId || 'n/a'}`,
+          calBookingId: result.calBookingId,
+        }).then((apptId) => { if (apptId) updateLead(leadId, { dbApptId: apptId }); });
+      })
+      .catch((e) => console.error('[calcom] background booking:', e.message));
+
     return JSON.stringify({
-      booked: result.ok,
-      when: result.humanTime,
-      message: result.ok
-        ? 'Callback scheduled. Now ask for both in one message: their name and what kind of work they need. Follow up only for anything they leave out.'
-        : 'Booking hiccup — tell the caller the team will confirm the time shortly, then ask for their name and what they need.',
+      booked: true,
+      when,
+      message: 'Callback scheduled. Now ask for both in one message: their name and what kind of work they need. Follow up only for anything they leave out.',
     });
   }
 
@@ -252,6 +264,39 @@ async function runTool(name, input, leadId, business) {
   return JSON.stringify({ error: `unknown tool ${name}` });
 }
 
+// The TTS speaks whatever we hand it, literally. Interrupt markers from our own
+// history ("…[interrupted]") can get echoed back by the model, ellipses become
+// long dead-air pauses in the middle of a sentence, and newlines get read as
+// separate utterances. Strip all of it before anything reaches the caller.
+function forSpeech(text = '') {
+  return text
+    .replace(/…?\s*\[[^\]]*\]/g, ' ') // bracketed markers/stage directions
+    .replace(/[*_`#]+/g, '') // stray markdown
+    .replace(/\.{3,}|…/g, ', ') // ellipsis -> a short breath, not a dead stop
+    .replace(/\s*\n+\s*/g, ' ') // one spoken line, never several
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+([,.!?])/g, '$1')
+    .trim();
+}
+
+// Index just past the first safe sentence end in `buf`, or -1 if there isn't
+// one yet. Lets us hand the TTS a finished sentence the moment it exists,
+// instead of holding the whole reply until the model stops generating — but
+// never a fragment that ends mid-clause, which is what makes TTS starve and
+// pause in the middle of a phrase.
+const ABBREV = /(?:\b[a-z]|\b(?:mr|mrs|ms|dr|sr|jr|st|approx|apt|vs|etc|no)|\d)\.$/i;
+function sentenceEnd(buf) {
+  const re = /[.!?]+["')\]]?(?=\s)/g;
+  let m;
+  while ((m = re.exec(buf))) {
+    const end = m.index + m[0].length;
+    if (end < 25) continue; // too short to be worth speaking on its own
+    if (ABBREV.test(buf.slice(0, end))) continue; // "9 a.m." / "Mr." — not a sentence end
+    return end + 1; // take the following space too
+  }
+  return -1;
+}
+
 // Holds the conversation for a single phone call.
 export class CallSession {
   constructor(business, leadId, slots = null) {
@@ -261,6 +306,14 @@ export class CallSession {
     this.slots = slots; // pre-fetched availability, injected into the prompt
     this.messages = [];
     this.ended = false; // set true when the AI decides to hang up
+    // book_appointment only accepts a starts_at we actually handed out, and it
+    // checks the lead's availabilityCache to decide. These pre-fetched slots go
+    // straight into the system prompt for the AI to offer, so they have to be in
+    // that cache too — otherwise the most common path in the whole call (caller
+    // picks one of the two times offered right after the greeting) gets
+    // rejected, and the AI has to re-run check_availability mid-call before it
+    // can book, which is a Cal.com round trip of dead air for nothing.
+    if (Array.isArray(slots) && slots.length) updateLead(leadId, { availabilityCache: slots });
   }
 
   // A clean, human-readable transcript of the call for the dashboard: an ordered
@@ -300,32 +353,68 @@ export class CallSession {
   // have heard the rest and can bring the key part back naturally.
   markInterrupted(heardText) {
     for (let i = this.messages.length - 1; i >= 0; i--) {
-      if (this.messages[i].role === 'assistant') {
-        const heard = (heardText || '').trim();
-        this.messages[i] = {
-          role: 'assistant',
-          content: heard ? `${heard} …[the caller interrupted here — they may not have heard the rest]` : '…[interrupted]',
-        };
-        return;
-      }
+      const m = this.messages[i];
+      if (m.role !== 'assistant') continue;
+      // Never rewrite a turn that carries tool_use blocks. The message right
+      // after it holds their tool_result, and dropping the tool_use orphans
+      // that result — which the API rejects outright, so every later turn in
+      // the call fails and the caller just hears "Sorry, I hit a snag."
+      if (Array.isArray(m.content) && m.content.some((b) => b.type === 'tool_use')) return;
+      const heard = (heardText || '').trim();
+      this.messages[i] = {
+        role: 'assistant',
+        content: heard ? `${heard} …[the caller interrupted here — they may not have heard the rest]` : '…[interrupted]',
+      };
+      return;
     }
+  }
+
+  // An aborted turn can leave the history ending on a user message — either a
+  // tool_result whose assistant reply never arrived, or the caller's last words
+  // if we were cut off before answering. The API requires user and assistant
+  // turns to alternate, so close the gap before adding the next utterance.
+  #repairHistory() {
+    const last = this.messages[this.messages.length - 1];
+    if (last?.role === 'user') this.messages.push({ role: 'assistant', content: '…[interrupted]' });
   }
 
   // Takes the caller's transcribed utterance. Streams the reply text through
   // onToken(delta) as it's generated (for low-latency voice), and also returns
   // the full reply string (used by the browser test, which isn't streamed).
   async handleUtterance(text, onToken, signal) {
+    this.#repairHistory();
     this.messages.push({ role: 'user', content: text });
     let spoken = '';
     let buffer = '';
     const aborted = () => signal?.aborted;
 
-    // Send the reply in as few pieces as possible — ideally the whole thing at
-    // once — so ConversationRelay's TTS reads it as one smooth phrase instead of
-    // pausing between streamed fragments. We only flush at tool boundaries and at
-    // the very end, not on every token.
+    // Only ever hand the TTS whole sentences, never token-by-token fragments —
+    // a fragment that ends mid-clause makes the voice stall in the middle of a
+    // phrase waiting for the rest.
     const flush = () => {
-      if (onToken && buffer) { onToken(buffer); buffer = ''; }
+      if (!onToken) return;
+      const say = forSpeech(buffer);
+      buffer = '';
+      if (say) onToken(say);
+    };
+
+    // Speak each sentence the moment it's complete, rather than holding the
+    // whole reply until the model finishes. Enabled only AFTER a tool has run:
+    // text on those turns is always meant for the caller, whereas text on a
+    // turn that's about to call a tool is lead-in narration we deliberately
+    // throw away (see the tool branch below) and must never voice.
+    //
+    // This is the fix for the long silence on a booking turn, where the caller
+    // was waiting through a model round trip, a Cal.com round trip, and then a
+    // whole second generation before hearing a single word.
+    let streamSentences = false;
+    const flushSentences = () => {
+      if (!onToken || !streamSentences) return;
+      for (let cut = sentenceEnd(buffer); cut > 0; cut = sentenceEnd(buffer)) {
+        const say = forSpeech(buffer.slice(0, cut));
+        buffer = buffer.slice(cut);
+        if (say) onToken(`${say} `);
+      }
     };
 
     // Tool loop: keep going until the model produces a final spoken reply.
@@ -340,7 +429,7 @@ export class CallSession {
           max_tokens: 300,
           // Cache the (static) system prompt so time-to-first-token drops on every
           // follow-up turn in the call — and on later calls within the cache window.
-          system: [{ type: 'text', text: systemPrompt(this.business, this.slots, this.greeting), cache_control: { type: 'ephemeral' } }],
+          system: systemBlocks(this.business, this.slots, this.greeting),
           thinking: { type: 'disabled' }, // no thinking = much faster for voice
           tools,
           messages: this.messages,
@@ -350,12 +439,31 @@ export class CallSession {
       stream.on('text', (delta) => {
         if (aborted()) return; // caller barged in — stop emitting
         spoken += delta;
-        buffer += delta; // accumulate; we send it as one piece below
+        buffer += delta;
+        flushSentences(); // no-op until a tool has run this turn
       });
       const res = await stream.finalMessage();
       this.messages.push({ role: 'assistant', content: res.content });
 
       const endCall = res.content.some((b) => b.type === 'tool_use' && b.name === 'end_call');
+
+      // The model is told to speak its goodbye and call end_call in one message,
+      // and it often bundles a real tool into that same message (record_details
+      // with the name and job, say). Those still have to run, or the lead is
+      // silently lost on the way out — no owner alert, nothing saved.
+      if (endCall) {
+        const lastTools = res.content.filter((b) => b.type === 'tool_use' && b.name !== 'end_call');
+        if (lastTools.length) {
+          const results = await Promise.all(
+            lastTools.map(async (block) => ({
+              type: 'tool_result',
+              tool_use_id: block.id,
+              content: await runTool(block.name, block.input || {}, this.leadId, this.business),
+            }))
+          );
+          this.messages.push({ role: 'user', content: results });
+        }
+      }
 
       // If the model called tools (other than end_call), run them and continue.
       if (res.stop_reason === 'tool_use' && !endCall) {
@@ -367,14 +475,22 @@ export class CallSession {
         // text from the FINAL, tool-free turn ever reaches the caller's ears.
         buffer = '';
         spoken = '';
-        const toolResults = [];
-        for (const block of res.content) {
-          if (block.type === 'tool_use') {
-            const out = await runTool(block.name, block.input || {}, this.leadId, this.business);
-            toolResults.push({ type: 'tool_result', tool_use_id: block.id, content: out });
-          }
-        }
+        // Run them concurrently — a turn that calls check_availability and
+        // book_appointment together was paying both network round trips back to
+        // back, as dead air on a live call.
+        const toolResults = await Promise.all(
+          res.content
+            .filter((b) => b.type === 'tool_use')
+            .map(async (block) => ({
+              type: 'tool_result',
+              tool_use_id: block.id,
+              content: await runTool(block.name, block.input || {}, this.leadId, this.business),
+            }))
+        );
         this.messages.push({ role: 'user', content: toolResults });
+        // Everything the model says from here on is addressed to the caller, so
+        // it's safe to start speaking it sentence by sentence as it arrives.
+        streamSentences = true;
         continue;
       }
 

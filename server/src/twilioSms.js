@@ -45,6 +45,31 @@ export async function sendSurvey(lead) {
   return sendSms(lead.phone, body);
 }
 
+// The caller is told their time is set as soon as we've validated the slot,
+// without waiting on Cal.com — otherwise they sit through that round trip in
+// silence. If the write then fails, nothing else in the system would notice, so
+// make it unmissable for the owner.
+export async function alertBookingFailed(lead, business = null, reason = '') {
+  const ownerEmail = business?.ownerAlertEmail ?? config.business.ownerAlertEmail;
+  const ownerPhone = business?.ownerAlertPhone ?? config.business.ownerAlertPhone;
+  const bizName = business?.name || config.business.name;
+  const body = [
+    `A caller was told their callback is booked, but writing it to the calendar FAILED.`,
+    `Please add it manually and confirm with them.`,
+    ``,
+    `Name:     ${lead?.name || 'Caller'}`,
+    `Phone:    ${lead?.phone || 'n/a'}`,
+    `Callback: ${lead?.appointment?.humanTime || 'unknown time'}`,
+    `Reason:   ${reason || 'unknown'}`,
+  ].join('\n');
+  const subject = `ACTION NEEDED — calendar not updated for ${lead?.name || 'a caller'}`;
+  console.error(`[booking] calendar write failed for lead ${lead?.id}: ${reason}`);
+  const results = {};
+  if (ownerEmail) results.email = await sendEmail(ownerEmail, subject, body, bizName);
+  if (ownerPhone) results.sms = await sendSms(ownerPhone, body);
+  return { ok: Boolean(ownerEmail || ownerPhone), ...results };
+}
+
 // Alerts the business owner that a new lead came in — by email (primary) and,
 // if an owner phone is set, by SMS too. `business` carries the recipient info;
 // falls back to env config for the single-business setup. Best-effort.

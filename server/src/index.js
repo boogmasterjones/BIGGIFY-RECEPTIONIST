@@ -158,13 +158,23 @@ app.post('/incoming-call', async (req, res) => {
     const wsUrl = (config.publicUrl.replace(/^http/, 'ws') || 'ws://localhost:' + config.port) + '/ws';
     const greeting = escapeXml(greetingFor(business));
     const voice = business.voice || config.voice;
-    const provider = business.ttsProvider || config.ttsProvider;
+    const provider = business.ttsProvider || config.ttsProvider || ttsProviderFor(voice);
     const ttsAttr = provider ? ` ttsProvider="${escapeXml(provider)}"` : '';
+    // Barge-in settings matter more than anything else here. Twilio's defaults
+    // (interruptSensitivity="high", backchannel counted as speech, DTMF able to
+    // interrupt) mean a cough, a "mm-hmm", or road noise cuts the agent off in
+    // the middle of a sentence — the caller hears a half-finished phrase and
+    // then silence. Only clear speech should ever stop us talking.
     const twiml =
       `<?xml version="1.0" encoding="UTF-8"?>` +
       `<Response>` +
       `<Connect>` +
-      `<ConversationRelay url="${wsUrl}" welcomeGreeting="${greeting}" voice="${escapeXml(voice)}"${ttsAttr} interruptible="true" />` +
+      `<ConversationRelay url="${wsUrl}" welcomeGreeting="${greeting}" voice="${escapeXml(voice)}"${ttsAttr}` +
+      ` interruptible="speech"` +
+      ` welcomeGreetingInterruptible="speech"` +
+      ` interruptSensitivity="${escapeXml(config.interruptSensitivity)}"` +
+      ` ignoreBackchannel="${config.ignoreBackchannel ? 'true' : 'false'}"` +
+      ` eotThreshold="${escapeXml(config.eotThreshold)}" />` +
       `</Connect>` +
       `</Response>`;
     console.log(`[incoming-call] resolved business=${business.name}, wsUrl=${wsUrl}`);
@@ -227,6 +237,11 @@ const wss = new WebSocketServer({ server, path: '/ws' });
 wss.on('connection', (ws) => {
   let session = null;
   let inflight = null; // { controller, promise } for the reply being spoken
+  let spokenText = ''; // exactly what we handed the TTS for the current reply
+  let speaking = false; // has any audio gone out for the current reply yet?
+  let pendingInterrupt = null; // { heard } — a barge-in waiting on its transcript
+
+  const send = (msg) => { try { ws.send(JSON.stringify(msg)); } catch { /* socket closed */ } };
 
   // Cancel the in-flight reply (used on barge-in) and wait for it to unwind so
   // the next turn starts from a clean state.
@@ -238,21 +253,39 @@ wss.on('connection', (ws) => {
     if (inflight === cur) inflight = null;
   }
 
+  // A barge-in that produced no transcript was noise, not speech — but the TTS
+  // has already stopped mid-sentence. Speak the part the caller never heard
+  // instead of leaving them in silence waiting on a half-finished phrase.
+  function resumeAfterFalseBargeIn() {
+    const heard = pendingInterrupt?.heard || '';
+    pendingInterrupt = null;
+    const rest = unspokenRemainder(spokenText, heard);
+    if (!rest) return;
+    console.log(`[call] false barge-in — finishing: "${rest.slice(0, 60)}"`);
+    send({ type: 'text', token: rest, last: true });
+    if (session?.ended) send({ type: 'end', handoffData: 'completed' });
+  }
+
   async function runPrompt(text) {
     await cancelInflight(); // if the caller interrupted, drop the old reply
+    pendingInterrupt = null;
     const controller = new AbortController();
+    spokenText = '';
+    speaking = false;
     const promise = (async () => {
       await session.handleUtterance(
         text,
         (chunk) => {
           if (controller.signal.aborted) return;
-          ws.send(JSON.stringify({ type: 'text', token: chunk, last: false }));
+          spokenText += chunk;
+          speaking = true;
+          send({ type: 'text', token: chunk, last: false });
         },
         controller.signal
       );
       if (!controller.signal.aborted) {
-        ws.send(JSON.stringify({ type: 'text', token: '', last: true }));
-        if (session.ended) ws.send(JSON.stringify({ type: 'end', handoffData: 'completed' }));
+        send({ type: 'text', token: '', last: true });
+        if (session.ended) send({ type: 'end', handoffData: 'completed' });
       }
     })();
     inflight = { controller, promise };
@@ -261,7 +294,7 @@ wss.on('connection', (ws) => {
     } catch (err) {
       if (!controller.signal.aborted) {
         console.error('[call] error:', err.message);
-        ws.send(JSON.stringify({ type: 'text', token: 'Sorry, I hit a snag. One moment.', last: true }));
+        send({ type: 'text', token: 'Sorry, I hit a snag. One moment.', last: true });
       }
     } finally {
       if (inflight?.controller === controller) inflight = null;
@@ -287,29 +320,49 @@ wss.on('connection', (ws) => {
       let slots = null;
       try { slots = await getAvailableSlots(2, business.cal, business.timezone); } catch (e) { console.error('[call] slot prefetch:', e.message); }
       session = new CallSession(business, lead.id, slots);
+      // ConversationRelay is about to speak the welcome greeting for us. Track
+      // it as the current utterance so a false barge-in during the greeting
+      // gets finished like any other reply — it ends in the question the whole
+      // call hinges on ("callback, or leave a message?"), and losing it to a
+      // cough stalls the call before it starts.
+      spokenText = session.greeting || '';
+      speaking = Boolean(spokenText);
       console.log(`[call] setup ${msg.callSid} to ${msg.to} -> ${business.name} (lead ${lead.id})`);
       return;
     }
 
-    // Caller barged in — stop talking immediately, and record how much they
-    // actually heard so the next reply can bring back anything they missed.
-    // A follow-up 'prompt' with their words (if any) arrives right after.
+    // Caller (maybe) barged in. Stop talking, but don't touch the conversation
+    // history yet — we can't tell real speech from noise until the follow-up
+    // 'prompt' arrives, and rewriting history on noise is what makes the AI
+    // re-explain itself for no reason.
     if (msg.type === 'interrupt') {
+      // Nothing has been spoken for this turn yet, so there is nothing to barge
+      // in on — this is just noise while we're still thinking. Let the reply
+      // finish; if the caller really is talking, their transcript lands as a
+      // 'prompt' and runPrompt cancels this reply anyway.
+      if (!speaking) return;
       await cancelInflight();
-      if (session && msg.utteranceUntilInterrupt) session.markInterrupted(msg.utteranceUntilInterrupt);
+      pendingInterrupt = { heard: msg.utteranceUntilInterrupt || '' };
       return;
     }
 
     if (msg.type === 'prompt' && msg.last && session) {
       const text = (msg.voicePrompt || '').trim();
       if (!text) {
-        // Empty transcript — usually a false barge-in (background noise, a
-        // breath) rather than real speech, often right after we just canceled
-        // the in-flight reply on 'interrupt'. Asking the model to respond to
-        // nothing is what produces confused "actually, let me wait..." lines.
-        // Just stay silent and wait for the caller's next real utterance.
-        console.log('[call] empty prompt after interrupt — skipping reply');
+        // Empty transcript = there was no real speech to transcribe (noise, a
+        // breath, a cough). Don't ask the model to respond to nothing — that
+        // produced confused "actually, let me wait..." lines. Instead finish
+        // the sentence the caller got cut off in.
+        if (pendingInterrupt) resumeAfterFalseBargeIn();
+        else console.log('[call] empty prompt — ignoring');
         return;
+      }
+      // Real words: now we know the barge-in was genuine, so trim the last
+      // reply to what the caller actually heard before answering them.
+      if (pendingInterrupt) {
+        const { heard } = pendingInterrupt;
+        pendingInterrupt = null;
+        if (heard) session.markInterrupted(heard);
       }
       await runPrompt(text);
       return;
@@ -338,6 +391,29 @@ wss.on('connection', (ws) => {
 
 function escapeXml(s = '') {
   return s.replace(/[<>&"']/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' }[c]));
+}
+
+// What's left of `full` once the caller has heard `heard` — the prefix
+// ConversationRelay reports it managed to speak before stopping. Counted in
+// words rather than sliced by character offset, since the reported prefix comes
+// back normalized and exact offsets drift.
+function unspokenRemainder(full, heard) {
+  const words = (full || '').trim().split(/\s+/).filter(Boolean);
+  const heardCount = (heard || '').trim().split(/\s+/).filter(Boolean).length;
+  if (!heardCount || heardCount >= words.length) return '';
+  const rest = words.slice(heardCount);
+  // A single trailing word isn't worth re-speaking — it just sounds like a stutter.
+  return rest.length >= 2 ? rest.join(' ') : '';
+}
+
+// ConversationRelay defaults ttsProvider to ElevenLabs, whose voice ids look
+// nothing like Google's ("en-US-Journey-O") or Amazon's ("Joanna-Neural") — so
+// sending one of those with no provider is a mismatch. Infer it from the shape
+// of the voice name instead of silently getting the wrong engine.
+function ttsProviderFor(voice = '') {
+  if (/^[a-z]{2}-[A-Z]{2}-/.test(voice)) return 'Google';
+  if (/^Polly\.|-Neural$/.test(voice)) return 'Amazon';
+  return ''; // looks like an ElevenLabs voice id — let Twilio's default stand
 }
 
 server.listen(config.port, () => {

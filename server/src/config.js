@@ -40,8 +40,24 @@ export const config = {
   voice: process.env.RECEPTIONIST_VOICE || 'en-US-Journey-O',
   // Optional TTS provider for ConversationRelay: "ElevenLabs" (most natural,
   // needs an ElevenLabs key connected in the Twilio console), "Amazon", or
-  // "Google" (default). Leave blank to use Twilio's default for the voice.
+  // "Google". Leave blank to infer it from the voice name — ConversationRelay
+  // defaults to ElevenLabs, which would reject a Google/Amazon voice id.
   ttsProvider: process.env.RECEPTIONIST_TTS_PROVIDER || '',
+
+  // How eager ConversationRelay is to treat caller audio as a barge-in and cut
+  // the agent off. Twilio's default is "high", which a cough, a dog, or road
+  // noise is enough to trigger — the agent stops mid-sentence and the caller
+  // hears dead air. "low" only yields to clear, sustained speech.
+  interruptSensitivity: process.env.RECEPTIONIST_INTERRUPT_SENSITIVITY || 'low',
+  // Don't let "mm-hmm" / "yeah" / "okay" stop the agent mid-sentence. Callers
+  // make these sounds constantly while listening; they are not interruptions.
+  ignoreBackchannel: process.env.RECEPTIONIST_IGNORE_BACKCHANNEL !== 'false',
+  // How confident ConversationRelay must be that the caller has finished
+  // speaking before it sends us their words (0.5–0.9, Twilio default 0.8).
+  // This delay is pure dead air on every single turn, before the model has even
+  // been asked anything. 0.7 takes a chunk off without clipping people
+  // mid-sentence; raise it if callers start getting cut off.
+  eotThreshold: process.env.RECEPTIONIST_EOT_THRESHOLD || '0.7',
 };
 
 export const isCalcomLive = Boolean(config.calcom.apiKey && config.calcom.eventTypeId);
