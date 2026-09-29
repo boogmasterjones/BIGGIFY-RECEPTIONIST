@@ -19,15 +19,21 @@ services:
       - key: ANTHROPIC_API_KEY
         sync: false            # Render will prompt you to paste this (kept secret)
       - key: CLAUDE_MODEL
-        value: claude-sonnet-5   # fast enough for live voice; use claude-haiku-4-5 for even lower latency
+        value: claude-haiku-4-5  # fastest on a live call; sonnet-5 is smarter but audibly slower
+      # Fallback business identity, used ONLY when the dialed number isn't mapped
+      # to a row in Supabase's phone_numbers table. It has to describe Biggify —
+      # if it describes someone else, an unmapped number answers as the wrong
+      # company and qualifies callers against the wrong service list.
       - key: BUSINESS_NAME
-        value: Bob's HVAC
+        value: Biggify
       - key: BUSINESS_TRADE
-        value: HVAC and heating/cooling
+        value: AI receptionist, marketing, and automation
       - key: BUSINESS_HOURS
-        value: Monday to Friday, 8am to 6pm
+        value: 7 days a week, 8am to 8pm ET
       - key: BUSINESS_SERVICE_AREA
-        value: the greater Tampa area
+        value: home-service businesses across the U.S.
+      - key: BUSINESS_SERVICES
+        value: AI receptionists and 24/7 call answering, appointment booking, lead capture, website design, Google Business Profile management, local SEO, social media management, social media marketing, Facebook and Instagram marketing, Google Ads, Meta Ads, and lead generation for home-service businesses
       - key: RECEPTIONIST_VOICE
         value: en-US-Journey-O
       # Twilio + Cal.com left unset on purpose → SMS/booking run in mock mode.

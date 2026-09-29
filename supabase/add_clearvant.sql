@@ -1,15 +1,22 @@
 -- Onboard new client: Clearvant Window Washing Co (owner: Asher Knox).
 -- Website: clearvantwc.com (no dedicated column on businesses — noted here only).
 -- Run this in the Supabase SQL Editor, AFTER schema.sql.
+--
+-- ALREADY APPLIED. Running it again inserts a SECOND Clearvant business, since
+-- the id is generated rather than fixed — that is exactly how four duplicate
+-- rows ended up in production and had to be deleted by hand. The guard below
+-- makes a re-run a no-op.
 
 insert into public.businesses (name, trade, services, service_area, owner_alert_email, owner_alert_phone)
-values (
+select
   'Clearvant Window Washing Co',
   'Window washing',
   array['residential window washing','commercial window washing','screen and track cleaning','gutter cleaning'],
   'Charlotte and Sarasota counties',
   'clearvantwc@gmail.com',
   '+19377221101'
+where not exists (
+  select 1 from public.businesses where name = 'Clearvant Window Washing Co'
 )
 returning id;
 

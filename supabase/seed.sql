@@ -1,14 +1,18 @@
--- Seed one demo business (Bob's HVAC) and map your real Twilio number to it.
+-- Seeds Biggify's own business row and maps its Twilio number to it.
 -- Run this AFTER schema.sql, in the Supabase SQL Editor.
 
 insert into public.businesses (id, name, trade, services, service_area, hours, owner_alert_email)
 values (
   '00000000-0000-0000-0000-000000000001',
-  'Bob''s HVAC',
-  'HVAC and heating/cooling',
-  array['AC repair','heating repair','HVAC installation and replacement','maintenance and tune-ups'],
-  'the greater Tampa area',
-  'Monday to Friday, 8am to 6pm',
+  'Biggify',
+  'AI receptionist, marketing, and automation',
+  array[
+    'SEO','lead-gen','automation','AI-receptionist','business growth acceleration tools',
+    'website design','Google Business Profile management','social media management',
+    'social media marketing','Facebook marketing','Instagram marketing','Google Ads','Meta Ads'
+  ],
+  'home-service businesses across the U.S.',
+  '7 days a week, 8am to 8pm ET',
   'gobiggify@gmail.com'
 )
 on conflict (id) do nothing;

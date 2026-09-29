@@ -35,8 +35,10 @@ export const config = {
     hours: process.env.BUSINESS_HOURS || 'Monday to Friday, 8am to 6pm',
     serviceArea: process.env.BUSINESS_SERVICE_AREA || 'the local area',
     // What the business actually offers — used to qualify callers on the call.
-    services: process.env.BUSINESS_SERVICES ||
-      'AC repair, heating repair, HVAC system installation and replacement, and routine maintenance/tune-ups',
+    // Deliberately vague rather than a guess at a trade: naming services the
+    // business doesn't offer is worse than naming none, since the AI qualifies
+    // every caller against this list.
+    services: process.env.BUSINESS_SERVICES || 'general services — ask the caller what they need',
     ownerAlertPhone: process.env.OWNER_ALERT_PHONE || '',
     ownerAlertEmail: process.env.OWNER_ALERT_EMAIL || '',
   },
