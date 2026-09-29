@@ -23,6 +23,10 @@ export const config = {
   calcom: {
     apiKey: process.env.CALCOM_API_KEY || '',
     eventTypeId: process.env.CALCOM_EVENT_TYPE_ID || '',
+    // Cal.com rejects an attendee email whose domain can't receive mail, and a
+    // caller only gives us a phone number. Defaults to the owner alert email;
+    // set this only to book against a different real inbox.
+    attendeeEmail: process.env.CALCOM_ATTENDEE_EMAIL || '',
   },
 
   business: {

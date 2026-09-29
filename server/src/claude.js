@@ -1,7 +1,12 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { config } from './config.js';
 import { systemBlocks, greetingFor } from './prompt.js';
-import { getAvailableSlots, createBooking, cancelBooking } from './calcom.js';
+import { getAvailableSlots, fetchSlotMap, selectSlots, createBooking, cancelBooking } from './calcom.js';
+
+// How long a fetched week of availability stays good for within one call. Calls
+// are minutes long, so this is effectively "once per call" — the point is to
+// keep Cal.com off the critical path mid-conversation.
+const SLOT_MAP_TTL_MS = 3 * 60 * 1000;
 import { updateLead, getLead } from './store.js';
 import { alertOwner, alertBookingFailed } from './twilioSms.js';
 import { upsertContactByPhone, createAppointment as sbCreateAppointment, createJob as sbCreateJob, updateCall, updateAppointment as sbUpdateAppointment, createNotification } from './supabase.js';
@@ -99,8 +104,25 @@ const tools = [
 async function runTool(name, input, leadId, business) {
   const biz = business || {};
   if (name === 'check_availability') {
-    const slots = await getAvailableSlots(3, biz.cal, biz.timezone, input.preferred_time || null);
-    updateLead(leadId, { availabilityCache: slots });
+    // Answer out of the week of availability fetched once at the start of the
+    // call. Going back to Cal.com here put a network round trip in the middle of
+    // a live conversation, which the caller just hears as dead air.
+    const lead = getLead(leadId);
+    let buckets = lead?.slotMap;
+    if (!buckets || Date.now() - (lead?.slotMapAt || 0) > SLOT_MAP_TTL_MS) {
+      buckets = await fetchSlotMap(biz.cal, biz.timezone);
+      if (buckets) updateLead(leadId, { slotMap: buckets, slotMapAt: Date.now() });
+    }
+    const slots = buckets
+      ? selectSlots(buckets, 3, biz.timezone, input.preferred_time || null)
+      : await getAvailableSlots(3, biz.cal, biz.timezone, input.preferred_time || null);
+    // Keep every time we've offered, not just the latest batch: a caller can
+    // circle back to something from two turns ago ("actually, make it the first
+    // one"), and book_appointment refuses any time it can't find in here.
+    const offered = lead?.availabilityCache || [];
+    updateLead(leadId, {
+      availabilityCache: [...offered, ...slots.filter((s) => !offered.some((o) => o.startsAt === s.startsAt))],
+    });
     return JSON.stringify({
       slots: slots.map((s) => ({ starts_at: s.startsAt, when: s.humanTime })),
     });

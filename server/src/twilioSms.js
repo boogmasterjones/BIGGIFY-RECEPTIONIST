@@ -59,6 +59,7 @@ export async function alertBookingFailed(lead, business = null, reason = '') {
     ``,
     `Name:     ${lead?.name || 'Caller'}`,
     `Phone:    ${lead?.phone || 'n/a'}`,
+    `Work:     ${lead?.service || lead?.survey?.issue || '(not asked yet — the time is booked before the job details)'}`,
     `Callback: ${lead?.appointment?.humanTime || 'unknown time'}`,
     `Reason:   ${reason || 'unknown'}`,
   ].join('\n');

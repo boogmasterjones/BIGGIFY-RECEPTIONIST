@@ -10,7 +10,7 @@ import { config, isCalcomLive, isSmsLive } from './config.js';
 import { isEmailLive, emailMode, sendEmail } from './email.js';
 import { WELCOME_GREETING, greetingFor } from './prompt.js';
 import { CallSession } from './claude.js';
-import { getAvailableSlots } from './calcom.js';
+import { getAvailableSlots, fetchSlotMap, selectSlots } from './calcom.js';
 import { createLead, updateLead, getLead, allLeads } from './store.js';
 import { alertOwner } from './twilioSms.js';
 import { surveyPage, thankYouPage, dashboardPage, testChatPage } from './pages.js';
@@ -317,8 +317,20 @@ wss.on('connection', (ws) => {
       updateLead(lead.id, { businessId: business.id, dbCallId, dbContactId });
       // Pre-fetch this business's availability so the AI can offer times on its
       // first reply without a Cal.com + extra model round-trip mid-call.
+      // Pull the whole week in one request here, while the welcome greeting is
+      // still playing, so it costs the caller nothing — then every
+      // check_availability later in the call is answered from memory instead of
+      // making them wait on Cal.com again.
       let slots = null;
-      try { slots = await getAvailableSlots(2, business.cal, business.timezone); } catch (e) { console.error('[call] slot prefetch:', e.message); }
+      try {
+        const buckets = await fetchSlotMap(business.cal, business.timezone);
+        if (buckets) {
+          updateLead(lead.id, { slotMap: buckets, slotMapAt: Date.now() });
+          slots = selectSlots(buckets, 2, business.timezone);
+        } else {
+          slots = await getAvailableSlots(2, business.cal, business.timezone); // mock mode
+        }
+      } catch (e) { console.error('[call] slot prefetch:', e.message); }
       session = new CallSession(business, lead.id, slots);
       // ConversationRelay is about to speak the welcome greeting for us. Track
       // it as the current utterance so a false barge-in during the greeting

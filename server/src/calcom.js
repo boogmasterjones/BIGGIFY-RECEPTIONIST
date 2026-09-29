@@ -61,18 +61,20 @@ function humanizeSlot(iso, timeZone = 'America/New_York') {
 // closest actual opening to it on that same day instead of just the day's
 // earliest slot — so "tomorrow at 4pm" finds the nearest real 4pm-ish slot
 // rather than defaulting to whatever opens first.
-export async function getAvailableSlots(count = 3, cal = null, timeZone = 'America/New_York', preferredIso = null) {
+// ONE network call: the raw { "YYYY-MM-DD": [{ start }] } map for the next week.
+// Deliberately separate from selection, so a single fetch at the start of a call
+// can answer every later "what else have you got?" out of memory instead of
+// making the caller wait on another Cal.com round trip mid-conversation.
+// Returns null when Cal.com isn't live or the request fails.
+export async function fetchSlotMap(cal = null, timeZone = 'America/New_York') {
   const creds = calCreds(cal);
-  if (!calLive(cal)) return mockSlots(count);
+  if (!calLive(cal)) return null;
 
   const start = new Date();
   const end = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   const url = `${CAL_BASE}/slots?eventTypeId=${encodeURIComponent(creds.eventTypeId)}` +
     `&start=${encodeURIComponent(start.toISOString())}&end=${encodeURIComponent(end.toISOString())}` +
     `&timeZone=${encodeURIComponent(timeZone)}`;
-
-  const preferredDate = preferredIso ? new Date(preferredIso) : null;
-  const preferredDayKey = preferredDate && !isNaN(preferredDate) ? isoDayKey(preferredDate, timeZone) : null;
 
   try {
     const res = await fetch(url, {
@@ -86,8 +88,19 @@ export async function getAvailableSlots(count = 3, cal = null, timeZone = 'Ameri
       throw new Error(`Cal.com slots ${res.status}: ${body}`);
     }
     const json = await res.json();
-    // v2 returns { data: { "YYYY-MM-DD": [{ start }] } }.
-    const buckets = json?.data || {};
+    return json?.data || {};
+  } catch (err) {
+    console.error('[calcom] slots failed:', err.message);
+    return null;
+  }
+}
+
+// Pure selection out of an already-fetched map — no network, no await.
+export function selectSlots(buckets, count = 3, timeZone = 'America/New_York', preferredIso = null) {
+  const preferredDate = preferredIso ? new Date(preferredIso) : null;
+  const preferredDayKey = preferredDate && !isNaN(preferredDate) ? isoDayKey(preferredDate, timeZone) : null;
+
+  {
     // Never offer a slot the team can't realistically make — require at least
     // an hour of lead time.
     const cutoff = Date.now() + 60 * 60 * 1000;
@@ -126,17 +139,24 @@ export async function getAvailableSlots(count = 3, cal = null, timeZone = 'Ameri
       if (picked.length >= count) break;
     }
     return picked.slice(0, count).map((iso) => ({ startsAt: iso, humanTime: humanizeSlot(iso, timeZone) }));
-  } catch (err) {
-    console.error('[calcom] slots failed, using mock:', err.message);
-    return mockSlots(count);
   }
 }
 
-// A valid-format placeholder email from the caller's number (Cal.com requires
-// an attendee email; the caller only gives us a phone).
-function attendeeEmail(phone) {
-  const digits = (phone || '').replace(/\D/g, '');
-  return digits ? `caller-${digits}@leads.biggify.com` : 'caller@leads.biggify.com';
+// Fetch + select in one go. Used where there's no cached map to work from.
+export async function getAvailableSlots(count = 3, cal = null, timeZone = 'America/New_York', preferredIso = null) {
+  const buckets = await fetchSlotMap(cal, timeZone);
+  if (!buckets) return mockSlots(count);
+  return selectSlots(buckets, count, timeZone, preferredIso);
+}
+
+// Cal.com checks that the attendee's email domain can actually receive mail, so
+// a synthesized address on a domain with no MX records is rejected outright
+// (400 email_domain_cannot_receive_mail) and the booking silently never lands.
+// The caller only ever gives us a phone number, so the booking contact is the
+// business owner — who wants the invite anyway — while the caller's name and
+// number ride along on the booking itself.
+function attendeeEmail(ownerEmail) {
+  return ownerEmail || config.calcom.attendeeEmail || config.business.ownerAlertEmail || '';
 }
 
 // Books a slot. Returns { ok, calBookingId, humanTime }.
@@ -158,16 +178,13 @@ export async function createBooking({ startsAt, name, phone, service, cal = null
         start: startsAt,
         attendee: {
           name: name || 'Caller',
-          // Cal.com requires an attendee email. The caller only gives a phone,
-          // so we synthesize a valid-format placeholder (confirmation to it just
-          // bounces — harmless). The real notification goes to the owner below.
-          email: attendeeEmail(phone),
+          // Must be a real, deliverable address — see attendeeEmail above. This
+          // is the owner, so they get the calendar invite and notification for
+          // every booking without also being listed as a guest.
+          email: attendeeEmail(ownerEmail),
           phoneNumber: phone || undefined,
           timeZone,
         },
-        // Put the business owner on every booking as a guest so they get the
-        // calendar invite + email notification for each meeting.
-        guests: ownerEmail ? [ownerEmail] : undefined,
         metadata: { service: service || '', phone: phone || '', source: 'Biggify AI receptionist' },
       }),
     });
