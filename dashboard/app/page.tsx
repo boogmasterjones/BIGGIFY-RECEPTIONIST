@@ -791,7 +791,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="foot-bot">
-            <span>© <span id="yr"></span> Biggify. All rights reserved. Biggify is a service of <strong>Rock Solid Tile</strong>.</span>
+            <span>© <span id="yr"></span> Biggify. All rights reserved. Biggify is a service of <strong>BIGGIFY LLC</strong>.</span>
             <span>Made for the trades.</span>
           </div>
         </div>

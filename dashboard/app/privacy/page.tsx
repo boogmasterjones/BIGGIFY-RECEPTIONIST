@@ -19,10 +19,10 @@ export default function PrivacyPage() {
 
       <div className="w-full max-w-[820px] mx-auto px-6 pb-20 text-[#0d1224]">
         <h1 className="text-[34px] tracking-tight mt-11 mb-1.5 font-extrabold">Privacy Policy &amp; SMS Terms</h1>
-        <p className="text-[#4a5372] mb-8">Last updated: August 2026</p>
+        <p className="text-[#4a5372] mb-8">Last updated: October 2026</p>
 
         <p className="text-[16px] text-[#2a3049] mb-3 leading-relaxed">
-          Biggify (&quot;Biggify&quot;, &quot;we&quot;, &quot;us&quot;) is a service of <strong>Rock Solid Tile</strong>. This policy explains what
+          Biggify (&quot;Biggify&quot;, &quot;we&quot;, &quot;us&quot;) is a service of <strong>BIGGIFY LLC</strong>. This policy explains what
           information we collect, how we use it, and your choices — including how our text messaging works.
         </p>
 
@@ -49,8 +49,7 @@ export default function PrivacyPage() {
 
         <h2 className="text-[21px] tracking-tight mt-9 mb-2.5 font-bold">SMS / Text Messaging Terms</h2>
         <p className="text-[16px] text-[#2a3049] mb-3 leading-relaxed">
-          When you call a Biggify-powered business and provide your phone number, you consent to receive text messages related to your
-          service request (appointment confirmations, a short intake survey, and reminders) at the number you called from. Message
+          When you call a business that uses Biggify, or submit its website contact or estimate form, and provide your phone number, you consent to receive text messages from Biggify on that business’s behalf about your request (callback confirmations, follow-ups on an estimate, a short intake survey, reminders, and review requests after a completed job) at the number you gave. Consent is not a condition of any purchase. See also our <a href="/sms" className="text-[#CF0000]">text messaging program details</a> and <a href="/terms" className="text-[#CF0000]">Terms</a>. Message
           frequency varies. <strong>Message and data rates may apply.</strong>
         </p>
         <ul className="pl-5 mb-3 space-y-1.5">
@@ -87,7 +86,7 @@ export default function PrivacyPage() {
 
         <h2 className="text-[21px] tracking-tight mt-9 mb-2.5 font-bold">Contact us</h2>
         <p className="text-[16px] text-[#2a3049] mb-3 leading-relaxed">
-          Biggify — a service of Rock Solid Tile
+          Biggify — a service of BIGGIFY LLC
           <br />
           Email: <a href="mailto:gobiggify@gmail.com" className="text-[#CF0000]">gobiggify@gmail.com</a>
         </p>
@@ -96,7 +95,7 @@ export default function PrivacyPage() {
       </div>
 
       <footer className="border-t border-[#e7e9f2] py-6 text-center text-sm text-[#4a5372]">
-        © {new Date().getFullYear()} Biggify — a service of Rock Solid Tile.
+        © {new Date().getFullYear()} Biggify — a service of BIGGIFY LLC.
       </footer>
     </div>
   );
