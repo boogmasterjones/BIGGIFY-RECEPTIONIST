@@ -15,49 +15,32 @@ const client = new Anthropic({ apiKey: config.anthropicApiKey });
 
 const tools = [
   {
-    name: 'check_availability',
+    name: 'save_callback_time',
     description:
-      'Get the next available appointment openings. Call this before offering the caller any times. Returns real slots — only offer times this returns. If the caller named a specific day/time (e.g. "tomorrow at 4pm"), pass preferred_time so you get the closest real opening to that instead of just the soonest one.',
+      "Save when the caller wants the team to call them back. Call this as soon as they tell you, in their own words (e.g. 'tomorrow at 3 PM', 'this afternoon', 'as soon as possible'). If they give no time, use 'as soon as possible'. If the caller's number was marked NOT available, also pass callback_number.",
     input_schema: {
       type: 'object',
       properties: {
-        preferred_time: {
+        callback_time: {
           type: 'string',
-          description: 'ISO 8601 timestamp for the day/time the caller asked about, your best-effort guess (e.g. tomorrow 4pm in the business timezone). Only used to find the closest real opening on that day — omit if the caller has no specific preference.',
+          description: "When the caller wants the call back, as they said it, or 'as soon as possible'.",
+        },
+        callback_number: {
+          type: 'string',
+          description: "The caller's phone number, ONLY if caller ID was not available and they gave you one.",
         },
       },
-      additionalProperties: false,
-    },
-  },
-  {
-    name: 'book_appointment',
-    description:
-      "Schedule the callback time the caller chose. Call this as soon as they pick a time — you do NOT need their name or the job details yet (those come after). Or set callback_only if they won't pick a firm time.",
-    input_schema: {
-      type: 'object',
-      properties: {
-        starts_at: {
-          type: 'string',
-          description: 'The ISO 8601 start time the caller chose (from check_availability). Omit if callback_only.',
-        },
-        name: { type: 'string', description: "Caller's name, if you already have it (optional)" },
-        callback_only: {
-          type: 'boolean',
-          description: 'True if the caller is not booking a firm time and just wants a callback whenever.',
-        },
-      },
-      required: [],
+      required: ['callback_time'],
       additionalProperties: false,
     },
   },
   {
     name: 'record_details',
     description:
-      "Save the details you collect AFTER booking: the caller's name and the kind of work they need. Call this once you have both.",
+      "Save the kind of job the caller needs (a bathroom, a kitchen, and so on). Call this as soon as they answer. No name is collected.",
     input_schema: {
       type: 'object',
       properties: {
-        name: { type: 'string', description: "Caller's name" },
         work_type: { type: 'string', description: 'The kind of work / reason the caller needs help' },
       },
       required: ['work_type'],
@@ -103,6 +86,21 @@ const tools = [
 // owner email, Supabase id, etc.).
 async function runTool(name, input, leadId, business) {
   const biz = business || {};
+  if (name === 'save_callback_time') {
+    // Plain answering service: no calendar slots. The caller says when they want
+    // the call back (or "as soon as possible") and we store it as text.
+    const callbackTime = String(input.callback_time || '').trim().slice(0, 120) || 'as soon as possible';
+    const patch = { status: 'callback_requested', callbackTime };
+    const typedNumber = String(input.callback_number || '').replace(/[^\d+]/g, '');
+    if (typedNumber.length >= 7) patch.phone = typedNumber;
+    updateLead(leadId, patch);
+    return JSON.stringify({
+      saved: true,
+      callback_time: callbackTime,
+      message: 'Saved. Now acknowledge it briefly and ask exactly: "One question, and that\'s it: what type of work are you looking to get done?" (no examples), in the same message.',
+    });
+  }
+
   if (name === 'check_availability') {
     // Answer out of the week of availability fetched once at the start of the
     // call. Going back to Cal.com here put a network round trip in the middle of
@@ -227,7 +225,7 @@ async function runTool(name, input, leadId, business) {
         const lead = getLead(leadId);
         if (lead?.dbApptId && jobId) sbUpdateAppointment(lead.dbApptId, { job_id: jobId });
         if (lead?.dbCallId) updateCall(lead.dbCallId, { contact_id: contactId, job_id: jobId, outcome: 'booked' });
-        const when = lead?.appointment?.humanTime;
+        const when = lead?.callbackTime || lead?.appointment?.humanTime;
         createNotification({
           businessId: biz.id,
           type: 'new_lead',
@@ -451,7 +449,7 @@ export class CallSession {
           max_tokens: 300,
           // Cache the (static) system prompt so time-to-first-token drops on every
           // follow-up turn in the call — and on later calls within the cache window.
-          system: systemBlocks(this.business, this.slots, this.greeting),
+          system: systemBlocks(this.business, null, this.greeting, Boolean(getLead(this.leadId)?.phone)),
           thinking: { type: 'disabled' }, // no thinking = much faster for voice
           tools,
           messages: this.messages,

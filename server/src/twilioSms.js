@@ -100,7 +100,7 @@ export async function alertOwner(lead, business = null) {
       `Name:     ${lead.name || 'Caller'}`,
       `Phone:    ${lead.phone || 'n/a'}`,
       `Work:     ${lead.service || survey.issue || 'n/a'}`,
-      lead.appointment ? `Callback: ${lead.appointment.humanTime}` : `Callback: (not scheduled — callback requested)`,
+      lead.callbackTime ? `Callback: ${lead.callbackTime}` : lead.appointment ? `Callback: ${lead.appointment.humanTime}` : `Callback: (no time given — call back as soon as possible)`,
       survey.notes ? `Notes:    ${survey.notes}` : '',
     ].filter(Boolean);
     subject = `New lead — ${lead.name || 'Caller'}${lead.service ? ` (${lead.service})` : ''}`;

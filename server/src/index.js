@@ -321,17 +321,9 @@ wss.on('connection', (ws) => {
       // still playing, so it costs the caller nothing — then every
       // check_availability later in the call is answered from memory instead of
       // making them wait on Cal.com again.
-      let slots = null;
-      try {
-        const buckets = await fetchSlotMap(business.cal, business.timezone);
-        if (buckets) {
-          updateLead(lead.id, { slotMap: buckets, slotMapAt: Date.now() });
-          slots = selectSlots(buckets, 2, business.timezone);
-        } else {
-          slots = await getAvailableSlots(2, business.cal, business.timezone); // mock mode
-        }
-      } catch (e) { console.error('[call] slot prefetch:', e.message); }
-      session = new CallSession(business, lead.id, slots);
+      // (2026-10-27: the receptionist is now a plain answering service that takes
+      // a callback time as words, so there is no Cal.com slot prefetch any more.)
+      session = new CallSession(business, lead.id, null);
       // ConversationRelay is about to speak the welcome greeting for us. Track
       // it as the current utterance so a false barge-in during the greeting
       // gets finished like any other reply — it ends in the question the whole
