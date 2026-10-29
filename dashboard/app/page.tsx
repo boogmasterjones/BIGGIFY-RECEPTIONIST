@@ -291,6 +291,48 @@ const css = `
   .link.light{color:var(--accent);border-color:rgba(255,209,102,.3)}
   @media(max-width:900px){.feat{grid-template-columns:1fr}}
 
+  /* how we work with you */
+  .how{background:linear-gradient(180deg,#fff6e1,#fff0d2 50%,#fff6e1);position:relative;overflow:hidden}
+  .how::before{content:"";position:absolute;right:-200px;top:-120px;width:600px;height:600px;border-radius:50%;filter:blur(70px);background:radial-gradient(circle,rgba(225,26,26,.18),transparent 65%);pointer-events:none;animation:blob 20s ease-in-out infinite}
+  .how .wrap{position:relative}
+  .how-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:start}
+  @media(max-width:900px){.how-grid{grid-template-columns:1fr}}
+  .timeline{list-style:none;position:relative;margin-top:30px;padding-left:34px}
+  .timeline::before{content:"";position:absolute;left:11px;top:8px;bottom:8px;width:2px;background:var(--line)}
+  .timeline::after{content:"";position:absolute;left:11px;top:8px;width:2px;height:0;background:var(--brand-grad);transition:height 2.2s cubic-bezier(.2,.8,.2,1)}
+  .rv.in .timeline::after{height:calc(100% - 16px)}
+  .timeline li{position:relative;padding:0 0 28px}
+  .timeline li::before{content:"";position:absolute;left:-30px;top:6px;width:16px;height:16px;border-radius:50%;background:var(--cream);border:2px solid var(--line);transition:background .4s,border-color .4s,box-shadow .4s}
+  .rv.in .timeline li::before{background:var(--brand);border-color:var(--brand);box-shadow:0 0 0 5px rgba(225,26,26,.14)}
+  .rv.in .timeline li:nth-child(2)::before{transition-delay:.5s}.rv.in .timeline li:nth-child(3)::before{transition-delay:1s}.rv.in .timeline li:nth-child(4)::before{transition-delay:1.5s}
+  .timeline .when{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--brand)}
+  .timeline h3{font-size:20px;letter-spacing:-.02em;margin:4px 0 6px}
+  .timeline p{color:var(--ink-soft);font-size:15.5px}
+  .timeline p b{color:var(--ink)}
+  .value{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:28px;box-shadow:var(--card-shadow)}
+  .value h3{font-size:20px;letter-spacing:-.02em;margin:6px 0 14px}
+  .value .rows{display:grid;gap:0;border-top:1px solid var(--line)}
+  .value .row{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px;color:var(--ink-soft)}
+  .value .row b{color:var(--ink)}
+  .value .row .v{font-weight:800;color:var(--brand);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .math{margin-top:18px;padding:18px 20px;border-radius:14px;background:var(--bg);color:#fff;position:relative;overflow:hidden}
+  .math::before{content:"";position:absolute;inset:0;background:radial-gradient(400px 200px at 100% 0%,rgba(225,26,26,.35),transparent 60%);pointer-events:none}
+  .math .mono{color:#aeb4d2;position:relative}
+  .math .line{position:relative;display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,246,225,.1);font-size:15px;color:#dfe3f5}
+  .math .line:last-of-type{border-bottom:0}
+  .math .line b{white-space:nowrap;font-size:22px;font-weight:800;background:linear-gradient(120deg,#ffd166,#ff8a3d 60%,#ff6b6b);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+  .math small{display:block;position:relative;color:#8a91b4;font-size:12.5px;margin-top:10px}
+  .fit{margin-top:44px;display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--brand);border-radius:var(--radius);padding:30px 34px;box-shadow:var(--card-shadow)}
+  @media(max-width:900px){.fit{grid-template-columns:1fr;gap:20px}}
+  .fit h3{font-size:24px;letter-spacing:-.02em;margin:6px 0 10px}
+  .fit p{color:var(--ink-soft);font-size:16px}
+  .fit .crit{list-style:none;display:grid;gap:12px}
+  .fit .crit li{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:center;font-size:15.5px;color:var(--ink-soft)}
+  .fit .crit li b{display:block;color:var(--ink);font-size:16px}
+  .fit .crit .k{width:44px;height:44px;border-radius:12px;background:rgba(225,26,26,.08);display:grid;place-items:center;font-weight:800;color:var(--brand);font-family:var(--mono);font-size:13px}
+  .fit .or{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);font-size:14.5px;color:var(--ink-soft)}
+  .fit .or b{color:var(--ink)}
+
   /* plans */
   .dark .rain{position:absolute;inset:0;z-index:0;opacity:.1}
   .dark .wrap{position:relative;z-index:1}
@@ -855,6 +897,63 @@ export default function LandingPage() {
             </div>
           </div>
           <p className="plans-note">More case studies are on the way as our founding clients pass their first 90 days.</p>
+        </div>
+      </section>
+
+      {/* HOW WE WORK WITH YOU */}
+      <section className="how" id="how-we-work">
+        <div className="wrap">
+          <div className="section-head rv">
+            <span className="eyebrow">How we work with you</span>
+            <h2>What actually changes, month by month</h2>
+            <p>This is not a logo and a brochure. It is every place a customer meets your business, fixed in order, and then kept working while you work.</p>
+          </div>
+          <div className="how-grid">
+            <div className="rv">
+              <ol className="timeline">
+                <li><span className="when">Week 1</span><h3>We find the leaks</h3><p>A free look at how you show up online: your Google listing, your site, your reviews, what happens when someone calls. You get a straight list of what is costing you jobs, <b>whether or not you hire us</b>.</p></li>
+                <li><span className="when">Month 1</span><h3>The front door gets fixed</h3><p>Your website goes live, built to get the phone to ring. Your Google Business Profile is set up properly. Review requests start going out on their own. If you take the receptionist, <b>every call gets answered from day one</b>.</p></li>
+                <li><span className="when">Months 2–3</span><h3>The town starts to notice</h3><p>Posts go out every week on Google, Facebook and Instagram, made from your real job photos. Pages go up for the towns you serve. Reviews climb. <b>You do none of the posting.</b></p></li>
+                <li><span className="when">Month 3 and on</span><h3>It compounds, and you can see it</h3><p>More towns, more pages, more reviews, and a report that shows calls → booked → closed, so you know what the marketing is actually worth. <b>Rock Solid Tile&apos;s first three months: $16k added.</b></p></li>
+              </ol>
+            </div>
+            <div className="rv d1">
+              <div className="value">
+                <span className="eyebrow">What gets added</span>
+                <h3>Every month, on the plan</h3>
+                <div className="rows">
+                  <div className="row"><span><b>A website</b> that is built to convert, not just exist</span><span className="v">Day 1</span></div>
+                  <div className="row"><span><b>Google Business posts</b>, so Google sees an active business</span><span className="v">4–10 / mo</span></div>
+                  <div className="row"><span><b>Social posts</b> from your job photos, written in your voice</span><span className="v">4–10 / mo</span></div>
+                  <div className="row"><span><b>New pages</b> for the towns and services you want to win</span><span className="v">1–6 / mo</span></div>
+                  <div className="row"><span><b>Review requests</b> that go out by themselves after every job</span><span className="v">Every job</span></div>
+                  <div className="row"><span><b>Calls answered and booked</b> by the receptionist, nights and weekends included</span><span className="v">24/7</span></div>
+                  <div className="row"><span><b>A report</b> that ties calls to booked jobs to money</span><span className="v">Monthly</span></div>
+                </div>
+                <div className="math">
+                  <span className="mono">The math, at a $1,500 average job</span>
+                  <div className="line"><span>One extra booked job a week</span><b>$6,000 / mo</b></div>
+                  <div className="line"><span>Two extra booked jobs a week</span><b>$12,000 / mo</b></div>
+                  <div className="line"><span>Over a year, at one a week</span><b>$78,000</b></div>
+                  <small>Arithmetic, not a promise. Your quote is built on your trade, your towns and your call volume.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="fit rv">
+            <div>
+              <span className="eyebrow">Who we work with</span>
+              <h3>Serious businesses that want to grow</h3>
+              <p>We put real work into every client, so we only take on shops that are ready to grow and ready to work with us on it. Here is the bar.</p>
+              <p className="or"><b>Just want a website?</b> We also build one-off sites for businesses that are not ready for a marketing plan yet. Same build quality, no monthly commitment. <a className="link" href="#contact">Ask for a website quote</a>.</p>
+            </div>
+            <ul className="crit">
+              <li><span className="k">$</span><span><b>Average job of $1,500 or more</b>One extra booked job has to be worth real money to you, or the plan does not pay.</span></li>
+              <li><span className="k">2+</span><span><b>Established in your market, two years or more</b>You already do good work and have the reviews and photos to prove it. We make sure more people see it.</span></li>
+              <li><span className="k">GO</span><span><b>Excited to make changes and work together</b>Send the job photos, approve the posts, forward the calls. Marketing works when the owner is in on it.</span></li>
+            </ul>
+          </div>
         </div>
       </section>
 
