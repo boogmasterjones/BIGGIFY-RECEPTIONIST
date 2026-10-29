@@ -79,6 +79,8 @@ const css = `
   .hero p.lead{font-size:19px;color:#c9cde3;max-width:560px}
   .hero-cta{display:flex;gap:14px;margin-top:30px;flex-wrap:wrap}
   .trust{margin-top:28px;color:#8a91b4;font-size:14px;display:flex;gap:10px 22px;flex-wrap:wrap}
+  .trust span{opacity:0;animation:wordin .7s cubic-bezier(.2,.8,.2,1) forwards}.trust span:nth-child(1){animation-delay:.6s}.trust span:nth-child(2){animation-delay:.72s}.trust span:nth-child(3){animation-delay:.84s}.trust span:nth-child(4){animation-delay:.96s}
+  .hero p.lead,.hero-cta{opacity:0;animation:wordin .8s cubic-bezier(.2,.8,.2,1) forwards}.hero p.lead{animation-delay:.35s}.hero-cta{animation-delay:.5s}
   .trust b{color:#fff}
   @media(max-width:900px){.hero-inner{grid-template-columns:1fr;padding:56px 0 70px}}
 
@@ -98,9 +100,19 @@ const css = `
   .stack .row.lit .ico{background:var(--brand-grad);box-shadow:0 10px 20px -10px rgba(225,26,26,.9)}
   .stack .row b{display:block;color:#fff;font-size:15px}
   .stack .row small{display:block;color:#aeb4d2;font-size:13px;line-height:1.45}
-  .stack .foot{margin-top:8px;padding:12px 8px 4px;border-top:1px solid rgba(255,246,225,.08);color:#8a91b4;font-size:12.5px;text-align:center}
-  .stack .foot .typed::after{content:"▍";color:var(--brand);animation:blink 1s steps(2,jump-none) infinite}
-  @keyframes blink{50%{opacity:0}}
+  .case-hero{display:block;text-decoration:none;color:#fff;animation:spinangle 3.2s linear infinite,hoverfloat 7s ease-in-out infinite;transition:transform .3s}
+  .case-hero:hover{animation-play-state:running,paused;transform:translateY(-4px)}
+  @keyframes hoverfloat{50%{transform:translateY(-6px)}}
+  .case-shot{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:16/10;background:#0b1020;box-shadow:0 0 0 1px rgba(255,246,225,.1)}
+  .case-shot img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
+  .case-hero:hover .case-shot img{transform:scale(1.04)}
+  .case-shot .chip{position:absolute;left:10px;top:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:var(--brand-grad);color:#fff}
+  .case-stat{display:flex;align-items:baseline;gap:12px;padding:16px 8px 6px}
+  .case-stat b{font-size:52px;font-weight:800;letter-spacing:-.04em;line-height:1;background:linear-gradient(120deg,#ffd166,#ff8a3d 60%,#ff6b6b);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+  .case-stat > span{color:#c9cde3;font-size:15px;font-weight:600} .case-stat b span,.feat-stat b span{font:inherit;color:inherit;letter-spacing:inherit}
+  .case-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 8px 4px;border-top:1px solid rgba(255,246,225,.08)}
+  .case-meta b{display:block;font-size:15px}.case-meta small{display:block;color:#8a91b4;font-size:12.5px}
+  .case-meta .more{color:var(--accent);font-weight:700;font-size:13px;white-space:nowrap}
 
   /* trusted-by strip */
   .clients{border-top:1px solid rgba(255,246,225,.08);background:var(--bg-2);color:#8a91b4;padding:18px 0;overflow:hidden;position:relative;z-index:1}
@@ -113,7 +125,23 @@ const css = `
 
   /* SECTIONS */
   section{padding:96px 0}
-  section.alt{background:var(--cream-2)}
+  section.alt{background:var(--cream-2);background-image:repeating-linear-gradient(135deg,rgba(13,18,36,.025) 0 2px,transparent 2px 14px)}
+  section.dots{position:relative;background:var(--cream);background-image:radial-gradient(rgba(225,26,26,.16) 1px,transparent 1.5px);background-size:22px 22px;background-position:0 0;animation:dotdrift 30s linear infinite}
+  @keyframes dotdrift{to{background-position:22px 22px}}
+  section.gold{background:linear-gradient(180deg,#fff6e1,#ffefc4 60%,#fff6e1);position:relative;overflow:hidden}
+  section.gold::before,section.gold::after{content:"";position:absolute;width:520px;height:520px;border-radius:50%;filter:blur(60px);opacity:.55;pointer-events:none;background:radial-gradient(circle,rgba(255,209,102,.9),transparent 65%);animation:blob 18s ease-in-out infinite}
+  section.gold::before{left:-160px;top:-120px}section.gold::after{right:-180px;bottom:-200px;background:radial-gradient(circle,rgba(225,26,26,.35),transparent 65%);animation-delay:-9s}
+  @keyframes blob{50%{transform:translate(40px,30px) scale(1.08)}}
+  section.white{background:#fffdf7}
+  section.slate{background:linear-gradient(180deg,#eef0f7,#e9ebf4)}
+  section.red{background:linear-gradient(160deg,#5a0000,#a30000 55%,#e11a1a);color:#fff;position:relative;overflow:hidden}
+  section.red::before{content:"";position:absolute;inset:0;background:radial-gradient(700px 400px at 100% 0%,rgba(255,209,102,.25),transparent 60%);pointer-events:none}
+  section.red .eyebrow{color:var(--accent)}section.red .eyebrow::before{background:var(--accent)}
+  section.red .split h2{color:#fff}section.red .split p{color:#ffd9d9}
+  section.red .checks li{color:#ffe3e3}section.red .checks li b{color:#fff}section.red .checks li:before{background:rgba(255,255,255,.14)}section.red .checks li:after{border-color:var(--accent)}
+  section.red .btn-primary{background:#fff;color:var(--brand);box-shadow:0 14px 30px -12px rgba(0,0,0,.5)}
+  section.dark::after{content:"";position:absolute;inset:-20%;z-index:0;pointer-events:none;background:radial-gradient(600px 300px at 20% 30%,rgba(225,26,26,.18),transparent 60%),radial-gradient(500px 300px at 80% 70%,rgba(255,209,102,.08),transparent 60%);animation:aurora 16s ease-in-out infinite alternate}
+  @keyframes aurora{to{transform:translate(6%,4%) rotate(3deg)}}
   section.dark{background:linear-gradient(180deg,var(--bg-2),#121a3a);color:#fff;position:relative;overflow:hidden;isolation:isolate}
   .section-head{text-align:center;max-width:740px;margin:0 auto 54px}
   .section-head h2{font-size:clamp(30px,3.8vw,46px);letter-spacing:-.03em;line-height:1.06;margin:16px 0 12px;font-weight:800}
@@ -137,12 +165,20 @@ const css = `
   .tilt:hover .glare{opacity:1}
   .rv{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
   .rv.in{opacity:1;transform:none}
+  .rv .checks li{opacity:0;transform:translateX(-10px);transition:opacity .5s ease,transform .5s ease}
+  .rv.in .checks li{opacity:1;transform:none}
+  .rv.in .checks li:nth-child(1){transition-delay:.15s}.rv.in .checks li:nth-child(2){transition-delay:.25s}.rv.in .checks li:nth-child(3){transition-delay:.35s}.rv.in .checks li:nth-child(4){transition-delay:.45s}.rv.in .checks li:nth-child(5){transition-delay:.55s}.rv.in .checks li:nth-child(6){transition-delay:.65s}.rv.in .checks li:nth-child(7){transition-delay:.75s}
+  .rv .eyebrow::before{transform:scaleX(0);transform-origin:left;transition:transform .6s cubic-bezier(.2,.8,.2,1) .2s}
+  .rv.in .eyebrow::before{transform:none}
+  .rv.in h2{animation:h2in .7s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes h2in{from{opacity:0;transform:translateY(10px)}}
   .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}
 
   /* leak */
   .leak{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
   .leak .card{padding:34px 30px 28px;overflow:hidden}
-  .leak .n{position:absolute;right:18px;top:6px;font-size:84px;font-weight:800;letter-spacing:-.05em;color:transparent;-webkit-text-stroke:1.5px rgba(225,26,26,.22);line-height:1}
+  .leak .card:hover .n{-webkit-text-stroke:1.5px rgba(225,26,26,.6);transform:translateY(-4px)}
+  .leak .n{transition:transform .4s,-webkit-text-stroke .4s;position:absolute;right:18px;top:6px;font-size:84px;font-weight:800;letter-spacing:-.05em;color:transparent;-webkit-text-stroke:1.5px rgba(225,26,26,.22);line-height:1}
   .leak .stage{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--brand)}
   .leak h3{font-size:22px;letter-spacing:-.02em;margin:10px 0 10px;position:relative}
   .leak p{color:var(--ink-soft);font-size:15.5px;position:relative}
@@ -157,6 +193,8 @@ const css = `
   .svc:hover{transform:translateY(-5px);box-shadow:0 1px 0 #fff inset,0 30px 50px -30px rgba(13,18,36,.45)}.svc:hover::before{transform:scaleX(1)}
   .svc .ico{width:46px;height:46px;border-radius:12px;background:rgba(225,26,26,.08);display:grid;place-items:center;margin-bottom:14px}
   .svc .ico svg{width:22px;height:22px;stroke:var(--brand);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .svc:hover .ico{background:var(--brand-grad)}.svc:hover .ico svg{stroke:#fff;animation:wiggle .6s ease}
+  @keyframes wiggle{25%{transform:rotate(-10deg) scale(1.1)}60%{transform:rotate(8deg)}}
   .svc h3{font-size:18px;margin-bottom:6px;letter-spacing:-.01em}
   .svc p{color:var(--ink-soft);font-size:15px;flex:1}
   .svc .more{margin-top:14px;color:var(--brand);font-weight:700;font-size:14px}
@@ -180,7 +218,8 @@ const css = `
   .work{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--card-shadow);transition:transform .25s,box-shadow .25s}
   .work:hover{transform:translateY(-5px);box-shadow:0 1px 0 #fff inset,0 30px 50px -30px rgba(13,18,36,.45)}
   .work .shots{position:relative;aspect-ratio:16/10;background:#f3f4f8;overflow:hidden}
-  .work .shots img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+  .work .shots img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:transform 1.4s cubic-bezier(.2,.8,.2,1)}
+  .work:hover .shots img{transform:scale(1.04)}
   .work .shots .b{transition:opacity .5s}
   .work .shots .a{clip-path:inset(0 0 0 50%);transition:clip-path .6s cubic-bezier(.2,.8,.2,1)}
   .work:hover .shots .a{clip-path:inset(0 0 0 0)}
@@ -203,6 +242,8 @@ const css = `
   .stats .wrap{position:relative;z-index:1}
   .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;text-align:center}
   .stat{padding:26px 20px;border-radius:18px;background:rgba(15,22,48,.6);backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,246,225,.08),0 0 0 1px rgba(255,246,225,.1)}
+  .stat.in .n{animation:pop .7s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes pop{0%{transform:scale(.8);opacity:0}60%{transform:scale(1.06)}100%{transform:none;opacity:1}}
   .stat .n{font-size:48px;font-weight:800;background:linear-gradient(120deg,#ff6b6b,#e11a1a 50%,#ffd166 130%);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
   .stat .l{color:#aeb4d2;font-size:15px;margin-top:10px}
   @media(max-width:760px){.stat-grid{grid-template-columns:1fr;gap:12px}}
@@ -235,10 +276,20 @@ const css = `
   .post .acts{display:flex;gap:18px;margin-top:14px;color:#8a91b4;font-size:13px}
   .post .acts span.hot{color:var(--accent)}
 
-  /* case studies */
-  .case-soon{max-width:720px;margin:0 auto;text-align:center;background:var(--surface);border:1px dashed #cfc8b4;border-radius:var(--radius);padding:38px 30px}
-  .case-soon h3{font-size:20px;margin-bottom:8px}
-  .case-soon p{color:var(--ink-soft);font-size:15.5px}
+  /* the featured case study */
+  .dark.redglow{background:linear-gradient(160deg,#160a12,#3a0a0f 50%,#0b1020)}
+  .feat{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;background:rgba(15,22,48,.55);backdrop-filter:blur(12px);border-radius:26px;padding:26px;box-shadow:inset 0 1px 0 rgba(255,246,225,.08),0 0 0 1px rgba(255,246,225,.12),0 40px 80px -40px rgba(0,0,0,.9)}
+  .feat-shot{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:16/10;background:#0b1020;box-shadow:0 0 0 1px rgba(255,246,225,.1)}
+  .feat-shot img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:transform 1.2s cubic-bezier(.2,.8,.2,1)}
+  .feat:hover .feat-shot img{transform:scale(1.03)}
+  .feat-shot .chip{position:absolute;left:12px;bottom:12px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;border-radius:999px;background:rgba(13,18,36,.8);color:#fff;backdrop-filter:blur(4px)}
+  .feat-copy p{color:#c9cde3;font-size:16.5px;margin-top:14px}
+  .feat-stat{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-top:14px}
+  .feat-stat b{font-size:clamp(56px,7vw,92px);font-weight:800;letter-spacing:-.05em;line-height:1;background:linear-gradient(120deg,#ffd166,#ff8a3d 60%,#ff6b6b);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+  .feat-stat > span{color:#fff;font-size:18px;font-weight:700}
+  .feat .actions{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:24px}
+  .link.light{color:var(--accent);border-color:rgba(255,209,102,.3)}
+  @media(max-width:900px){.feat{grid-template-columns:1fr}}
 
   /* plans */
   .dark .rain{position:absolute;inset:0;z-index:0;opacity:.1}
@@ -246,6 +297,9 @@ const css = `
   .plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;align-items:stretch}
   .plan{position:relative;background:rgba(15,22,48,.6);backdrop-filter:blur(12px);border-radius:24px;padding:34px 30px;display:flex;flex-direction:column;box-shadow:inset 0 1px 0 rgba(255,246,225,.08),0 0 0 1px rgba(255,246,225,.12),0 30px 60px -40px rgba(0,0,0,.9);transition:transform .25s}
   .plan:hover{transform:translateY(-4px)}
+  .plan li{opacity:0;transform:translateX(-8px);transition:opacity .4s,transform .4s}
+  .plan.in li{opacity:1;transform:none}
+  .plan.in li:nth-child(1){transition-delay:.1s}.plan.in li:nth-child(2){transition-delay:.16s}.plan.in li:nth-child(3){transition-delay:.22s}.plan.in li:nth-child(4){transition-delay:.28s}.plan.in li:nth-child(5){transition-delay:.34s}.plan.in li:nth-child(6){transition-delay:.4s}.plan.in li:nth-child(7){transition-delay:.46s}.plan.in li:nth-child(8){transition-delay:.52s}.plan.in li:nth-child(9){transition-delay:.58s}.plan.in li:nth-child(10){transition-delay:.64s}
   .plan.featured{background:rgba(25,20,60,.75);--angle:0deg;animation:spinangle 3.2s linear infinite}
   .plan.featured::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--angle),rgba(255,209,102,.35) 0 60%,#ffd166 80%,#fff6e1 90%,rgba(255,209,102,.35) 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
   .plan .tag{display:inline-block;align-self:flex-start;background:var(--accent);color:#3a2c00;font-weight:800;font-size:12.5px;padding:5px 12px;border-radius:999px;margin-bottom:14px}
@@ -367,7 +421,6 @@ const WORK = [
   { key: 'interiormotives', name: 'Interior Motives Design', trade: 'Interior design · Charlotte Harbor', url: 'https://interiormotivesfl.com', tag: 'Redesign · Live' },
   { key: 'brunderman', name: 'Brunderman Building Co', trade: 'Home builder · Port Charlotte', url: 'https://brundermanbuilding.net', tag: 'Redesign · Live' },
   { key: 'tropicalbayrentals', name: 'Tropical Bay Rentals', trade: 'E-bike & jet ski rentals · Venice to Boca Grande', url: 'https://tropicalbayrentals.com', tag: 'Redesign · Live' },
-  { key: 'jasonsmobilemechanics', name: "Jason's Mobile Mechanics", trade: 'Mobile auto repair · Port Charlotte', url: 'https://jasonsmobilemechanicsfl.com', tag: 'Fresh build · No site before' },
 ];
 
 export default function LandingPage() {
@@ -415,23 +468,6 @@ export default function LandingPage() {
       };
       Array.from(el.childNodes).forEach(wrap);
     });
-
-    // the stack lights one row at a time, and the foot line types
-    const rows = Array.from(document.querySelectorAll('.stack .row'));
-    let ri = 0;
-    const lightRow = () => { rows.forEach((r, i) => r.classList.toggle('lit', i === ri)); ri = (ri + 1) % rows.length; };
-    lightRow();
-    const rowTimer = window.setInterval(lightRow, 1800);
-    const typed = document.querySelector('.stack .foot .typed');
-    const lines = ['One team. One plan. The whole funnel.', 'Found. Chosen. Answered.', 'Built for the trades.'];
-    let li = 0;
-    let typeTimer = 0;
-    const typeLine = () => {
-      const text = lines[li]; li = (li + 1) % lines.length; let n = 0;
-      window.clearInterval(typeTimer);
-      typeTimer = window.setInterval(() => { n += 1; if (typed) typed.textContent = text.slice(0, n); if (n >= text.length) { window.clearInterval(typeTimer); window.setTimeout(typeLine, 3200); } }, 34);
-    };
-    typeLine();
 
     // reveals
     const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
@@ -496,7 +532,7 @@ export default function LandingPage() {
     if (!document.querySelector('script[src*="calendly.com/assets/external/widget.js"]')) {
       const script = document.createElement('script'); script.src = 'https://assets.calendly.com/assets/external/widget.js'; script.async = true; document.body.appendChild(script);
     }
-    return () => { window.clearInterval(rowTimer); window.clearInterval(typeTimer); convoTimers.forEach(clearTimeout); window.removeEventListener('scroll', onScroll); };
+    return () => { convoTimers.forEach(clearTimeout); window.removeEventListener('scroll', onScroll); };
   }, []);
 
   return (
@@ -558,14 +594,12 @@ export default function LandingPage() {
               </div>
             </div>
 
-            <div className="stack" aria-label="What Biggify handles">
-              <div className="head"><span className="dot"></span><span>Your whole front end · live</span></div>
-              <div className="row"><div className="ico">{Ico.search}</div><div><b>Google Business Profile</b><small>Show up when someone searches &quot;plumber near me.&quot;</small></div></div>
-              <div className="row"><div className="ico">{Ico.globe}</div><div><b>Website</b><small>Turn that click into a call, not a bounce.</small></div></div>
-              <div className="row"><div className="ico">{Ico.social}</div><div><b>Social Media</b><small>Stay top of mind between jobs.</small></div></div>
-              <div className="row"><div className="ico">{Ico.phone}</div><div><b>AI Receptionist</b><small>Answer every call and book the job — day or night.</small></div></div>
-              <div className="foot"><span className="typed"></span></div>
-            </div>
+            <a className="stack case-hero" href="#case-studies" aria-label="Case study: Rock Solid Tile">
+              <div className="head"><span className="dot"></span><span>Case study · Rock Solid Tile</span></div>
+              <div className="case-shot"><img src="/work/rsitile-after.jpg" alt="Rock Solid Tile, the new website by Biggify" /><span className="chip">New site · live</span></div>
+              <div className="case-stat"><b><span data-count="16" data-prefix="$" data-suffix="k">$16k</span></b><span>added in first 3 months</span></div>
+              <div className="case-meta"><div><b>Rock Solid Tile</b><small>Tile installation · Southwest Florida</small></div><span className="more">Read the case study →</span></div>
+            </a>
           </div>
         </div>
         <div className="clients">
@@ -579,7 +613,7 @@ export default function LandingPage() {
       </section>
 
       {/* WHERE JOBS GET LOST */}
-      <section>
+      <section className="dots">
         <div className="wrap">
           <div className="section-head rv">
             <span className="eyebrow">The problem</span>
@@ -610,7 +644,7 @@ export default function LandingPage() {
       </section>
 
       {/* SERVICES OVERVIEW */}
-      <section className="alt" id="services">
+      <section className="gold" id="services">
         <div className="wrap">
           <div className="section-head rv">
             <span className="eyebrow">What we do</span>
@@ -627,7 +661,7 @@ export default function LandingPage() {
       </section>
 
       {/* WEBSITES, with the slider */}
-      <section id="websites">
+      <section className="white" id="websites">
         <div className="wrap">
           <div className="split">
             <div className="rv">
@@ -648,15 +682,15 @@ export default function LandingPage() {
             </div>
             <div className="rv d1">
               <div className="ba" style={{ ['--x' as any]: '50%' }}>
-                <img src="/work/tropicalbaybuilders-before.jpg" alt="Tropical Bay Builders, the old website" loading="lazy" />
-                <img className="after" src="/work/tropicalbaybuilders-after.jpg" alt="Tropical Bay Builders, the new website by Biggify" loading="lazy" />
+                <img src="/work/rsitile-before.jpg" alt="Rock Solid Tile, the old website" loading="lazy" />
+                <img className="after" src="/work/rsitile-after.jpg" alt="Rock Solid Tile, the new website by Biggify" loading="lazy" />
                 <span className="tag l">Before</span><span className="tag r">After</span>
                 <div className="bar"></div><div className="knob">⇆</div>
               </div>
               <div className="ba-cap">
-                <div><b>Tropical Bay Builders</b><span>Remodeling &amp; construction · North Port, FL</span></div>
+                <div><b>Rock Solid Tile</b><span>Tile installation · Southwest Florida</span></div>
                 <span className="hint">Drag the handle</span>
-                <a className="link" href="https://tropicalbaybuilders.com" target="_blank" rel="noopener" style={{ fontSize: '14px' }}>View live site ↗</a>
+                <a className="link" href="https://rsitile.com" target="_blank" rel="noopener" style={{ fontSize: '14px' }}>View live site ↗</a>
               </div>
             </div>
           </div>
@@ -696,12 +730,12 @@ export default function LandingPage() {
               </div>
             ))}
           </div>
-          <p className="work-note">Nine live sites. Every one built, hosted and kept up by Biggify.</p>
+          <p className="work-note">Eight live sites. Every one built, hosted and kept up by Biggify.</p>
         </div>
       </section>
 
       {/* GOOGLE BUSINESS PROFILE */}
-      <section id="gbp">
+      <section className="slate" id="gbp">
         <div className="wrap">
           <div className="split rev">
             <div className="card tilt rv"><div className="glare"></div>
@@ -731,7 +765,7 @@ export default function LandingPage() {
       </section>
 
       {/* SOCIAL MEDIA */}
-      <section className="alt" id="social">
+      <section className="red" id="social">
         <div className="wrap">
           <div className="split">
             <div className="rv">
@@ -746,7 +780,7 @@ export default function LandingPage() {
               </ul>
               <div className="actions"><a className="btn btn-primary" href="#contact">Get a Free Quote</a></div>
             </div>
-            <div className="post tilt rv d1"><div className="glare"></div>
+            <div className="post tilt rv d1" style={{ background: 'rgba(7,11,22,.92)' }}><div className="glare"></div>
               <div className="who"><span className="av">R</span><div><b style={{ display: 'block', fontSize: '14.5px' }}>Rapid Water Heater</b><span style={{ fontSize: '12.5px', color: '#8a91b4' }}>Sarasota, FL · Just now</span></div></div>
               <div className="pics"><div className="b">Before</div><div className="a">After</div></div>
               <p>Same-day tankless swap in Venice — old unit was leaking, new one installed and running hot water by 2 PM. Hot water now, no monkey business. 🔧</p>
@@ -767,7 +801,7 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
-      <section>
+      <section className="dots">
         <div className="wrap">
           <div className="split">
             <div className="rv">
@@ -803,17 +837,24 @@ export default function LandingPage() {
       </section>
 
       {/* CASE STUDIES */}
-      <section className="alt" id="case-studies">
+      <section className="dark redglow" id="case-studies">
+        <MatrixRain speed={0.3} />
         <div className="wrap">
           <div className="section-head rv">
-            <span className="eyebrow">Case studies</span>
-            <h2>Proof, not promises</h2>
-            <p>Real call data from real businesses using the Biggify receptionist — calls answered, jobs booked, and what it added up to.</p>
+            <span className="eyebrow light">Case study</span>
+            <h2 style={{ color: '#fff' }}>Proof, not promises</h2>
+            <p>Real Southwest Florida businesses, real numbers.</p>
           </div>
-          <div className="case-soon rv">
-            <h3>First case studies publishing soon</h3>
-            <p>We&apos;re collecting the first 90 days of call data from our founding clients so the numbers here are real, not projected. Want to see live results before then? <a className="link" href="#contact">Book a demo</a> and we&apos;ll walk you through a dashboard.</p>
+          <div className="feat rv">
+            <div className="feat-shot"><img src="/work/rsitile-after.jpg" alt="Rock Solid Tile, the new website by Biggify" loading="lazy" /><span className="chip">Rock Solid Tile · rsitile.com</span></div>
+            <div className="feat-copy">
+              <span className="mono" style={{ color: 'var(--accent)' }}>Tile installation · Southwest Florida</span>
+              <div className="feat-stat"><b><span data-count="16" data-prefix="$" data-suffix="k">$16k</span></b><span>added in first 3 months</span></div>
+              <p>Rock Solid Tile came on as a founding client. Biggify rebuilt the website and took over the marketing. Three months in, the work it brought in added up to sixteen thousand dollars.</p>
+              <div className="actions"><a className="btn btn-primary" href="#contact">Get a Free Quote</a><a className="link light" href="https://rsitile.com" target="_blank" rel="noopener">See the site ↗</a></div>
+            </div>
           </div>
+          <p className="plans-note">More case studies are on the way as our founding clients pass their first 90 days.</p>
         </div>
       </section>
 
@@ -910,7 +951,7 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section id="faq">
+      <section className="white" id="faq">
         <div className="wrap" style={{ maxWidth: '820px' }}>
           <div className="section-head rv">
             <span className="eyebrow">FAQ</span>
