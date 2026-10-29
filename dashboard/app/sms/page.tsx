@@ -30,6 +30,10 @@ export default function SmsPage() {
           explains who receives messages, how people opt in, and how to stop.
         </p>
 
+        <div className="rounded-[14px] border border-[#ece3ca] bg-white px-6 py-5 mb-6">
+          <p className="text-[16px] text-[#2a3049] mb-3"><strong>Want to opt in, or give us your number without texts?</strong> Use the opt-in form. It shows the full consent wording and records your choice.</p>
+          <Link href="/sms-opt-in" className="inline-block rounded-full bg-[#CF0000] px-6 py-3 text-[15px] font-bold text-white">Open the opt-in form</Link>
+        </div>
         <h2 className={H}>What we send</h2>
         <ul className="pl-5 mb-3 space-y-1.5">
           <li className={LI}>Callback confirmations after you asked a business to call you back.</li>
