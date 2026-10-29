@@ -346,7 +346,7 @@ const css = `
   .plan.featured::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--angle),rgba(255,209,102,.35) 0 60%,#ffd166 80%,#fff6e1 90%,rgba(255,209,102,.35) 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
   .plan .tag{display:inline-block;align-self:flex-start;background:var(--accent);color:#3a2c00;font-weight:800;font-size:12.5px;padding:5px 12px;border-radius:999px;margin-bottom:14px}
   .plan .tier{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#aeb4d2}
-  .plan h3{font-size:28px;letter-spacing:-.02em;margin:6px 0 6px}
+  .plan h3{font-size:24px;letter-spacing:-.02em;line-height:1.15;margin:6px 0 8px}
   .plan .for{color:#c9cde3;font-size:15px;min-height:46px}
   .plan .price{margin:18px 0 6px;font-size:22px;font-weight:800}
   .plan .price small{display:block;font-size:13.5px;font-weight:500;color:#8a91b4;margin-top:2px}
@@ -784,8 +784,8 @@ export default function LandingPage() {
               <div className="mono" style={{ fontWeight: 600, color: 'var(--muted)', marginBottom: '12px' }}>What&apos;s included</div>
               <ul className="checks" style={{ marginTop: 0 }}>
                 <li><b>Profile optimization</b> — categories, services, hours, service areas, photos, and description dialed in.</li>
-                <li><b>Regular posts</b> — 4 Google posts a month on Growth, 10 a month on Super Growth, so Google sees an active business.</li>
-                <li><b>Service-area targeting</b> — from your home town on Growth to 3–5 towns on Super Growth.</li>
+                <li><b>Regular posts</b> — 4 Google posts a month on the Authority Plan, 10 a month on the Domination System, so Google sees an active business.</li>
+                <li><b>Service-area targeting</b> — from your home town on the Authority Plan to 3–5 towns on the Domination System.</li>
                 <li><b>Keyword coverage</b> — your core services, expanding to your full service line and long-tail searches.</li>
                 <li><b>Citations &amp; links</b> — foundational listings, then active link-building as you scale.</li>
                 <li><b>Reviews</b> — a request system that runs itself, or a fully managed review campaign.</li>
@@ -816,7 +816,7 @@ export default function LandingPage() {
               <p className="lead">Nobody hires a roofer off a viral post. But when a neighbor asks for a recommendation, the business they&apos;ve been seeing all month is the one that gets the name-drop. That&apos;s what consistent social does.</p>
               <ul className="checks">
                 <li><b>Your job photos become posts</b> — send us the before-and-afters from the truck and we turn them into proof.</li>
-                <li><b>Consistent cadence</b> — 4 posts a month on Growth, 10 on Super Growth, across Facebook, Instagram, and your Google profile — so you never go dark.</li>
+                <li><b>Consistent cadence</b> — 4 posts a month on the Authority Plan, 10 on the Domination System, across Facebook, Instagram, and your Google profile — so you never go dark.</li>
                 <li><b>Local voice</b> — posts that sound like a business people know, not a marketing agency.</li>
                 <li><b>Reviews get reused</b> — every new five-star review becomes content that works twice.</li>
               </ul>
@@ -970,7 +970,7 @@ export default function LandingPage() {
           <div className="plan-grid">
             <div className="plan rv">
               <div className="tier">Tier 1</div>
-              <h3>Growth</h3>
+              <h3>The Professional Business Authority Plan</h3>
               <p className="for">For the shop that needs to get found and get chosen in its home town.</p>
               <div className="price">Custom quote<small>Built around your business</small></div>
               <ul>
@@ -991,11 +991,11 @@ export default function LandingPage() {
             <div className="plan featured rv d1">
               <span className="tag">⭐ Most complete</span>
               <div className="tier">Tier 2</div>
-              <h3>Super Growth</h3>
+              <h3>The Lead-Printer Domination System</h3>
               <p className="for">For the shop ready to dominate multiple towns and stop missing calls entirely.</p>
               <div className="price">Custom quote<small>Built around your business</small></div>
               <ul>
-                <li>Everything in Growth</li>
+                <li>Everything in the Authority Plan</li>
                 <li className="plus">3–5 towns targeted</li>
                 <li className="plus">10 Google Business posts per month</li>
                 <li className="plus">Full service line + long-tail keywords</li>
@@ -1011,7 +1011,7 @@ export default function LandingPage() {
 
             <div className="plan rv d2">
               <div className="tier">Standalone</div>
-              <h3>Receptionist Only</h3>
+              <h3>The AI Receptionist on its own</h3>
               <p className="for">Already have your marketing handled? Just stop missing the calls it brings in.</p>
               <div className="price">Custom quote<small>Built around your call volume</small></div>
               <ul>
@@ -1029,7 +1029,7 @@ export default function LandingPage() {
           <div className="compare-wrap rv">
             <table className="compare">
               <thead>
-                <tr><th>What you get</th><th>Growth</th><th className="hi">Super Growth</th><th>Receptionist Only</th></tr>
+                <tr><th>What you get</th><th>Authority Plan</th><th className="hi">Domination System</th><th>Receptionist on its own</th></tr>
               </thead>
               <tbody>
                 <tr><td>Website</td><td>Custom build</td><td>Custom build</td><td className="no">—</td></tr>
@@ -1057,12 +1057,12 @@ export default function LandingPage() {
             <h2>Questions, answered</h2>
           </div>
           <div className="rv">
-            <details open><summary>Do I have to take everything, or can I start with one service?</summary><p>Start wherever your biggest leak is. Plenty of businesses begin with just the receptionist, or just Growth, and add on later. The plans are built so the pieces work on their own and work better together.</p></details>
+            <details open><summary>Do I have to take everything, or can I start with one service?</summary><p>Start wherever your biggest leak is. Plenty of businesses begin with just the receptionist, or just the Authority Plan, and add on later. The plans are built so the pieces work on their own and work better together.</p></details>
             <details><summary>Do I have to change my phone number?</summary><p>No. You keep your existing number. You simply forward calls you can&apos;t answer to Biggify, so the calls you&apos;d otherwise miss get caught — while you still take every call you can.</p></details>
             <details><summary>Will the receptionist sound like a robot?</summary><p>No. Biggify uses a natural, professional AI voice that greets callers, answers common questions, and books the job like a great front-desk receptionist would. Call <a className="link" href="tel:+19413279667">(941) 327-9667</a> right now and hear it.</p></details>
             <details><summary>Do I own my website and domain?</summary><p>Yes. Your domain stays in your name and the site is yours. We build it, host it, and keep it updated while you&apos;re with us — but it&apos;s your business&apos;s asset, not ours.</p></details>
             <details><summary>How does the text survey work?</summary><p>After a call, the customer receives a short text with a few quick questions so you have the address, the issue, and their preferred time before you follow up. Customers can reply STOP at any time to opt out.</p></details>
-            <details><summary>What do the reports actually show me?</summary><p>On Growth you get a monthly summary of your rankings, profile activity, and reviews. On Super Growth you get the full attribution loop — which calls came from where, which ones got booked, and which ones closed — so you can see marketing turn into money.</p></details>
+            <details><summary>What do the reports actually show me?</summary><p>On the Authority Plan you get a monthly summary of your rankings, profile activity, and reviews. On the Domination System you get the full attribution loop — which calls came from where, which ones got booked, and which ones closed — so you can see marketing turn into money.</p></details>
             <details><summary>How fast can I get set up?</summary><p>The receptionist is usually live within a few days. Website and marketing timelines depend on your plan and how much we&apos;re building — we&apos;ll give you a clear schedule in your quote.</p></details>
             <details><summary>What does it cost me to find out?</summary><p>Nothing. We start with a free 15-minute call and a demo using your real business scenario, so you can see and hear it before you commit to anything.</p></details>
           </div>
