@@ -23,7 +23,7 @@ export const config = {
   // Telnyx voice (calls come in on /incoming-call-telnyx). No key needed to answer calls:
   // Telnyx does the speech both ways and talks to our /ws socket.
   telnyx: {
-    voice: process.env.TELNYX_VOICE || 'Telnyx.NaturalHD.astra',
+    voice: process.env.TELNYX_VOICE || 'Telnyx.Ultra.Callie',
     transcriptionProvider: process.env.TELNYX_TRANSCRIPTION_PROVIDER || 'deepgram',
   },
 

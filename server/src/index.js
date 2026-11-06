@@ -197,7 +197,7 @@ app.post('/incoming-call-telnyx', async (req, res) => {
   console.log(`[incoming-call-telnyx] request received, To=${to}`);
   try {
     const business = await resolveBusiness(to);
-    res.type('text/xml').send(telnyxAnswer(business, config.publicUrl));
+    res.type('text/xml').send(telnyxAnswer(business, config.publicUrl, req.query.voice));
     console.log(`[incoming-call-telnyx] resolved business=${business.name}`);
   } catch (err) {
     console.error('[incoming-call-telnyx] ERROR:', err.stack || err.message);

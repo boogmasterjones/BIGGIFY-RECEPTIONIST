@@ -10,12 +10,17 @@ function escapeXml(s = '') {
   return String(s).replace(/[<>&"']/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' }[c]));
 }
 
-export function telnyxVoiceFor(business) {
+// A voice can also be picked per Telnyx application with ?voice=Telnyx.X.Y on its
+// voice URL, so trying voices only needs a change in the Telnyx portal, not a deploy.
+const TELNYX_VOICE = /^Telnyx\.[A-Za-z0-9]+\.[A-Za-z0-9_-]+$/;
+
+export function telnyxVoiceFor(business, override = '') {
+  if (typeof override === 'string' && TELNYX_VOICE.test(override)) return override;
   const v = business?.voice || '';
-  return /^Telnyx\./.test(v) ? v : config.telnyx.voice;
+  return TELNYX_VOICE.test(v) ? v : config.telnyx.voice;
 }
 
-export function telnyxAnswer(business, publicUrl) {
+export function telnyxAnswer(business, publicUrl, voiceOverride = '') {
   const wsUrl = (publicUrl ? publicUrl.replace(/^http/, 'ws') : `ws://localhost:${config.port}`) + '/ws';
   // Only clear speech may cut the receptionist off (a cough or road noise must not).
   return (
@@ -24,7 +29,7 @@ export function telnyxAnswer(business, publicUrl) {
     `<Connect>` +
     `<ConversationRelay url="${escapeXml(wsUrl)}"` +
     ` welcomeGreeting="${escapeXml(greetingFor(business))}"` +
-    ` voice="${escapeXml(telnyxVoiceFor(business))}"` +
+    ` voice="${escapeXml(telnyxVoiceFor(business, voiceOverride))}"` +
     ` language="en"` +
     ` transcriptionProvider="${escapeXml(config.telnyx.transcriptionProvider)}"` +
     ` interruptible="speech"` +
