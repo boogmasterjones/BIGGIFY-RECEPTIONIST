@@ -28,7 +28,9 @@ export function telnyxAnswer(business, publicUrl) {
     ` language="en"` +
     ` transcriptionProvider="${escapeXml(config.telnyx.transcriptionProvider)}"` +
     ` interruptible="speech"` +
-    ` welcomeGreetingInterruptible="speech" />` +
+    ` welcomeGreetingInterruptible="speech"` +
+    // agentSpeaking on/off tells us when the goodbye has finished playing (see index.js).
+    ` events="speaker-events" />` +
     `</Connect>` +
     `</Response>`
   );

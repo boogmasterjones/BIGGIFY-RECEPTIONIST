@@ -10,7 +10,8 @@ export function greetingFor(business) {
   return (
     b.greeting ||
     process.env.BUSINESS_GREETING ||
-    `Hi, thanks for calling ${name}. A person usually answers this phone, but we're out on a job or tied up right now. I'm just the answering service, so I can't answer questions or give prices. Is there a specific time you'd like us to call you back, or should we just call you back as soon as we can?`
+    // Shortened 2026-11-05 (owner: "the intro is too long").
+    `Hi, thanks for calling ${name}. We're tied up right now, so this is the answering service. When's a good time to call you back, or should we just call as soon as we can?`
   );
 }
 

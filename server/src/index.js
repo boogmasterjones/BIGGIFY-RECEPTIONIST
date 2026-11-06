@@ -263,6 +263,27 @@ wss.on('connection', (ws) => {
 
   const send = (msg) => { try { ws.send(JSON.stringify(msg)); } catch { /* socket closed */ } };
 
+  // Hanging up. Twilio finishes speaking queued text before it acts on 'end'; Telnyx
+  // hangs up at once, cutting the goodbye off mid-sentence. So on Telnyx we wait for
+  // its "agent stopped speaking" event (asked for with events="speaker-events"), with
+  // a timer sized to the reply in case that event never comes.
+  let isTelnyx = false;
+  let endPendingSince = 0;
+  let endTimer = null;
+  function finishCall() {
+    if (!endPendingSince) return;
+    endPendingSince = 0;
+    clearTimeout(endTimer);
+    send({ type: 'end', handoffData: 'completed' });
+  }
+  function hangUpAfterSpeaking() {
+    if (!isTelnyx) return send({ type: 'end', handoffData: 'completed' });
+    if (endPendingSince) return;
+    endPendingSince = Date.now();
+    const words = (spokenText || '').trim().split(/\s+/).filter(Boolean).length;
+    endTimer = setTimeout(finishCall, Math.min(30000, 3000 + words * 450));
+  }
+
   // Cancel the in-flight reply (used on barge-in) and wait for it to unwind so
   // the next turn starts from a clean state.
   async function cancelInflight() {
@@ -283,7 +304,7 @@ wss.on('connection', (ws) => {
     if (!rest) return;
     console.log(`[call] false barge-in — finishing: "${rest.slice(0, 60)}"`);
     send({ type: 'text', token: rest, last: true });
-    if (session?.ended) send({ type: 'end', handoffData: 'completed' });
+    if (session?.ended) hangUpAfterSpeaking();
   }
 
   async function runPrompt(text) {
@@ -305,7 +326,7 @@ wss.on('connection', (ws) => {
       );
       if (!controller.signal.aborted) {
         send({ type: 'text', token: '', last: true });
-        if (session.ended) send({ type: 'end', handoffData: 'completed' });
+        if (session.ended) hangUpAfterSpeaking();
       }
     })();
     inflight = { controller, promise };
@@ -326,6 +347,7 @@ wss.on('connection', (ws) => {
     try { msg = JSON.parse(raw.toString()); } catch { return; }
 
     if (msg.type === 'setup') {
+      isTelnyx = Boolean(msg.callControlId); // only Telnyx's setup carries this
       const lead = createLead({ callSid: msg.callSid, from: msg.from, to: msg.to });
       // Which tenant is this call for? (by the dialed number)
       const business = await resolveBusiness(msg.to);
@@ -354,6 +376,15 @@ wss.on('connection', (ws) => {
       console.log(`[call] setup ${msg.callSid} to ${msg.to} -> ${business.name} (lead ${lead.id})`);
       return;
     }
+
+    // Telnyx: the goodbye has finished playing, so hang up now.
+    if (msg.type === 'info') {
+      if (msg.name === 'agentSpeaking' && msg.value === 'off' && endPendingSince && Date.now() - endPendingSince > 800) finishCall();
+      return;
+    }
+
+    // Already saying goodbye: let it finish, whatever the caller says over it.
+    if (endPendingSince && (msg.type === 'interrupt' || msg.type === 'prompt')) return;
 
     // Caller (maybe) barged in. Stop talking, but don't touch the conversation
     // history yet — we can't tell real speech from noise until the follow-up
@@ -398,6 +429,7 @@ wss.on('connection', (ws) => {
   });
 
   ws.on('close', () => {
+    clearTimeout(endTimer);
     cancelInflight();
     // Stamp the call as ended in Supabase + save the transcript (best-effort).
     const lead = session ? getLead(session.leadId) : null;
