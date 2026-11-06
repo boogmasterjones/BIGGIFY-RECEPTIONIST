@@ -54,7 +54,8 @@ export function telnyxAnswer(business, publicUrl, voiceOverride = '') {
     ` language="en"` +
     ` transcriptionProvider="${escapeXml(config.telnyx.transcriptionProvider)}"` +
     ` interruptible="speech"` +
-    ` welcomeGreetingInterruptible="speech"` +
+    // The greeting is short and always plays to the end: echo from a speakerphone was cutting it off after two words.
+    ` welcomeGreetingInterruptible="none"` +
     // agentSpeaking on/off tells us when the goodbye has finished playing (see index.js).
     ` events="speaker-events" />` +
     `</Connect>` +

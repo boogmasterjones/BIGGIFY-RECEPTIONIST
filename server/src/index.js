@@ -286,6 +286,25 @@ wss.on('connection', (ws) => {
   let spokenText = ''; // exactly what we handed the TTS for the current reply
   let speaking = false; // has any audio gone out for the current reply yet?
   let pendingInterrupt = null; // { heard } — a barge-in waiting on its transcript
+  // Telnyx: is the caller talking right now (speaker-events), and when did they last stop.
+  let clientSpeaking = false;
+  let clientStoppedAt = 0;
+  let resumeTimer = null;
+  // Twilio follows a false barge-in with an empty 'prompt', which resumes us. Telnyx sends nothing when the
+  // "speech" was just echo or noise, so the receptionist went silent mid-sentence. On Telnyx, once the caller has
+  // been quiet for a moment and no words arrived, finish what we were saying.
+  function watchFalseBargeIn() {
+    clearInterval(resumeTimer);
+    const started = Date.now();
+    resumeTimer = setInterval(() => {
+      if (!pendingInterrupt) return clearInterval(resumeTimer);
+      const quietFor = clientSpeaking ? 0 : Date.now() - Math.max(clientStoppedAt, started);
+      if (quietFor >= 1200 || Date.now() - started > 8000) {
+        clearInterval(resumeTimer);
+        if (pendingInterrupt && !clientSpeaking) resumeAfterFalseBargeIn();
+      }
+    }, 250);
+  }
 
   const send = (msg) => { try { ws.send(JSON.stringify(msg)); } catch { /* socket closed */ } };
 
@@ -405,6 +424,10 @@ wss.on('connection', (ws) => {
 
     // Telnyx: the goodbye has finished playing, so hang up now.
     if (msg.type === 'info') {
+      if (msg.name === 'clientSpeaking') {
+        clientSpeaking = msg.value === 'on';
+        if (!clientSpeaking) clientStoppedAt = Date.now();
+      }
       if (msg.name === 'agentSpeaking' && msg.value === 'off' && endPendingSince && Date.now() - endPendingSince > 800) finishCall();
       return;
     }
@@ -424,6 +447,7 @@ wss.on('connection', (ws) => {
       if (!speaking) return;
       await cancelInflight();
       pendingInterrupt = { heard: msg.utteranceUntilInterrupt || '' };
+      if (isTelnyx) watchFalseBargeIn();
       return;
     }
 
@@ -456,6 +480,7 @@ wss.on('connection', (ws) => {
 
   ws.on('close', () => {
     clearTimeout(endTimer);
+    clearInterval(resumeTimer);
     cancelInflight();
     // Stamp the call as ended in Supabase + save the transcript (best-effort).
     const lead = session ? getLead(session.leadId) : null;
