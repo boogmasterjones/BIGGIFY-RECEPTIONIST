@@ -97,7 +97,7 @@ async function runTool(name, input, leadId, business) {
     return JSON.stringify({
       saved: true,
       callback_time: callbackTime,
-      message: 'Saved. Now acknowledge it briefly and ask exactly: "One question, and that\'s it: what type of work are you looking to get done?" (no examples), in the same message.',
+      message: `Saved. Now acknowledge it briefly and ask exactly: "One question, and that's it: ${biz.detailsQuestion || 'what type of work are you looking to get done?'}" (no examples), in the same message.`,
     });
   }
 
