@@ -5,6 +5,9 @@
 [build]
   publish = "BIGGIFY WEBSITE"
   command = ""
+  # Skip the build (and its credits) when a push only changes the voice server.
+  # The build is skipped when this exits 0: nothing changed in the site, the dashboard or this file.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- 'BIGGIFY WEBSITE' dashboard netlify.toml"
 
 [[headers]]
   for = "/*"
