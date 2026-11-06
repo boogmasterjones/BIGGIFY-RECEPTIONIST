@@ -193,7 +193,7 @@ app.post('/incoming-call', async (req, res) => {
 // setup / prompt / interrupt / text / end messages as Twilio, so only the answer
 // markup differs. Point the Telnyx TeXML application's voice URL here.
 app.post('/incoming-call-telnyx', async (req, res) => {
-  const to = req.body?.To || req.body?.to;
+  const to = req.query.to || req.body?.To || req.body?.to; // Hubert's call tracking hands over with ?to=<tracking number>
   console.log(`[incoming-call-telnyx] request received, To=${to}`);
   try {
     const business = await resolveBusiness(to);
