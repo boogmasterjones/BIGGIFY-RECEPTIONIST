@@ -29,9 +29,10 @@ export const WELCOME_GREETING = greetingFor(null);
 // `slots` is no longer used (the receptionist no longer offers calendar times);
 // the parameter stays so existing callers don't break.
 export function systemBlocks(business, slots = null, greeting = '', hasPhone = true) {
-  const phoneNote = hasPhone
-    ? `CALLER NUMBER: known from caller ID. Never ask for it.`
-    : `CALLER NUMBER: NOT available (blocked or hidden). After they tell you when to call back, ask once: "What's the best number to reach you?" and pass it as callback_number when you save the callback time.`;
+  // Owner, 2026-11-05: never ask for or confirm the phone number. Only two questions:
+  // the callback time and the kind of work. (`hasPhone` is kept so callers don't break.)
+  void hasPhone;
+  const phoneNote = `CALLER NUMBER: the team already has it. Never ask for it, repeat it or confirm it.`;
   return [
     { type: 'text', text: systemPrompt(business, null, greeting), cache_control: { type: 'ephemeral' } },
     { type: 'text', text: phoneNote },
@@ -74,7 +75,7 @@ IF THE CALLER SAYS SOMETHING ELSE:
 RULES
 - Never offer or promise a specific time yourself. The caller names the time, or it's "as soon as we can". Never say the team will definitely be free then.
 - Never give prices, estimates, availability, advice, opinions or promises. Never explain what the business does or doesn't do. Any kind of job is welcome; never turn anyone away.
-- Never ask for their name or anything else beyond the two answers (callback time, kind of job).
+- Never ask for their name, their phone number or anything else beyond the two answers (callback time, kind of job). Never read back or confirm a phone number.
 - Never ask the same question twice, and never repeat back what they already heard. Say it once.
 - If your last message trails off with "…[the caller interrupted here]": answer what they said and bring back ONLY the part they missed. Never mention the interruption.
 - Never narrate a tool call ("let me save that", "one moment"). Tools are silent and instant to the caller.
