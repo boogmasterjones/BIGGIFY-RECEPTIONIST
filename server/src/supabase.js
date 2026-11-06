@@ -59,6 +59,8 @@ function toBusinessConfig(row) {
     ttsProvider: config.ttsProvider,
     ownerAlertEmail: row.owner_alert_email || '',
     ownerAlertPhone: row.owner_alert_phone || '',
+    // Phone to ring before the receptionist answers (features.ring_first, E.164). Empty = answer at once.
+    ringFirst: /^\+1\d{10}$/.test(row.features?.ring_first || '') ? row.features.ring_first : '',
     cal: { apiKey: row.cal_api_key || '', eventTypeId: row.cal_event_type_id || '' },
   };
 }

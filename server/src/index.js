@@ -18,7 +18,7 @@ import { isSupabaseLive, lookupBusinessByNumber, envBusiness, logCall, upsertCon
 import { startOutreachScheduler, runOutreachSweep } from './outreach.js';
 import { syncCreateAppointment, syncUpdateAppointment, syncDeleteAppointment } from './calendar-sync.js';
 import { createPaymentLink, handleWebhook } from './stripe.js';
-import { telnyxAnswer } from './telnyx.js';
+import { telnyxAnswer, telnyxRingFirst } from './telnyx.js';
 
 // Resolve which business a call is for by the dialed number, falling back to
 // the single-business env config.
@@ -197,10 +197,36 @@ app.post('/incoming-call-telnyx', async (req, res) => {
   console.log(`[incoming-call-telnyx] request received, To=${to}`);
   try {
     const business = await resolveBusiness(to);
-    res.type('text/xml').send(telnyxAnswer(business, config.publicUrl, req.query.voice));
-    console.log(`[incoming-call-telnyx] resolved business=${business.name}`);
+    // Ring the business's own phone first when it has one; the receptionist only
+    // takes the calls nobody picks up (see /incoming-call-telnyx/after-dial).
+    const markup = business.ringFirst
+      ? telnyxRingFirst(business, config.publicUrl, req.query.voice, to)
+      : telnyxAnswer(business, config.publicUrl, req.query.voice);
+    res.type('text/xml').send(markup);
+    console.log(`[incoming-call-telnyx] resolved business=${business.name}${business.ringFirst ? ' (ringing the business first)' : ''}`);
   } catch (err) {
     console.error('[incoming-call-telnyx] ERROR:', err.stack || err.message);
+    res.status(500).type('text/xml').send(
+      `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Sorry, we hit a technical issue. Please try again shortly.</Say></Response>`
+    );
+  }
+});
+
+// Telnyx calls this when ringing the business ends. Picked up: the call is over.
+// Not picked up (no answer, busy, declined, failed): the receptionist answers.
+app.post('/incoming-call-telnyx/after-dial', async (req, res) => {
+  const b = req.body || {};
+  const status = String(b.DialCallStatus || b.DialStatus || b.dial_call_status || '').toLowerCase();
+  const to = req.query.to || b.To || b.to; // the dialed business number rides on the action URL
+  console.log(`[after-dial] To=${to} status=${status || '(none)'} fields=${Object.keys(b).join(',')}`);
+  if (status === 'completed' || status === 'answered') {
+    return res.type('text/xml').send('<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>');
+  }
+  try {
+    const business = await resolveBusiness(to);
+    res.type('text/xml').send(telnyxAnswer(business, config.publicUrl, req.query.voice));
+  } catch (err) {
+    console.error('[after-dial] ERROR:', err.stack || err.message);
     res.status(500).type('text/xml').send(
       `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Sorry, we hit a technical issue. Please try again shortly.</Say></Response>`
     );

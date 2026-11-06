@@ -20,6 +20,27 @@ export function telnyxVoiceFor(business, override = '') {
   return TELNYX_VOICE.test(v) ? v : config.telnyx.voice;
 }
 
+// Ring the business's own phone first. If nobody picks up within RING_SECONDS, Telnyx
+// asks /incoming-call-telnyx/after-dial what to do, and that hands the call to the
+// receptionist. Kept under ~20 s so the call reaches us before a cell's own voicemail.
+const RING_SECONDS = 18;
+
+export function telnyxRingFirst(business, publicUrl, voiceOverride = '', dialedNumber = '') {
+  const base = publicUrl || `http://localhost:${config.port}`;
+  const qs = new URLSearchParams();
+  if (dialedNumber) qs.set('to', dialedNumber);
+  if (voiceOverride) qs.set('voice', voiceOverride);
+  const action = `${base}/incoming-call-telnyx/after-dial${qs.toString() ? `?${qs}` : ''}`;
+  return (
+    `<?xml version="1.0" encoding="UTF-8"?>` +
+    `<Response>` +
+    `<Dial timeout="${RING_SECONDS}" answerOnBridge="true" action="${escapeXml(action)}" method="POST">` +
+    `<Number>${escapeXml(business.ringFirst)}</Number>` +
+    `</Dial>` +
+    `</Response>`
+  );
+}
+
 export function telnyxAnswer(business, publicUrl, voiceOverride = '') {
   const wsUrl = (publicUrl ? publicUrl.replace(/^http/, 'ws') : `ws://localhost:${config.port}`) + '/ws';
   // Only clear speech may cut the receptionist off (a cough or road noise must not).
