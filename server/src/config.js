@@ -20,6 +20,13 @@ export const config = {
     messagingServiceSid: process.env.TWILIO_MESSAGING_SERVICE_SID || '',
   },
 
+  // Telnyx voice (calls come in on /incoming-call-telnyx). No key needed to answer calls:
+  // Telnyx does the speech both ways and talks to our /ws socket.
+  telnyx: {
+    voice: process.env.TELNYX_VOICE || 'Telnyx.NaturalHD.astra',
+    transcriptionProvider: process.env.TELNYX_TRANSCRIPTION_PROVIDER || 'deepgram',
+  },
+
   calcom: {
     apiKey: process.env.CALCOM_API_KEY || '',
     eventTypeId: process.env.CALCOM_EVENT_TYPE_ID || '',

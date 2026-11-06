@@ -18,6 +18,7 @@ import { isSupabaseLive, lookupBusinessByNumber, envBusiness, logCall, upsertCon
 import { startOutreachScheduler, runOutreachSweep } from './outreach.js';
 import { syncCreateAppointment, syncUpdateAppointment, syncDeleteAppointment } from './calendar-sync.js';
 import { createPaymentLink, handleWebhook } from './stripe.js';
+import { telnyxAnswer } from './telnyx.js';
 
 // Resolve which business a call is for by the dialed number, falling back to
 // the single-business env config.
@@ -181,6 +182,25 @@ app.post('/incoming-call', async (req, res) => {
     res.type('text/xml').send(twiml);
   } catch (err) {
     console.error('[incoming-call] ERROR:', err.stack || err.message);
+    res.status(500).type('text/xml').send(
+      `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Sorry, we hit a technical issue. Please try again shortly.</Say></Response>`
+    );
+  }
+});
+
+// --- Telnyx voice webhook (TeXML): same ConversationRelay socket, Telnyx's own speech ---
+// Telnyx runs the speech-to-text and text-to-speech and speaks to /ws with the same
+// setup / prompt / interrupt / text / end messages as Twilio, so only the answer
+// markup differs. Point the Telnyx TeXML application's voice URL here.
+app.post('/incoming-call-telnyx', async (req, res) => {
+  const to = req.body?.To || req.body?.to;
+  console.log(`[incoming-call-telnyx] request received, To=${to}`);
+  try {
+    const business = await resolveBusiness(to);
+    res.type('text/xml').send(telnyxAnswer(business, config.publicUrl));
+    console.log(`[incoming-call-telnyx] resolved business=${business.name}`);
+  } catch (err) {
+    console.error('[incoming-call-telnyx] ERROR:', err.stack || err.message);
     res.status(500).type('text/xml').send(
       `<?xml version="1.0" encoding="UTF-8"?><Response><Say>Sorry, we hit a technical issue. Please try again shortly.</Say></Response>`
     );
