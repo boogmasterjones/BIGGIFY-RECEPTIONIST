@@ -405,6 +405,7 @@ export class CallSession {
     this.#repairHistory();
     this.messages.push({ role: 'user', content: text });
     let spoken = '';
+    let discarded = ''; // text the model said right before a tool call (not spoken unless nothing follows)
     let buffer = '';
     const aborted = () => signal?.aborted;
 
@@ -493,6 +494,9 @@ export class CallSession {
         // sending that as its own separate spoken line, making multi-tool turns
         // sound like disjointed thinking-out-loud. Discard it instead: only the
         // text from the FINAL, tool-free turn ever reaches the caller's ears.
+        // Keep it aside, though: when the model answers the caller AND saves in one message, then says nothing after
+        // the save, that answer is the only reply there is (see the fallback at the end).
+        if (spoken.trim()) discarded = spoken.trim();
         buffer = '';
         spoken = '';
         // Run them concurrently — a turn that calls check_availability and
@@ -531,6 +535,11 @@ export class CallSession {
 
     flush(); // send the whole reply as one piece
     let finalText = spoken.trim();
+    // Nothing after the tools, but a real answer came before them: speak that instead of "say that again".
+    if (!finalText && discarded.length > 25) {
+      finalText = discarded;
+      if (onToken) onToken(finalText);
+    }
     if (!finalText) {
       finalText = this.ended ? 'Thanks for calling — have a great day!' : 'Sorry, could you say that again?';
       if (onToken) onToken(finalText); // make sure the fallback is spoken too
