@@ -201,7 +201,7 @@ app.post('/incoming-call-telnyx', async (req, res) => {
     // takes the calls nobody picks up (see /incoming-call-telnyx/after-dial).
     const markup = business.ringFirst
       ? telnyxRingFirst(business, config.publicUrl, req.query.voice, to)
-      : telnyxAnswer(business, config.publicUrl, req.query.voice);
+      : telnyxAnswer(business, config.publicUrl, req.query.voice, to);
     res.type('text/xml').send(markup);
     console.log(`[incoming-call-telnyx] resolved business=${business.name}${business.ringFirst ? ' (ringing the business first)' : ''}`);
   } catch (err) {
@@ -224,7 +224,7 @@ app.post('/incoming-call-telnyx/after-dial', async (req, res) => {
   }
   try {
     const business = await resolveBusiness(to);
-    res.type('text/xml').send(telnyxAnswer(business, config.publicUrl, req.query.voice));
+    res.type('text/xml').send(telnyxAnswer(business, config.publicUrl, req.query.voice, to));
   } catch (err) {
     console.error('[after-dial] ERROR:', err.stack || err.message);
     res.status(500).type('text/xml').send(
@@ -280,7 +280,11 @@ app.post('/api/chat', async (req, res) => {
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: '/ws' });
 
-wss.on('connection', (ws) => {
+wss.on('connection', (ws, req) => {
+  // Telnyx: the dialed business number comes on the socket URL (?to=), because its setup
+  // message has no `to`. Twilio's setup carries `to`, which still wins when present.
+  let urlTo = null;
+  try { urlTo = new URL(req?.url || '/ws', 'http://localhost').searchParams.get('to'); } catch { urlTo = null; }
   let session = null;
   let inflight = null; // { controller, promise } for the reply being spoken
   let spokenText = ''; // exactly what we handed the TTS for the current reply
@@ -393,12 +397,13 @@ wss.on('connection', (ws) => {
 
     if (msg.type === 'setup') {
       isTelnyx = Boolean(msg.callControlId); // only Telnyx's setup carries this
-      const lead = createLead({ callSid: msg.callSid, from: msg.from, to: msg.to });
+      const to = msg.to || urlTo;
+      const lead = createLead({ callSid: msg.callSid, from: msg.from, to });
       // Which tenant is this call for? (by the dialed number)
-      const business = await resolveBusiness(msg.to);
+      const business = await resolveBusiness(to);
       // Log the call + upsert the caller as a contact in Supabase (best-effort).
       const [dbCallId, dbContactId] = await Promise.all([
-        logCall({ businessId: business.id, callSid: msg.callSid, from: msg.from, to: msg.to }),
+        logCall({ businessId: business.id, callSid: msg.callSid, from: msg.from, to }),
         upsertContactByPhone({ businessId: business.id, phone: msg.from }),
       ]);
       updateLead(lead.id, { businessId: business.id, dbCallId, dbContactId });
@@ -418,7 +423,7 @@ wss.on('connection', (ws) => {
       // cough stalls the call before it starts.
       spokenText = session.greeting || '';
       speaking = Boolean(spokenText);
-      console.log(`[call] setup ${msg.callSid} to ${msg.to} -> ${business.name} (lead ${lead.id})`);
+      console.log(`[call] setup ${msg.callSid} to ${to} -> ${business.name} (lead ${lead.id})`);
       return;
     }
 
