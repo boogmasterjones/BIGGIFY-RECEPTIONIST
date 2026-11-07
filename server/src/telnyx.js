@@ -44,9 +44,12 @@ export function telnyxRingFirst(business, publicUrl, voiceOverride = '', dialedN
 // `dialedNumber` rides on the socket URL (?to=): Telnyx's setup message carries no `to`
 // (Render logs, 2026-11-05/06: every Telnyx call arrived as "to null -> Biggify"), so
 // without it the socket could not tell which business the call is for.
-export function telnyxAnswer(business, publicUrl, voiceOverride = '', dialedNumber = '') {
+export function telnyxAnswer(business, publicUrl, voiceOverride = '', dialedNumber = '', callerNumber = '') {
   const base = (publicUrl ? publicUrl.replace(/^http/, 'ws') : `ws://localhost:${config.port}`) + '/ws';
-  const wsUrl = dialedNumber ? `${base}?to=${encodeURIComponent(dialedNumber)}` : base;
+  const qs = new URLSearchParams();
+  if (dialedNumber) qs.set('to', dialedNumber);
+  if (callerNumber) qs.set('from', callerNumber);
+  const wsUrl = qs.toString() ? `${base}?${qs}` : base;
   // Only clear speech may cut the receptionist off (a cough or road noise must not).
   return (
     `<?xml version="1.0" encoding="UTF-8"?>` +

@@ -194,6 +194,7 @@ app.post('/incoming-call', async (req, res) => {
 // markup differs. Point the Telnyx TeXML application's voice URL here.
 app.post('/incoming-call-telnyx', async (req, res) => {
   const to = req.query.to || req.body?.To || req.body?.to; // Hubert's call tracking hands over with ?to=<tracking number>
+  const from = req.body?.From || req.body?.from || ''; // the caller, so the socket knows who to call back
   console.log(`[incoming-call-telnyx] request received, To=${to}`);
   try {
     const business = await resolveBusiness(to);
@@ -201,7 +202,7 @@ app.post('/incoming-call-telnyx', async (req, res) => {
     // takes the calls nobody picks up (see /incoming-call-telnyx/after-dial).
     const markup = business.ringFirst
       ? telnyxRingFirst(business, config.publicUrl, req.query.voice, to)
-      : telnyxAnswer(business, config.publicUrl, req.query.voice, to);
+      : telnyxAnswer(business, config.publicUrl, req.query.voice, to, from);
     res.type('text/xml').send(markup);
     console.log(`[incoming-call-telnyx] resolved business=${business.name}${business.ringFirst ? ' (ringing the business first)' : ''}`);
   } catch (err) {
@@ -218,13 +219,14 @@ app.post('/incoming-call-telnyx/after-dial', async (req, res) => {
   const b = req.body || {};
   const status = String(b.DialCallStatus || b.DialStatus || b.dial_call_status || '').toLowerCase();
   const to = req.query.to || b.To || b.to; // the dialed business number rides on the action URL
+  const from = b.From || b.from || '';
   console.log(`[after-dial] To=${to} status=${status || '(none)'} fields=${Object.keys(b).join(',')}`);
   if (status === 'completed' || status === 'answered') {
     return res.type('text/xml').send('<?xml version="1.0" encoding="UTF-8"?><Response><Hangup/></Response>');
   }
   try {
     const business = await resolveBusiness(to);
-    res.type('text/xml').send(telnyxAnswer(business, config.publicUrl, req.query.voice, to));
+    res.type('text/xml').send(telnyxAnswer(business, config.publicUrl, req.query.voice, to, from));
   } catch (err) {
     console.error('[after-dial] ERROR:', err.stack || err.message);
     res.status(500).type('text/xml').send(
@@ -283,8 +285,14 @@ const wss = new WebSocketServer({ server, path: '/ws' });
 wss.on('connection', (ws, req) => {
   // Telnyx: the dialed business number comes on the socket URL (?to=), because its setup
   // message has no `to`. Twilio's setup carries `to`, which still wins when present.
+  // Same for the caller's number (?from=): Telnyx's setup message carries no `from` either (test call 2026-11-07 saved no number).
   let urlTo = null;
-  try { urlTo = new URL(req?.url || '/ws', 'http://localhost').searchParams.get('to'); } catch { urlTo = null; }
+  let urlFrom = null;
+  try {
+    const q = new URL(req?.url || '/ws', 'http://localhost').searchParams;
+    urlTo = q.get('to');
+    urlFrom = q.get('from');
+  } catch { urlTo = null; urlFrom = null; }
   let session = null;
   let inflight = null; // { controller, promise } for the reply being spoken
   let spokenText = ''; // exactly what we handed the TTS for the current reply
@@ -398,13 +406,14 @@ wss.on('connection', (ws, req) => {
     if (msg.type === 'setup') {
       isTelnyx = Boolean(msg.callControlId); // only Telnyx's setup carries this
       const to = msg.to || urlTo;
-      const lead = createLead({ callSid: msg.callSid, from: msg.from, to });
+      const from = msg.from || urlFrom || null;
+      const lead = createLead({ callSid: msg.callSid, from, to });
       // Which tenant is this call for? (by the dialed number)
       const business = await resolveBusiness(to);
       // Log the call + upsert the caller as a contact in Supabase (best-effort).
       const [dbCallId, dbContactId] = await Promise.all([
-        logCall({ businessId: business.id, callSid: msg.callSid, from: msg.from, to }),
-        upsertContactByPhone({ businessId: business.id, phone: msg.from }),
+        logCall({ businessId: business.id, callSid: msg.callSid, from, to }),
+        upsertContactByPhone({ businessId: business.id, phone: from }),
       ]);
       updateLead(lead.id, { businessId: business.id, dbCallId, dbContactId });
       // Pre-fetch this business's availability so the AI can offer times on its
@@ -423,7 +432,7 @@ wss.on('connection', (ws, req) => {
       // cough stalls the call before it starts.
       spokenText = session.greeting || '';
       speaking = Boolean(spokenText);
-      console.log(`[call] setup ${msg.callSid} to ${to} -> ${business.name} (lead ${lead.id})`);
+      console.log(`[call] setup ${msg.callSid} from ${from ? "…" + String(from).slice(-4) : "unknown"} to ${to} -> ${business.name} (lead ${lead.id})`);
       return;
     }
 
