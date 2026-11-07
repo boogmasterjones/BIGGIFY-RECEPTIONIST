@@ -4,6 +4,7 @@
 import twilio from 'twilio';
 import { config, isSmsLive } from './config.js';
 import { sendEmail } from './email.js';
+import { notifyHubert } from './hubertAlert.js';
 
 let client = null;
 if (isSmsLive) {
@@ -108,12 +109,14 @@ export async function alertOwner(lead, business = null) {
   const body = lines.join('\n');
 
   const results = {};
+  // Hubert texts the client's people from the Biggify line (owner 2026-11-07). Best-effort, never blocks the email.
+  results.hubert = await notifyHubert(lead, business, isMessage).catch(() => ({ sent: false }));
   if (ownerEmail) {
     results.email = await sendEmail(ownerEmail, subject, body, bizName);
   }
   if (ownerPhone) {
     results.sms = await sendSms(ownerPhone, body);
   }
-  if (!results.email && !results.sms) return { ok: false, reason: 'no owner email or phone set' };
+  if (!results.email && !results.sms && !results.hubert?.sent) return { ok: false, reason: 'no owner email or phone set' };
   return { ok: true, ...results };
 }
