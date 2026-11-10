@@ -288,7 +288,7 @@ async function runTool(name, input, leadId, business) {
 // history ("…[interrupted]") can get echoed back by the model, ellipses become
 // long dead-air pauses in the middle of a sentence, and newlines get read as
 // separate utterances. Strip all of it before anything reaches the caller.
-function forSpeech(text = '') {
+export function forSpeech(text = '') {
   return text
     .replace(/…?\s*\[[^\]]*\]/g, ' ') // bracketed markers/stage directions
     .replace(/[*_`#]+/g, '') // stray markdown
@@ -305,7 +305,7 @@ function forSpeech(text = '') {
 // never a fragment that ends mid-clause, which is what makes TTS starve and
 // pause in the middle of a phrase.
 const ABBREV = /(?:\b[a-z]|\b(?:mr|mrs|ms|dr|sr|jr|st|approx|apt|vs|etc|no)|\d)\.$/i;
-function sentenceEnd(buf) {
+export function sentenceEnd(buf) {
   const re = /[.!?]+["')\]]?(?=\s)/g;
   let m;
   while ((m = re.exec(buf))) {

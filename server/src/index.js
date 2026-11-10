@@ -19,6 +19,7 @@ import { startOutreachScheduler, runOutreachSweep } from './outreach.js';
 import { syncCreateAppointment, syncUpdateAppointment, syncDeleteAppointment } from './calendar-sync.js';
 import { createPaymentLink, handleWebhook } from './stripe.js';
 import { telnyxAnswer, telnyxRingFirst } from './telnyx.js';
+import { registerPracticeRoutes, takePracticeSession, finishPracticeSession } from './practice/index.js';
 
 // Resolve which business a call is for by the dialed number, falling back to
 // the single-business env config.
@@ -235,6 +236,9 @@ app.post('/incoming-call-telnyx/after-dial', async (req, res) => {
   }
 });
 
+// --- Cold-call practice line (Wyatt's own training line; see docs/COLD_CALL_PRACTICE.md) ---
+registerPracticeRoutes(app);
+
 // --- Branded SMS survey form ---
 app.get('/survey/:id', (req, res) => {
   const lead = getLead(req.params.id);
@@ -288,11 +292,14 @@ wss.on('connection', (ws, req) => {
   // Same for the caller's number (?from=): Telnyx's setup message carries no `from` either (test call 2026-11-07 saved no number).
   let urlTo = null;
   let urlFrom = null;
+  let practiceId = null; // ?practice=<id>: a call to the cold-call practice line, not a business
   try {
     const q = new URL(req?.url || '/ws', 'http://localhost').searchParams;
     urlTo = q.get('to');
     urlFrom = q.get('from');
-  } catch { urlTo = null; urlFrom = null; }
+    practiceId = q.get('practice');
+  } catch { urlTo = null; urlFrom = null; practiceId = null; }
+  let idleTimer = null; // practice voicemail drill: nudges the session when the caller goes quiet
   let session = null;
   let inflight = null; // { controller, promise } for the reply being spoken
   let spokenText = ''; // exactly what we handed the TTS for the current reply
@@ -364,6 +371,17 @@ wss.on('connection', (ws, req) => {
     if (session?.ended) hangUpAfterSpeaking();
   }
 
+  // Practice voicemail drill: once the caller has been quiet for a moment, tell the session.
+  function armIdle() {
+    clearTimeout(idleTimer);
+    const ms = session?.idleAfterMs?.() || 0;
+    if (!ms) return;
+    idleTimer = setTimeout(() => {
+      if (clientSpeaking || inflight || endPendingSince) return armIdle();
+      runPrompt(session.idleToken);
+    }, ms);
+  }
+
   async function runPrompt(text) {
     await cancelInflight(); // if the caller interrupted, drop the old reply
     pendingInterrupt = null;
@@ -405,6 +423,19 @@ wss.on('connection', (ws, req) => {
 
     if (msg.type === 'setup') {
       isTelnyx = Boolean(msg.callControlId); // only Telnyx's setup carries this
+      if (practiceId) {
+        // Practice line: no business, no lead, nothing saved to the receptionist's database.
+        session = takePracticeSession(practiceId);
+        if (!session) {
+          console.log('[practice] socket for an unknown or expired call, hanging up');
+          send({ type: 'end', handoffData: 'unknown practice call' });
+          return;
+        }
+        spokenText = session.greeting || '';
+        speaking = Boolean(spokenText);
+        console.log(`[practice] setup ${msg.callSid}`);
+        return;
+      }
       const to = msg.to || urlTo;
       const from = msg.from || urlFrom || null;
       const lead = createLead({ callSid: msg.callSid, from, to });
@@ -442,6 +473,7 @@ wss.on('connection', (ws, req) => {
         clientSpeaking = msg.value === 'on';
         if (!clientSpeaking) clientStoppedAt = Date.now();
       }
+      if (msg.name === 'agentSpeaking' && msg.value === 'on') session?.noteAgentSpeaking?.();
       if (msg.name === 'agentSpeaking' && msg.value === 'off' && endPendingSince && Date.now() - endPendingSince > 800) finishCall();
       return;
     }
@@ -466,6 +498,7 @@ wss.on('connection', (ws, req) => {
     }
 
     if (msg.type === 'prompt' && msg.last && session) {
+      clearTimeout(idleTimer);
       const text = (msg.voicePrompt || '').trim();
       if (!text) {
         // Empty transcript = there was no real speech to transcribe (noise, a
@@ -484,6 +517,7 @@ wss.on('connection', (ws, req) => {
         if (heard) session.markInterrupted(heard);
       }
       await runPrompt(text);
+      armIdle();
       return;
     }
 
@@ -494,6 +528,14 @@ wss.on('connection', (ws, req) => {
 
   ws.on('close', () => {
     clearTimeout(endTimer);
+    clearTimeout(idleTimer);
+    if (session?.isPractice) {
+      clearInterval(resumeTimer);
+      cancelInflight();
+      finishPracticeSession(session);
+      console.log('[call] connection closed');
+      return;
+    }
     clearInterval(resumeTimer);
     cancelInflight();
     // Stamp the call as ended in Supabase + save the transcript (best-effort).

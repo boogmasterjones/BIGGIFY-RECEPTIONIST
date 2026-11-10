@@ -15,6 +15,9 @@ It runs **without every integration configured** — Cal.com and SMS fall back t
 | `src/twilioSms.js` | SMS survey + owner alerts (live or log) |
 | `src/pages.js` | Branded survey form, thank-you page, dashboard |
 | `src/store.js` | In-memory lead store (swap for Supabase/Airtable later) |
+| `src/practice/` | Wyatt's cold-call practice line (`POST /practice-call-telnyx`): random voice, prospect and drill per call, spoken coach scorecard, emailed review. Separate from the receptionist; shares only the `/ws` socket plumbing. Guide: `docs/COLD_CALL_PRACTICE.md` |
+
+Tests: `npm test` (no API key or network needed).
 
 ## Run it locally
 
