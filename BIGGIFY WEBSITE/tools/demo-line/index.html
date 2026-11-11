@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Call the Demo Receptionist | Biggify</title>
+<meta name="description" content="Hear an AI receptionist answer like a real trade business. Call the demo line, ask for a quote, and see the message an owner would get." />
+<link rel="icon" href="/LOGO.png" />
+<link rel="stylesheet" href="/tools/tools.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to the main part</a>
+<header>
+  <div class="wrap">
+    <nav aria-label="Main">
+      <a class="logo" href="/"><img src="/LOGO.png" alt="Biggify home" /></a>
+      <div class="nav-cta">
+        <a class="nav-link hide-sm" href="/tools/">Free tools</a>
+        <a class="nav-phone" data-phone-link href="tel:+19414018288">(941) 401-8288</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap">
+      <span class="callout">Attention Southwest Florida contractors</span>
+      <h1>Call my <span class="grad">AI receptionist</span>. Hear it answer like your business.</h1>
+      <p class="lead">Pretend you're a customer. Ask for a quote. It takes your message the way it would for you, and says up front that it's an AI.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <!-- ON: the number to call (shown when Biggify.config.DEMO_LINE_ON is true) -->
+      <div class="landing" id="demo-on" hidden>
+        <div class="card" style="text-align:center">
+          <h2>Call the demo line</h2>
+          <p class="muted" style="margin-bottom:18px">Any time, day or night. It takes about 1 minute.</p>
+          <a class="btn btn-primary btn-block" id="demo-call" href="tel:+19416463030" style="font-size:22px;min-height:64px">📞 Call <span id="demo-number">(941) 646-3030</span></a>
+          <p class="note">The call is recorded so you can hear how it went. Normal call rates apply.</p>
+        </div>
+        <div>
+          <ul class="under" style="margin-top:0">
+            <li>It answers right away, even at 9 at night.</li>
+            <li>It gets the caller's name, number and what they need.</li>
+            <li>On a real line, that message is texted to the owner.</li>
+          </ul>
+          <p class="note" style="margin-top:18px">Liked it? Next, try it on your own calls with my <a class="link" href="/trial">free 30-day trial</a>.</p>
+        </div>
+      </div>
+
+      <!-- OFF (for now): "opening soon" plus an email sign-up -->
+      <div class="landing" id="demo-off">
+        <div class="card">
+          <h2>The demo line opens soon</h2>
+          <p class="muted" style="margin-bottom:16px">Leave your email and I'll send you the number the day it opens.</p>
+          <form id="soon-form" class="tool-form" novalidate>
+            <div class="form-error" id="soon-error" role="alert"></div>
+            <div class="field" data-name="email">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" required />
+              <p class="error">Enter your email.</p>
+            </div>
+            <div class="row-2">
+              <div class="field" data-name="name">
+                <label for="name">Your name <span class="muted">(optional)</span></label>
+                <input id="name" name="name" type="text" autocomplete="name" />
+                <p class="error"></p>
+              </div>
+              <div class="field" data-name="business">
+                <label for="business">Business name <span class="muted">(optional)</span></label>
+                <input id="business" name="business" type="text" autocomplete="organization" />
+                <p class="error"></p>
+              </div>
+            </div>
+            <div class="hp" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+            <button class="btn btn-primary btn-block" type="submit" id="soon-btn">Tell me when it opens</button>
+            <p class="privacy-note">One email when it opens. <a href="/privacy.html">Privacy policy</a></p>
+          </form>
+        </div>
+        <div>
+          <ul class="under" style="margin-top:0">
+            <li>Call it like a customer would.</li>
+            <li>Hear it take a message for a trade business.</li>
+            <li>See what you'd get on your phone.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Thank-you view for the sign-up (page rule 4) -->
+      <div class="thanks" id="thanks" hidden tabindex="-1">
+        <div class="card">
+          <div class="done-head"><span class="tick" aria-hidden="true">✓</span><h2 style="font-size:24px">You're on the list.</h2></div>
+          <p class="muted" id="t-note">I'll email you the demo number the day it opens.</p>
+        </div>
+        <div class="offer next-step">
+          <span class="tag">Your next step</span>
+          <p class="consistency">Now that you're on the list for the demo, the next step to get the most out of it is to try the real thing on your own calls, free for 30 days.</p>
+          <div class="video-slot" role="img" aria-label="Video from Wyatt, coming soon">Video from Wyatt (coming soon)<small>60 seconds: how the free trial works</small></div>
+          <ul class="under" style="margin-bottom:18px">
+            <li>Your phone still rings first. It only answers the calls you miss.</li>
+            <li>No card. It turns off by itself on day 31 unless you tell me in writing to keep it.</li>
+          </ul>
+          <button class="btn btn-primary btn-block" type="button" id="trial-btn">Start my free 30-day trial</button>
+          <p class="note">I set up each trial by hand, so I only run 5 at a time.</p>
+          <div class="done" id="trial-done" role="status">Got it. I'll get in touch to set it up. Can't wait? Call or text me at <a data-phone-link href="tel:+19414018288">(941) 401-8288</a>.</div>
+          <div class="form-error" id="trial-error" role="alert"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <span>© Biggify · Port Charlotte, FL · <a data-phone-link href="tel:+19414018288">(941) 401-8288</a></span>
+    <nav aria-label="Footer"><a href="/tools/">Free tools</a><a href="/">Home</a><a href="/privacy.html">Privacy</a></nav>
+  </div>
+</footer>
+
+<script src="/tools/config.js"></script>
+<script>
+(function () {
+  "use strict";
+  var B = window.Biggify, $ = function (id) { return document.getElementById(id); };
+  // The one switch: Biggify.config.DEMO_LINE_ON in /tools/config.js (see tools/demo-line/README.md).
+  if (B.config.DEMO_LINE_ON) {
+    $("demo-off").hidden = true;
+    $("demo-on").hidden = false;
+    $("demo-number").textContent = B.config.DEMO_LINE_DISPLAY;
+    $("demo-call").href = "tel:" + B.config.DEMO_LINE_TEL;
+    return;
+  }
+  var form = $("soon-form"), submissionKey = null;
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    B.clearErrors(form);
+    var email = $("email").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return B.showFieldError(form, "email", "Enter your email.");
+    var btn = $("soon-btn");
+    btn.disabled = true;
+    B.send({ magnet: "demo_line", email: email, name: $("name").value.trim(), business: $("business").value.trim(), website: $("website").value, answers: { wants: "demo line number when it opens" } }).then(function (res) {
+      btn.disabled = false;
+      if (res.status === 400 && res.json && res.json.field && B.showFieldError(form, res.json.field, res.json.error)) return;
+      if (res.status !== 200) {
+        $("soon-error").textContent = B.failMessage(res);
+        $("soon-error").setAttribute("data-show", "");
+        return;
+      }
+      submissionKey = res.submissionKey;
+      $("demo-off").hidden = true;
+      var t = $("thanks");
+      t.hidden = false;
+      t.focus();
+    });
+  });
+  $("trial-btn").addEventListener("click", function () {
+    var btn = this, err = $("trial-error");
+    btn.disabled = true;
+    B.send({ action: "interest", magnet: "demo_line", submissionKey: submissionKey, interest: "receptionist_trial" }).then(function (res) {
+      if (res.status === 200) { btn.hidden = true; $("trial-done").setAttribute("data-show", ""); }
+      else { btn.disabled = false; err.textContent = B.failMessage(res); err.setAttribute("data-show", ""); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
