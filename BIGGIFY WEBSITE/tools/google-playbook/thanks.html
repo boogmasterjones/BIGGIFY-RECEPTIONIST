@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your playbook is on the way | Biggify</title>
+<meta name="description" content="Thanks for grabbing The Complete Google Profile, Reviews &amp; Photos Playbook." />
+<meta name="robots" content="noindex" />
+<link rel="canonical" href="https://gobiggify.com/tools/google-playbook/thanks.html" />
+<link rel="icon" href="../../LOGO.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&display=swap" />
+<link rel="stylesheet" href="../tools.css" />
+<link rel="stylesheet" href="../../guides/guide.css" />
+<style>
+.ty-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.ty-first{padding:34px 0 10px}
+.ty-first h2{font-family:var(--g-display);font-size:clamp(24px,3.4vw,30px);letter-spacing:-.02em;margin:0 0 14px}
+</style>
+<!-- tools/config.js (shared): window.Biggify = where forms post, tracking tags, consent words. -->
+<script src="../config.js"></script>
+</head>
+<body class="guide-page">
+<a class="skip" href="#main">Skip to content</a>
+<header>
+  <div class="wrap">
+    <nav>
+      <a class="logo" href="../../index.html"><img src="../../LOGO.png" alt="Biggify" /></a>
+      <div class="nav-cta">
+        <a class="nav-link hide-sm" href="../../guides/">Guides</a>
+        <a class="nav-link hide-sm" href="../">Free tools</a>
+        <a class="nav-phone" href="tel:+19414018288">📞 (941) 401-8288</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="g-hero">
+  <div class="g-grain" aria-hidden="true"></div>
+  <div class="wrap">
+    <div>
+      <span class="g-chip"><i></i>Google playbook</span>
+      <h1 data-greet>Thanks!</h1>
+      <p class="g-lead">Your playbook is on its way to your email. Don't see it in a few minutes? Check your spam folder. You can also open it right now and print it or save it as a PDF.</p>
+      <div class="ty-actions">
+        <a class="btn btn-primary" href="print.html">Open the playbook now</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="g-tldr ty-first" aria-labelledby="first">
+    <div class="g-tldr-head"><h2 id="first">Where to start tonight</h2></div>
+    <ol>
+      <li><span><strong>Chapter 3:</strong> check your main category against the top 3 near you. 15 minutes.</span></li>
+      <li><span><strong>Chapter 14:</strong> save your direct review link in your phone and text it to today's customers.</span></li>
+      <li><span><strong>Chapter 15:</strong> reply to every review you haven't answered yet.</span></li>
+      <li><span><strong>Chapter 17:</strong> put the weekly routine on your calendar.</span></li>
+    </ol>
+  </section>
+
+  <div class="g-end">
+    <div>
+      <h2>Want a second pair of eyes on your profile?</h2>
+      <p>Send me your business name and I'll compare your Google profile with the top 3 near you, then send back the 3 fixes I'd make first, in plain English. Free, no call needed.</p>
+      <div class="g-sign"><span class="g-avatar" aria-hidden="true">W</span><div><b>Wyatt, Biggify</b><small>I run Google profiles, reviews and phones for trade businesses.</small></div></div>
+    </div>
+    <a id="next-link" class="btn btn-primary" href="../xray/">Get my free Google Profile X-Ray</a>
+  </div>
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>&copy; Biggify LLC · <a href="../../privacy.html">Privacy</a> · <a href="../../guides/">Guides</a> · <a href="../">Free tools</a></p>
+  </div>
+</footer>
+<script src="../../guides/guide.js" defer></script>
+<script>
+(function(){
+  var B = window.Biggify || null;
+  var MAGNET = "google_playbook";
+  var store = { get: function(k){ try { return JSON.parse(sessionStorage.getItem(k) || 'null'); } catch(e){ return null; } } };
+  var utm = {};
+  if (B && B.tracking) utm = B.tracking();
+  else utm = store.get('bgf_utm') || {};
+
+  var greet = document.querySelector('[data-greet]'), done = store.get('bgf_done');
+  if (greet && done && done.magnet === MAGNET && done.name) greet.textContent = 'Thanks, ' + String(done.name).slice(0,40) + '!';
+
+  // Carry the visit's tags to the next tool.
+  var nx = document.getElementById('next-link'); if (nx && Object.keys(utm).length) { var u = new URL(nx.href, location.href); Object.keys(utm).forEach(function(k){ u.searchParams.set(k, utm[k]); }); nx.href = u.toString(); }
+})();
+</script>
+</body>
+</html>
