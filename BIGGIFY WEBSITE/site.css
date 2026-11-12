@@ -440,3 +440,12 @@ a[href^="tel:"]{white-space:nowrap}
 .prose .updated{color:var(--muted);font-size:15px}
 .prose h2:first-of-type{margin-top:26px}
 .legal-note{background:#fff3f1;border:1px solid #f3cfc9;border-left:5px solid var(--brand);border-radius:12px;padding:18px 20px;margin:20px 0}
+
+/* ---------- small-phone guards and tap targets ---------- */
+.hero-home .hero-grid{grid-template-columns:minmax(0,1fr)}
+@media(min-width:960px){.hero-home .hero-grid{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr)}}
+@media(max-width:420px){.btn-lg{padding-inline:14px;font-size:15.5px;letter-spacing:.035em;gap:8px}}
+.logo{min-height:44px}
+.leak .fix a{min-height:44px}
+.foot-cols a{padding:11px 0}
+.hero.is-off .btn-sweep::after{animation-play-state:paused}

@@ -340,3 +340,4 @@ footer a:hover{color:#fff}
 /* simple footer row */
 .foot-row{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:center;justify-content:space-between}
 .foot-row nav{display:flex;flex-wrap:wrap;gap:0 18px;padding:0}
+@media(max-width:480px){.callout{font-size:11.5px;letter-spacing:.05em;padding:6px 10px}}
