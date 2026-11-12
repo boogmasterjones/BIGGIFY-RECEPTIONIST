@@ -341,3 +341,5 @@ footer a:hover{color:#fff}
 .foot-row{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:center;justify-content:space-between}
 .foot-row nav{display:flex;flex-wrap:wrap;gap:0 18px;padding:0}
 @media(max-width:480px){.callout{font-size:11.5px;letter-spacing:.05em;padding:6px 10px}}
+/* trade + town + state on one line from 560px (the forms that ask where the business is) */
+@media(min-width:560px){.row-2.row-tcs{grid-template-columns:1.25fr 1fr 92px}}

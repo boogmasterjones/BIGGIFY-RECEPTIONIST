@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Free Google Profile Tune-Up | Biggify</title>
-<meta name="description" content="Free for Southwest Florida contractors: I fix the basics on your Google profile in one sitting. You OK every change first. 5 a month." />
+<meta name="description" content="Free for service businesses anywhere in the US: I fix the basics on your Google profile in one sitting. You OK every change first. 5 a month." />
 <link rel="canonical" href="https://gobiggify.com/tools/tuneup/" />
 <link rel="icon" type="image/png" href="/favicon.png" />
 <link rel="preload" href="/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin />
@@ -27,7 +27,7 @@
 <main id="main">
   <section class="hero">
     <div class="wrap">
-      <span class="callout">Attention Southwest Florida contractors</span>
+      <span class="callout">For service businesses anywhere in the US</span>
       <h1>I'll fix the basics on your <span class="grad">Google profile</span>. Free.</h1>
       <p class="lead">Categories, services, description, hours, links, service areas and photo order. Done in one sitting. You OK every change first.</p>
     </div>
@@ -51,7 +51,7 @@
               <span class="hint">Open your business in Google Maps, tap Share, then Copy link.</span>
               <p class="error"></p>
             </div>
-            <div class="row-2">
+            <div class="row-2 row-tcs">
               <div class="field" data-name="trade">
                 <label for="trade">Your trade</label>
                 <select id="trade" name="trade">
@@ -79,7 +79,12 @@
               </div>
               <div class="field" data-name="city">
                 <label for="city">Your town</label>
-                <input id="city" name="city" type="text" autocomplete="address-level2" maxlength="80" required placeholder="e.g. Port Charlotte" />
+                <input id="city" name="city" type="text" autocomplete="address-level2" maxlength="80" required placeholder="Town or city" />
+                <p class="error"></p>
+              </div>
+              <div class="field" data-name="state">
+                <label for="state">State</label>
+                <input id="state" name="state" type="text" autocomplete="address-level1" autocapitalize="characters" maxlength="2" required placeholder="OH" style="text-transform:uppercase" />
                 <p class="error"></p>
               </div>
             </div>
@@ -91,7 +96,7 @@
             <div class="row-2">
               <div class="field" data-name="phone">
                 <label for="phone">Your phone</label>
-                <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" required placeholder="(941) 555-0123" />
+                <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" required placeholder="(555) 555-0123" />
                 <p class="error">Enter a 10-digit phone number.</p>
               </div>
               <div class="field" data-name="email">

@@ -27,7 +27,7 @@
 <main id="main">
   <section class="hero">
     <div class="wrap">
-      <span class="callout">Attention Southwest Florida contractors</span>
+      <span class="callout">For service businesses anywhere in the US</span>
       <h1>Try my <span class="grad">AI receptionist</span> free for 30 days</h1>
       <p class="lead">It answers the calls you miss. It takes the caller's name and what they need, and texts it to you right away. No card. It turns off by itself on day 31.</p>
     </div>
@@ -45,7 +45,7 @@
               <input id="business" name="business" type="text" autocomplete="organization" maxlength="160" required />
               <p class="error"></p>
             </div>
-            <div class="row-2">
+            <div class="row-2 row-tcs">
               <div class="field" data-name="trade">
                 <label for="trade">Your trade</label>
                 <select id="trade" name="trade" required>
@@ -73,7 +73,12 @@
               </div>
               <div class="field" data-name="city">
                 <label for="city">Your town</label>
-                <input id="city" name="city" type="text" autocomplete="address-level2" maxlength="80" required placeholder="e.g. North Port" />
+                <input id="city" name="city" type="text" autocomplete="address-level2" maxlength="80" required placeholder="Town or city" />
+                <p class="error"></p>
+              </div>
+              <div class="field" data-name="state">
+                <label for="state">State</label>
+                <input id="state" name="state" type="text" autocomplete="address-level1" autocapitalize="characters" maxlength="2" required placeholder="OH" style="text-transform:uppercase" />
                 <p class="error"></p>
               </div>
             </div>
@@ -85,7 +90,7 @@
             <div class="row-2">
               <div class="field" data-name="phone">
                 <label for="phone">Your phone</label>
-                <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" required placeholder="(941) 555-0123" />
+                <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="30" required placeholder="(555) 555-0123" />
                 <span class="hint">I'll call you on this to set it up.</span>
                 <p class="error">Enter a 10-digit phone number.</p>
               </div>
