@@ -32,7 +32,7 @@ test('receptionist TeXML is unchanged (voice, greeting, socket url, settings)', 
   assert.match(xml, /interruptible="speech"/);
   assert.doesNotMatch(xml, /practice/);
   assert.equal(telnyxVoiceFor(biz, 'Telnyx.NaturalHD.luna'), 'Telnyx.NaturalHD.luna');
-  assert.equal(telnyxVoiceFor({ voice: 'en-US-Journey-O' }), 'Telnyx.NaturalHD.luna'); // config default
+  assert.equal(telnyxVoiceFor({ voice: 'en-US-Journey-O' }), 'Telnyx.Natural.abbie'); // config default
 });
 
 // ---- voices ------------------------------------------------------------------------------------
