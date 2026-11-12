@@ -7,12 +7,12 @@ import { telnyxAnswer, telnyxVoiceFor } from '../src/telnyx.js';
 import { parseVoiceList, pickVoice, markVoiceResult, resetVoiceHealth, DEFAULT_VOICES } from '../src/practice/voices.js';
 import { parseDrillChoice, DRILLS } from '../src/practice/drills.js';
 import { buildScenario, resetRecent } from '../src/practice/scenario.js';
-import { computeStats } from '../src/practice/stats.js';
+import { computeStats, guaranteeProblem } from '../src/practice/stats.js';
 import { PracticeSession, RE, parseScore } from '../src/practice/session.js';
 import { practiceAnswer, startPracticeCall, takePracticeSession, callerAllowed, registerPracticeRoutes } from '../src/practice/index.js';
 import { memoryStore } from '../src/practice/store.js';
 import { armDrill } from '../src/practice/armed.js';
-import { actorSystem, scorecardRequest } from '../src/practice/prompts.js';
+import { actorSystem, scorecardRequest, PLAYBOOK } from '../src/practice/prompts.js';
 
 // A tiny seeded random so scenario tests are repeatable.
 function seeded(seed) {
@@ -149,8 +149,160 @@ test('computeStats measures talk share, times offered, number asked and banned l
   assert.ok(st.repShare > 80);
   assert.equal(st.offeredTwoTimes, true);
   assert.equal(st.askedForNumber, true);
-  assert.deepEqual(st.banned, ['out of the blue', 'do you have 30 seconds', 'guarantee']);
+  assert.deepEqual(st.banned, ['out of the blue', 'do you have 30 seconds', 'the lead guarantee without its conditions']);
   assert.equal(st.questions, 3);
+  // v3 asks for ONE specific time; "tomorrow at 10 am" counts.
+  assert.equal(st.offeredOneTime, true);
+});
+
+// ---- cold-call script v3 -----------------------------------------------------------------------
+
+const V3_OPENER = "Hi Mike, it's Wyatt Brunderman with Biggify, here in Port Charlotte. The reason I'm calling: I help trade businesses around here get more calls from Google, and I only take one plumber per town. I was looking at Dawson Plumbing. That truck wrap is sharp. And I noticed your Google listing shows no hours. That's one of the first things people compare when they're picking a plumber on their phone. Quick question: is getting more calls from Google something you're working on right now, or are you pretty full?";
+
+test('v3 opener: "the reason I\'m calling", a because, and an easy question rather than a time grab', () => {
+  const good = computeStats([{ who: 'rep', text: V3_OPENER }]);
+  assert.equal(good.reasonInFirstLine, true);
+  assert.equal(good.becauseInFirstLine, true);
+  assert.equal(good.timeInFirstLine, false);
+  assert.equal(good.questionInFirstLine, true);
+  assert.deepEqual(good.banned, []);
+
+  const grab = computeStats([{ who: 'rep', text: "Hi Mike, Wyatt Brunderman with Biggify. I noticed your hours are missing. I'd like to walk you through it. How about Thursday at 10?" }]);
+  assert.equal(grab.reasonInFirstLine, false);
+  assert.equal(grab.timeInFirstLine, true);
+  assert.ok(grab.banned.includes('walk you through / show you / tell you about'));
+
+  const seo = computeStats([{ who: 'rep', text: "Hi Mike, it's Wyatt with Biggify. The reason I'm calling is SEO for plumbers." }]);
+  assert.ok(seo.banned.includes('SEO as an opener'));
+});
+
+test('v3 never-say list: the new phrases are caught, the old ones still are', () => {
+  const lines = {
+    'is this a good time': 'Is this a good time?',
+    "what's a good time for you": "What's a good time for you?",
+    'I understand': 'I understand, totally.',
+    "it's a tax write-off": "Plus it's a tax write-off.",
+    'best service and support': 'We give the best service and support.',
+    'earn your business': "I'd love to earn your business.",
+    'what do you like about your current…': 'What do you like about your current guy?',
+    'mind if I check in': 'Mind if I check in next month?',
+    'free consultation': "It's a free consultation.",
+    'a free trial': 'You can have a free 30-day trial.',
+    'how are you': 'Hey, how are you today?',
+    "you're losing jobs": "You're losing jobs every week.",
+    'we just helped a company like yours': 'We just helped a company like yours.',
+    'a ranking promise': 'I can get you to number one.',
+  };
+  for (const [label, text] of Object.entries(lines)) {
+    assert.ok(computeStats([{ who: 'rep', text }]).banned.includes(label), `${label}: "${text}"`);
+  }
+});
+
+test('the guarantee is fine only with its conditions in the same breath; never results, rankings or money back', () => {
+  const ok = 'On my second plan I put a lead number in writing. I guarantee it once your Google profile has 4 stars or better, 20 reviews, one in the last 90 days, and call tracking hooked up.';
+  assert.equal(guaranteeProblem(ok), false);
+  assert.deepEqual(computeStats([{ who: 'rep', text: ok }]).banned, []);
+  for (const bad of ['I guarantee more calls.', 'Guaranteed results.', 'There is a lead guarantee in writing.', "It's money back if it doesn't work, 4 stars, 20 reviews, 90 days, call tracking."]) {
+    assert.equal(guaranteeProblem(bad), true, bad);
+  }
+  // Conditions said in another turn do not count as "the same breath".
+  const split = computeStats([
+    { who: 'rep', text: 'I guarantee a lead number in writing.' },
+    { who: 'prospect', text: 'Okay.' },
+    { who: 'rep', text: 'You need 4 stars, 20 reviews, one in the last 90 days and call tracking.' },
+  ]);
+  assert.ok(split.banned.includes('the lead guarantee without its conditions'));
+  // Saying you never guarantee a ranking is fine.
+  assert.equal(guaranteeProblem("I'd never guarantee a ranking."), false);
+});
+
+test('Rock Solid Tile only with the family disclosure and no results', () => {
+  const ok = "I work with Rock Solid Tile in Port Charlotte. Full disclosure, they're family. It's early, so I won't quote you results yet.";
+  assert.deepEqual(computeStats([{ who: 'rep', text: ok }]).banned, []);
+  assert.ok(computeStats([{ who: 'rep', text: 'I work with Rock Solid Tile in Port Charlotte.' }]).banned.includes('Rock Solid Tile without the family disclosure'));
+  assert.ok(computeStats([{ who: 'rep', text: "Rock Solid Tile, they're family, got 40 calls last month." }]).banned.includes('a client result quoted'));
+});
+
+test('the price only on the second "how much?"', () => {
+  const right = computeStats([
+    { who: 'prospect', text: 'How much is it?' },
+    { who: 'rep', text: 'There are two plans. The first one runs your Google profile, reviews, posts and the website.' },
+    { who: 'prospect', text: 'Okay, but ballpark, what are we talking?' },
+    { who: 'rep', text: 'Plan one is $697 a month, plan two is $997.' },
+  ]);
+  assert.equal(right.priceAsks, 2);
+  assert.equal(right.priceTooEarly, false);
+  assert.ok(!right.banned.includes('a price before the second "how much?"'));
+
+  const early = computeStats([
+    { who: 'prospect', text: 'How much is it?' },
+    { who: 'rep', text: "It's $697 a month." },
+  ]);
+  assert.equal(early.priceTooEarly, true);
+  assert.ok(early.banned.includes('a price before the second "how much?"'));
+});
+
+test('one specific time, and the voicemail number counted', () => {
+  const st = computeStats([{ who: 'rep', text: 'How about Thursday at 10?' }]);
+  assert.equal(st.offeredOneTime, true);
+  assert.equal(st.offeredTwoTimes, false);
+  assert.equal(computeStats([{ who: 'rep', text: 'Sometime next week?' }]).offeredOneTime, false);
+  const vm = computeStats([{ who: 'rep', text: "Hi Mike, it's Wyatt Brunderman with Biggify. My number is 941-401-8288. That's 941-401-8288. The reason I'm calling: I looked at how Dawson Plumbing shows up on Google. Let's grab 15 minutes this week. Again, Wyatt, 941-401-8288. 941-401-8288." }]);
+  assert.equal(vm.numberSaidTimes, 4);
+});
+
+test('some prospects ask the price twice and some ask "does it work?", never on gatekeeper or voicemail drills', () => {
+  resetRecent();
+  const rand = seeded(11);
+  let twice = 0;
+  let works = 0;
+  const n = 200;
+  for (let i = 0; i < n; i++) {
+    const s = buildScenario({ gender: 'm', drillId: 'full', rand });
+    if (s.priceTwice) {
+      twice++;
+      assert.ok(s.objections.some((o) => o.key === 'price_twice'));
+      assert.ok(!s.objections.some((o) => o.key === 'price_early'));
+      assert.match(actorSystem(s).map((b) => b.text).join('\n'), /ask the price TWICE/);
+    }
+    if (s.asksDoesItWork) {
+      works++;
+      assert.ok(s.objections.some((o) => o.key === 'does_it_work'));
+    }
+    // Neither habit shows in the brief he hears before dialing.
+    assert.doesNotMatch(s.brief, /how much|price|does it work|twice/i);
+  }
+  assert.ok(twice > n * 0.2 && twice < n * 0.6, `price twice ${twice}/${n}`);
+  assert.ok(works > n * 0.2 && works < n * 0.6, `does it work ${works}/${n}`);
+  for (const drillId of ['gatekeeper', 'voicemail']) {
+    for (let i = 0; i < 30; i++) {
+      const s = buildScenario({ gender: 'f', drillId, rand });
+      assert.equal(s.priceTwice, false);
+      assert.equal(s.asksDoesItWork, false);
+    }
+  }
+});
+
+test('the brief carries a true compliment; the coach grades against v3', () => {
+  resetRecent();
+  const s = buildScenario({ gender: 'm', drillId: 'full', rand: seeded(5) });
+  assert.ok(s.compliment && s.compliment.length > 10);
+  assert.match(s.brief, /Something true to compliment: /);
+  assert.match(PLAYBOOK, /cold-call script v3/);
+  for (const must of ["The reason I'm calling", 'A-C-A', 'ONE specific time', '15 minutes', 'SECOND time they ask', '4 stars or better, 20 reviews, one in the last 90 days', 'Full disclosure, they\'re family', 'NEVER offered', '941-401-8288. That\'s 941-401-8288']) {
+    assert.ok(PLAYBOOK.includes(must), must);
+  }
+  assert.doesNotMatch(PLAYBOOK, /20-minute meeting|Is tomorrow at \[time\] or Thursday at \[time\] better/);
+  const run = { turns: [{ who: 'rep', text: V3_OPENER }], stats: computeStats([{ who: 'rep', text: V3_OPENER }]) };
+  const req = scorecardRequest(s, run, { roundNo: 1 });
+  assert.match(req, /the reason I'm calling/);
+  assert.match(req, /one turnaround, then accept the second no/);
+  assert.match(req, /ONE specific time, then silence/);
+  assert.match(req, /the price only on the second "how much\?"/);
+  assert.match(req, /without its conditions/);
+  assert.match(req, /his first line said "the reason I'm calling"/);
+  assert.match(req, /A true compliment he could use/);
+  for (const d of DRILLS) assert.doesNotMatch(`${d.goal} ${d.rubric} ${d.actor}`, /20-minute|two (specific )?times/i, d.id);
 });
 // ---- session commands (no model calls) -----------------------------------------------------------
 

@@ -4,8 +4,13 @@
 
 import {
   MALE_NAMES, FEMALE_NAMES, SURNAMES, TRADES, LOCAL_TOWNS, REMOTE_TOWNS, TRUE_THINGS, SITUATIONS,
-  PAINS, YES_KEYS, OBJECTIONS, PERSONALITIES, GATEKEEPERS,
+  PAINS, YES_KEYS, OBJECTIONS, PERSONALITIES, GATEKEEPERS, COMPLIMENTS,
 } from './content.js';
+
+// How often a prospect is set to ask the price twice, and to ask whether it works (cold-call script v3:
+// the price only on the second ask; "does it work?" gets the written guarantee with its conditions).
+export const PRICE_TWICE_RATE = 0.4;
+export const DOES_IT_WORK_RATE = 0.4;
 import { DRILLS, DRILL_BY_ID } from './drills.js';
 
 // What came up on recent calls (this server process only). Lists are trimmed to `RECENT_MAX`.
@@ -155,6 +160,15 @@ export function buildScenario({ gender, drillId = '', difficulty = 1, exactDiffi
     if (remote && rand() < 0.5) objections.push('not_local');
   }
 
+  // Practice habits for v3 (not for the gatekeeper or voicemail drills, where nobody is buying):
+  // some prospects ask "how much?" twice, some ask "does it work?".
+  const talksPrice = !drill.gatekeeper && !drill.voicemail;
+  const priceTwice = talksPrice && rand() < PRICE_TWICE_RATE;
+  const asksDoesItWork = talksPrice && rand() < DOES_IT_WORK_RATE;
+  if (priceTwice) objections = [...objections.filter((k) => k !== 'price_early'), 'price_twice'];
+  if (asksDoesItWork && !objections.includes('does_it_work')) objections.push('does_it_work');
+  const compliment = pick(rand, COMPLIMENTS);
+
   const pickupTemplate = drill.voicemail
     ? null
     : gatekeeper
@@ -180,11 +194,14 @@ export function buildScenario({ gender, drillId = '', difficulty = 1, exactDiffi
     biz,
     trueThing: trueThing.brief(biz),
     trueThingPain: trueThing.pain,
+    compliment: compliment(biz),
     situation,
     pains,
     yesKey,
     decider,
     objections: objections.map((k) => ({ key: k, line: OBJECTIONS[k] })),
+    priceTwice,
+    asksDoesItWork,
     pickup,
   };
   scenario.brief = briefFor(scenario, { firstRound });
@@ -212,6 +229,7 @@ export function briefFor(s, { firstRound = true } = {}) {
     parts.push(`You're calling ${ownerName}, who owns ${s.biz.name}, ${article(s.biz.trade.label)} ${s.biz.trade.label} in ${place}.`);
   }
   parts.push(`Your one true thing: ${s.trueThing}.`);
+  if (s.compliment && !drill.gatekeeper) parts.push(`Something true to compliment: ${s.compliment}.`);
   if (s.biz.remote) parts.push(`They're on ${s.biz.tz} time, so the meeting is a phone call from your cell.`);
   parts.push(`Goal: ${drill.goal}.`);
   parts.push(firstRound ? 'Say ready to dial, or menu to pick a different drill. Say coach any time to stop and get feedback.' : 'Say ready to dial.');

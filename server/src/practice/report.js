@@ -39,7 +39,8 @@ export function buildReportText(session, review = '') {
     const s = r.scenario;
     out.push(`--- Run ${i + 1} ---`, `PROSPECT: ${s.pickup}`);
     for (const t of r.run.turns) out.push(`${t.who === 'rep' ? 'YOU' : 'PROSPECT'}: ${t.text}`);
-    out.push(`Hidden details you didn't know: ${s.situation} ${s.pains.join(' ')}`, '');
+    const habits = [s.priceTwice ? 'They were set to ask the price twice.' : '', s.asksDoesItWork ? 'They were set to ask whether it works.' : ''].filter(Boolean).join(' ');
+    out.push(`Hidden details you didn't know: ${s.situation} ${s.pains.join(' ')}${habits ? ` ${habits}` : ''}`, '');
   });
   return out.join('\n');
 }

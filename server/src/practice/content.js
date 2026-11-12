@@ -68,6 +68,18 @@ export const TRUE_THINGS = [
   { brief: (b) => `they don't show up in the top three on Google Maps for "${b.trade.search} in ${b.town}"`, pain: 'has noticed a newer competitor showing up everywhere and is annoyed about it' },
 ];
 
+// One true, visible thing the owner would be proud of: what Wyatt would see on their Google listing or
+// website and can compliment in the v3 opener. PUBLIC: it is in the brief Hubert shows before the call.
+export const COMPLIMENTS = [
+  (b) => `a clean before-and-after job photo on their Google listing`,
+  (b) => `${b.years} years in business, says their website`,
+  () => 'a sharp truck wrap in their Google photos',
+  () => 'a recent five-star review that thanks the owner by name',
+  () => 'a review that says the crew cleaned up after themselves',
+  () => 'neat, well-lit photos of finished jobs on their website',
+  () => 'a customer review that says they showed up exactly on time',
+];
+
 // Where their work comes from and what marketing they have now (hidden).
 export const SITUATIONS = [
   'Almost all work is word of mouth and repeat customers. A nephew built a website years ago. No one touches the Google listing.',
@@ -96,11 +108,11 @@ export const PAINS = [
   'Thinks about retiring in a few years and wants the business to be worth something.',
 ];
 
-// What makes this person say yes to a 20-minute meeting (hidden from Wyatt, given to the actor).
+// What makes this person say yes to a 15-minute meeting (hidden from Wyatt, given to the actor).
 export const YES_KEYS = [
   'the rep mentions something specific and true about THEIR business, then asks a question instead of pitching',
-  'the rep is short and direct, respects their time, and offers two specific times',
-  'the rep is honest when pushed (no guarantees, no made-up results) and does not get pushy',
+  'the rep is short and direct, says why he is calling and why it matters, respects their time, and offers one specific day and time',
+  'the rep is honest when pushed (no guarantee without its conditions, no made-up results) and does not get pushy',
   'the rep asks where their work comes from and actually listens to the answer',
   'the rep connects the meeting to something they said they want (more of the big jobs, a slower season covered)',
   'the rep handles their main objection calmly and goes back to the meeting only once',
@@ -121,7 +133,13 @@ export const OBJECTIONS = {
   enough_reviews: '"We already have plenty of reviews. We\'re fine."',
   number_one: '"Can you get me to number one on Google? Do you guarantee it?"',
   price_early: '"How much is it?" (asked early, before anything has been shown)',
-  too_expensive: '"That\'s too expensive." / "I can\'t afford marketing right now."',
+  price_twice: '"How much is it?" early, and if the answer had no number, again later: "Okay, but ballpark, what are we talking?"',
+  does_it_work: '"Does this stuff actually work? How do I know it\'s not a waste of money?"',
+  cant_afford: '"I can\'t afford anything like that right now."',
+  too_much: '"I\'ve got too much going on right now."',
+  just_signed: '"We just signed with someone."',
+  bad_day: '(Clearly having a bad day: short, stressed, sighing.) "Today\'s not good, man."',
+  too_expensive: '"That\'s too expensive."',
   burned: '"I tried a marketing company and got burned."',
   spouse: '"I need to talk to my wife / husband / partner."',
   diy: '"I\'ll just do it myself." / "My kid does our Facebook."',
@@ -141,19 +159,19 @@ export const PERSONALITIES = {
   },
   friendly_noncommittal: {
     label: 'friendly but noncommittal',
-    how: 'Warm and easy to talk to, says things like "oh yeah, that sounds interesting", but slides away from any commitment: "maybe sometime", "I\'ll have to look at my calendar", "send me something". Only commits if the rep offers two specific times and asks directly.',
+    how: 'Warm and easy to talk to, says things like "oh yeah, that sounds interesting", but slides away from any commitment: "maybe sometime", "I\'ll have to look at my calendar", "send me something". Only commits if the rep offers one specific day and time and asks directly.',
     pickup: ['{biz}, this is {first}, how can I help ya?', 'Hey, this is {first}!', '{biz}, {first} speaking.'],
     objections: ['send_info', 'think', 'spouse', 'after_season'],
   },
   burned_skeptic: {
     label: 'burned before, skeptical',
-    how: 'Got burned by a marketing company and is suspicious of anyone who calls. A bit sarcastic. Tests the rep: "Yeah, I\'ve heard that before." "What\'s the catch?" "How are you any different?" Warms up only to honesty, no pressure, and "you own everything". Any hint of a guarantee or hype makes them colder.',
+    how: 'Got burned by a marketing company and is suspicious of anyone who calls. A bit sarcastic. Tests the rep: "Yeah, I\'ve heard that before." "What\'s the catch?" "How are you any different?" Warms up only to honesty, no pressure, and "you own everything". Any hype, or a guarantee without its conditions, makes them colder; a written guarantee with clear conditions they can check earns a little respect.',
     pickup: ['{biz}.', 'This is {first}.', 'Yeah, {first} here.'],
     objections: ['burned', 'contract', 'number_one', 'results', 'too_expensive'],
   },
   price_shopper: {
     label: 'price shopper',
-    how: 'Wants the price right away and keeps coming back to it: "Just tell me what it costs." Compares to cheap options ("my buddy pays fifty bucks a month for his website"). Respects a rep who explains calmly why the price comes after seeing the report, but pushes twice before letting it go.',
+    how: 'Wants the price right away and keeps coming back to it: "Just tell me what it costs." Compares to cheap options ("my buddy pays fifty bucks a month for his website"). Asks the price early and asks again if the first answer has no number. Respects a rep who explains the two plans calmly the first time and gives the price straight the second time; gets annoyed by a dodge on the second ask.',
     pickup: ['{biz}, this is {first}.', 'Yeah, {first}.', 'Hello, {biz}.'],
     objections: ['price_early', 'too_expensive', 'diy', 'send_info'],
   },

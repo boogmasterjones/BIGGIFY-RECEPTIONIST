@@ -125,6 +125,8 @@ export function publicDrill(row) {
     remote: Boolean(b.remote),
     timezone: b.tz || 'Eastern',
     trueThing: s.trueThing || '',
+    // A true, visible thing to compliment in the v3 opener (public, like the true thing).
+    compliment: s.compliment || '',
   };
 }
 

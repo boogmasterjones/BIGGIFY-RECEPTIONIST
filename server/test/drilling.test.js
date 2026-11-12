@@ -94,9 +94,16 @@ test('the armed brief never carries the hidden traits, for every drill', async (
       const state = await practiceState(store);
       const json = JSON.stringify(state.armed);
       for (const h of hiddenStrings(row.scenario)) assert.ok(!json.includes(h), `${d.id}: leaked "${h}"`);
-      for (const key of ['situation', 'pains', 'yesKey', 'objections', 'personality', 'pickup', 'voice', 'decider', 'scenario', 'turns', 'scorecard']) {
+      for (const key of ['situation', 'pains', 'yesKey', 'objections', 'personality', 'pickup', 'voice', 'decider', 'scenario', 'turns', 'scorecard', 'priceTwice', 'asksDoesItWork']) {
         assert.ok(!(key in state.armed), `${d.id}: has ${key}`);
       }
+      // The v3 practice habits (asks the price twice, asks "does it work?") are hidden: no trace in the brief beyond
+      // the drill's own rubric, which is the same for every prospect.
+      const { drill: _drill, ...perProspect } = state.armed;
+      assert.doesNotMatch(JSON.stringify(perProspect), /how much|ballpark|does this stuff|actually work|twice|price/i);
+      // The compliment is public, like the true thing.
+      assert.equal(state.armed.compliment, row.scenario.compliment);
+      assert.ok(state.armed.compliment.length > 10);
       assert.ok(!json.includes(row.voice.id));
       // What he does need is there.
       assert.equal(state.armed.business, row.scenario.biz.name);
