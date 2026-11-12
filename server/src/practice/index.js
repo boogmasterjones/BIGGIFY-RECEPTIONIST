@@ -86,7 +86,7 @@ export function registerPracticeRoutes(app) {
     const from = req.body?.From || req.body?.from || '';
     if (!callerAllowed(from)) {
       console.log(`[practice] caller …${String(from).slice(-4)} not on PRACTICE_ALLOWED_CALLERS`);
-      return res.type('text/xml').send('<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Telnyx.NaturalHD.luna">Sorry, this line is not in service.</Say><Hangup/></Response>');
+      return res.type('text/xml').send('<?xml version="1.0" encoding="UTF-8"?><Response><Say voice="Telnyx.Natural.abbie">Sorry, this line is not in service.</Say><Hangup/></Response>');
     }
     try {
       const call = startPracticeCall({ from });
