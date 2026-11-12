@@ -5,30 +5,88 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Privacy Policy &amp; SMS Terms — Biggify</title>
 <meta name="description" content="Biggify privacy policy and SMS messaging terms." />
-<style>
-  :root{--brand:#cf0000;--ink:#0d1224;--soft:#4a5372;--line:#e7e9f2;--cream:#FFF6E1;--font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--brand-grad:linear-gradient(120deg,#e11a1a,#cf0000 55%,#a30000)}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:var(--font);color:var(--ink);line-height:1.7;background:var(--cream)}
-  .wrap{width:min(820px,92vw);margin:0 auto;padding:0 0 80px}
-  header{background:var(--cream);padding:12px 0;position:sticky;top:0;border-bottom:1px solid #ece3ca}
-  header .wrap{padding-bottom:0}
-  .logo{display:flex;align-items:center;gap:10px}
-  .logo img{height:42px;display:block}
-  h1{font-size:34px;letter-spacing:-.02em;margin:44px 0 6px}
-  .updated{color:var(--soft);margin-bottom:30px}
-  h2{font-size:21px;margin:34px 0 10px;letter-spacing:-.01em}
-  p,li{color:#2a3049;font-size:16px;margin-bottom:12px}
-  ul{padding-left:22px}
-  .callout{background:#fdf2f2;border:1px solid #f3d6d6;border-left:4px solid var(--brand);border-radius:10px;padding:18px 22px;margin:20px 0}
-  a{color:var(--brand)}
-  .back{display:inline-block;margin-top:30px;color:var(--brand);font-weight:700}
-  footer{border-top:1px solid var(--line);padding:24px 0;color:var(--soft);font-size:14px;text-align:center}
-</style>
+<link rel="canonical" href="https://gobiggify.com/privacy.html" />
+<meta name="theme-color" content="#0a0d17" />
+<link rel="icon" href="/LOGO.png" />
+<link rel="preload" href="/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/tools/tools.css" />
+<link rel="stylesheet" href="/site.css" />
+<script>document.documentElement.className += " js";</script>
 </head>
-<body>
-<header><div class="wrap"><a class="logo" href="index.html"><img src="LOGO.png" alt="Biggify" /></a></div></header>
-<div class="wrap">
-  <h1>Privacy Policy &amp; SMS Terms</h1>
+<body class="inner">
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- icons (inline, no requests) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.500a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-out" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></symbol>
+    <symbol id="i-web" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.500"/><path d="M3 9h18M7 6.500h.01M10 6.500h.01M7 13h6M7 16h10"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.200 7-11.500A7 7 0 0 0 5 9.500C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/></symbol>
+    <symbol id="i-social" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M4 15l4.500-4.500 4 4 2.500-2.500L20 17"/><circle cx="15.500" cy="8" r="1.500"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="2.500" y="13" width="4.500" height="6.500" rx="1.800"/><rect x="17" y="13" width="4.500" height="6.500" rx="1.800"/><path d="M19.500 19.500c0 1.700-2 2.500-5 2.500"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.600" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-msg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"><rect x="3.500" y="5" width="17" height="15" rx="2.500"/><path d="M3.500 10h17M8 3v4M16 3v4"/></symbol>
+  </defs>
+</svg>
+
+<header>
+  <div class="wrap">
+    <nav aria-label="Main">
+      <a class="logo" href="/" aria-label="Biggify home"><img src="/logo.webp" alt="Biggify" width="239" height="132" /></a>
+      <div class="nav-links">
+        <a class="nav-link" href="/#work">Our work</a>
+        <a class="nav-link" href="/#services">Services</a>
+        <a class="nav-link" href="/#plans">Plans</a>
+        <a class="nav-link" href="/how-it-works.html">How it works</a>
+        <a class="nav-link" href="/tools/">Free tools</a>
+        <a class="nav-link" href="/guides/">Guides</a>
+      </div>
+      <div class="nav-cta">
+        <a class="nav-phone" href="tel:+19414018288"><svg aria-hidden="true"><use href="#i-phone"/></svg>(941) 401-8288</a>
+        <a class="btn btn-primary btn-small nav-quote" href="/#contact">Get a free quote</a>
+        <button type="button" class="menu-btn" aria-label="Menu" aria-expanded="false" aria-controls="menu-panel"><span></span><span></span><span></span></button>
+      </div>
+    </nav>
+  </div>
+  <div class="menu-panel" id="menu-panel" hidden>
+    <div class="wrap">
+      <p class="menu-label">Services</p>
+      <div class="menu-grid">
+        <a href="/#websites">Websites</a>
+        <a href="/#gbp">Google Business Profile</a>
+        <a href="/#social">Social media</a>
+        <a href="/#receptionist">AI receptionist</a>
+      </div>
+      <p class="menu-label">More</p>
+      <div class="menu-grid">
+        <a href="/#work">Our work</a>
+        <a href="/#plans">Plans</a>
+        <a href="/how-it-works.html">How it works</a>
+        <a href="/#faq">FAQ</a>
+        <a href="/tools/">Free tools</a>
+        <a href="/guides/">Guides</a>
+      </div>
+      <a class="btn btn-primary btn-block" href="/#contact">Get a free quote</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero page-hero legal-hero">
+  <div class="wrap">
+    <p class="eyebrow light">The fine print, in plain words</p>
+    <h1>Privacy Policy <span class="grad">&amp; SMS Terms</span></h1>
+  </div>
+</section>
+<section class="band band-dots legal">
+  <div class="wrap">
+    <div class="card prose">
+  <!-- TODO(owner): the "Last updated" date and the business address below are still the old page's placeholders. -->
   <p class="updated">Last updated: [MONTH DAY, YEAR]</p>
 
   <p>Biggify ("Biggify", "we", "us") is a service of <strong>Rock Solid Tile</strong>. This policy explains what information we collect, how we use it, and your choices — including how our text messaging works.</p>
@@ -58,7 +116,7 @@
     <li>Carriers are not liable for delayed or undelivered messages.</li>
   </ul>
 
-  <div class="callout">
+  <div class="legal-note">
     <p style="margin:0"><strong>Your mobile information is never sold or shared.</strong> No mobile information will be shared with third parties or affiliates for marketing or promotional purposes. Text messaging originator opt-in data and consent are not shared with any third parties.</p>
   </div>
 
@@ -74,9 +132,52 @@
   <h2>Contact us</h2>
   <p>Biggify — a service of Rock Solid Tile<br>Email: <a href="mailto:gobiggify@gmail.com">gobiggify@gmail.com</a><br>[Business address]</p>
 
-  <a class="back" href="index.html">← Back to Biggify</a>
-</div>
-<footer>© <span id="yr"></span> Biggify — a service of Rock Solid Tile.</footer>
-<script>document.getElementById('yr').textContent=new Date().getFullYear();</script>
+      <a class="link back" href="/">← Back to Biggify</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- FOOTER -->
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a class="logo" href="/" aria-label="Biggify home"><img src="/logo-light.webp" alt="Biggify" width="239" height="132" loading="lazy" /></a>
+        <p>Marketing &amp; AI receptionist for home service businesses. Get found, get chosen, never miss the call.</p>
+        <a class="foot-phone" href="tel:+19414018288"><svg aria-hidden="true"><use href="#i-phone"/></svg>(941) 401-8288</a>
+      </div>
+      <div class="foot-cols">
+        <div>
+          <p class="foot-h">Services</p>
+          <a href="/#websites">Websites</a>
+          <a href="/#gbp">Google Business Profile</a>
+          <a href="/#social">Social Media</a>
+          <a href="/#receptionist">AI Receptionist</a>
+        </div>
+        <div>
+          <p class="foot-h">Biggify</p>
+          <a href="/#work">Our Work</a>
+          <a href="/#plans">Plans</a>
+          <a href="/how-it-works.html">How it works</a>
+          <a href="/#faq">FAQ</a>
+        </div>
+        <div>
+          <p class="foot-h">Free help</p>
+          <a href="/tools/">Free tools</a>
+          <a href="/guides/">Guides</a>
+          <a href="/privacy.html">Privacy Policy</a>
+          <a href="mailto:gobiggify@gmail.com">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bot">
+      <span>© Biggify. All rights reserved. Biggify is a service of <strong>Rock Solid Tile</strong>.</span>
+      <span>Port Charlotte, FL · Made for the trades.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
 </body>
 </html>
