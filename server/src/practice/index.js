@@ -21,10 +21,21 @@ function escapeXml(s = '') {
 // Calls answered but whose socket hasn't connected yet (a few seconds at most).
 const pending = new Map(); // id -> { scenario, voice, from, greeting, drillRowId, drillRow, at }
 const PENDING_TTL_MS = 2 * 60_000;
-function prunePending() {
+// A call whose socket never connected never used its drill: give it back (armed again when nothing else is).
+async function prunePending(store) {
   const now = Date.now();
-  for (const [id, p] of pending) if (now - p.at > PENDING_TTL_MS) pending.delete(id);
-  while (pending.size > 50) pending.delete(pending.keys().next().value);
+  const dropped = [];
+  for (const [id, p] of pending) if (now - p.at > PENDING_TTL_MS) { pending.delete(id); dropped.push(p); }
+  while (pending.size > 50) { const k = pending.keys().next().value; dropped.push(pending.get(k)); pending.delete(k); }
+  for (const p of dropped) {
+    if (!p?.drillRowId) continue;
+    try {
+      const armed = await within(STORE_TIMEOUT_MS, store.getArmed());
+      await within(STORE_TIMEOUT_MS, store.update(p.drillRowId, armed ? { status: 'replaced' } : { status: 'armed', started_at: null }));
+    } catch (err) {
+      console.error('[practice] could not give back an unused drill:', err.message);
+    }
+  }
 }
 
 // The database must never hold up an answering phone for long.
@@ -88,7 +99,7 @@ async function drillForCall({ from, store, rand }) {
 }
 
 export async function startPracticeCall({ from = '', publicUrl = config.publicUrl, rand = Math.random, store = drillStore() } = {}) {
-  prunePending();
+  await prunePending(store);
   const row = await drillForCall({ from, store, rand });
   const scenario = row.scenario;
   // The armed voice, unless it went silent since: then another voice of the same gender (the prospect's
