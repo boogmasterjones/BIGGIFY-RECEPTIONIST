@@ -1,15 +1,21 @@
 // One phone call to the cold-call practice line.
 //
-// The call moves between four phases:
-//   brief    the drill and the prospect were just described; "ready" dials, "menu" lists drills
-//   menu     waiting for a drill number or name
-//   roleplay the prospect (the actor model) is on the line
-//   coach    the scorecard was given; "again", "next", "menu", "resume", "done", or a question
-// Commands are matched in code (instant, no model call). Only the prospect, the scorecard and the
-// coach's answers to questions use the model.
+// The call starts silently: the armed prospect (Hubert's "Sales drilling" tab) has already picked up with
+// their own line ("Hello, Smith Plumbing, this is Mike"), and nobody reads a brief. Wyatt read it on the
+// tab before he dialed.
+//
+// Phases:
+//   roleplay  the prospect (the actor model) is on the line. This is the whole call, normally: when the
+//             scene ends (a meeting, a hang-up, a message taken...) the prospect says a last line and the
+//             call hangs up like a real one. The scorecard is written after the call and saved for the tab.
+//   coach     only reached through the hidden escape ("coach", "time out"): spoken feedback so far, then
+//             "resume", "again" (same prospect from the top), questions, or "done". Never announced.
+//   over      the scene ended; the call is hanging up.
+// Commands are matched in code (instant, no model call). Only the prospect, the coach and the scorecards
+// use the model.
 
-import { buildScenario, briefFor, DIFFICULTIES } from './scenario.js';
-import { DRILL_BY_ID, MENU_TEXT, parseDrillChoice } from './drills.js';
+import { DIFFICULTIES } from './scenario.js';
+import { DRILL_BY_ID } from './drills.js';
 import { actorSystem, END_SCENE_TOOL, coachSystem, scorecardRequest, COACH_TOOLS, COACH_CHAT_NOTE, runFacts } from './prompts.js';
 import { practiceModels, streamReply } from './model.js';
 import { computeStats } from './stats.js';
@@ -17,6 +23,8 @@ import { forSpeech } from '../claude.js';
 
 const MAX_MINUTES = Number(process.env.PRACTICE_MAX_MINUTES) || 30;
 export const IDLE_TOKEN = '__practice_idle__';
+// The voicemail drill: once he has been quiet this long after speaking, the message is over.
+const VOICEMAIL_QUIET_MS = 5000;
 
 const wordCount = (t) => String(t || '').trim().split(/\s+/).filter(Boolean).length;
 const norm = (t) => ` ${String(t || '').toLowerCase().replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim()} `;
@@ -24,16 +32,17 @@ const norm = (t) => ` ${String(t || '').toLowerCase().replace(/[^a-z0-9' ]+/g, '
 export const RE = {
   safeWord: / (coach|time out|timeout|feedback|how did i do|pause|pause it) /,
   menu: / (menu|list|options|other drills?|different drill|pick a drill|change (the )?drill) /,
-  ready: / (ready|go|dial|dial it|start|yes|yeah|yep|yup|ok|okay|sure|let's go|lets go|let's do it|alright|all right|call|ring|hit it|do it) /,
-  repeat: / (repeat|say (that|it) again|again please|what was (that|the)|come again|one more time) /,
   restart: / (start over|restart|from the top|redo|do over|reset) /,
   again: / (again|same (one|prospect|call|drill|guy|lady|person)|retry|redo|run it back|one more time|try (it|that) again) /,
   next: / (next|new (one|prospect|call|person)|another|different (one|prospect|person)|next one|give me another|keep going with a new) /,
   resume: / (resume|keep going|continue|back in|back to (the|it)|pick (it|up) (back )?up|carry on) /,
-  bail: /^ (menu|next|next one|skip|skip it|skip this one|new prospect|new one|i'm done|im done|i am done|end the drill|end drill) $/,
+  // Ending the drill from inside the call: whole short replies only, never words a rep says to a prospect.
+  quit: /^ (i'm done|im done|i am done|end the drill|end drill|end practice|stop the drill) $/,
   // Only a whole short reply means "stop" ("I'm done", "okay, bye"): "what should I have done?" must not hang up.
   done: /^ ((ok|okay|alright|all right|yeah|cool|great) )?(done|all done|i'm done|im done|i am done|i'm finished|im finished|finished|that's all|thats all|that is all|that's it|thats it|goodbye|bye|bye bye|hang up|end the call|end call|quit|stop|i'm good|im good|that's enough|thats enough)( for (now|today))?( thanks| thank you)? $/,
 };
+
+export const NEXT_ON_TAB = 'Okay. Hang up and call back when you\'re ready. The next one is on your Sales drilling tab.';
 
 function todayFor(tz) {
   const zone = { Pacific: 'America/Los_Angeles', 'Arizona (Mountain)': 'America/Phoenix', Central: 'America/Chicago' }[tz] || 'America/New_York';
@@ -44,45 +53,42 @@ function todayFor(tz) {
   }
 }
 
-const BRIDGE = {
-  meeting_booked: 'That\'s the call. You booked it.',
-  callback_time: 'That\'s the call. You got a callback time.',
-  put_through: 'That\'s the end of the drill. You got put through.',
-  message_taken: 'That\'s the call. They took a message.',
-  email_only: 'That\'s the call. They\'ll take an email.',
-  hung_up: 'Click. They hung up.',
-  not_interested: 'That\'s the call. They passed.',
-  voicemail: 'That\'s your voicemail.',
-  paused: 'Okay, pausing the call.',
-  turns: 'Time\'s up on that one.',
-  other: 'That\'s the end of the call.',
-};
+// "Score: 7 out of 10." The last one wins, in case the coach corrected itself.
+export function parseScore(scorecard = '') {
+  const all = [...String(scorecard).matchAll(/score:?\s*(\d{1,2})\s*(out of|\/)\s*10/gi)];
+  return all.length ? Math.min(10, Number(all[all.length - 1][1])) : null;
+}
 
 export class PracticeSession {
   /**
    * @param {object} o
-   * @param {object} o.scenario  from buildScenario (already used for the greeting)
+   * @param {object} o.scenario   the armed scenario (see scenario.js)
    * @param {{id:string, gender:string}} o.voice
-   * @param {string} [o.from]    the caller's number (for the log only)
-   * @param {string} [o.greeting] the welcome greeting Telnyx speaks
+   * @param {string} [o.from]     the caller's number (for the log only)
+   * @param {string} [o.greeting] what Telnyx speaks when the call connects: the prospect's own pickup line
+   * @param {string|null} [o.drillRowId] the practice_drills row this call took (null when nothing could be saved)
+   * @param {object|null} [o.drillRow]   that row (sticky drill, difficulty target)
    */
-  constructor({ scenario, voice, from = '', greeting = '' }) {
+  constructor({ scenario, voice, from = '', greeting = '', drillRowId = null, drillRow = null }) {
     this.isPractice = true;
     this.voice = voice;
     this.gender = voice.gender;
     this.from = from;
+    this.drillRowId = drillRowId;
+    this.drillRow = drillRow;
     this.startedAt = Date.now();
-    this.greeting = greeting || `Cold call practice. ${scenario.brief}`;
-    this.phase = 'brief';
+    this.greeting = greeting || scenario.pickup;
     this.ended = false;
-    this.difficultyTarget = DIFFICULTIES.indexOf(scenario.difficulty);
-    this.runs = []; // finished runs: { scenario, run, scorecard, score }
+    this.difficultyTarget = Number.isInteger(drillRow?.difficulty_target) ? drillRow.difficulty_target : Math.max(0, DIFFICULTIES.indexOf(scenario.difficulty));
+    this.runs = []; // finished runs: { scenario, run, scorecard, score, paused, endedAt }
     this.agentSpoke = false; // Telnyx said the voice played (voice health check)
     this.sentText = false;
-    this.#setScenario(scenario);
     this.coachMessages = [];
     this.pausedRun = null;
     this.idleMs = 0;
+    this.#setScenario(scenario);
+    // The prospect already answered (the welcome greeting): the call is the drill from the first word.
+    this.#startRun();
   }
 
   #setScenario(s) {
@@ -126,111 +132,58 @@ export class PracticeSession {
       if (onToken) onToken(`${s} `);
     };
     this.idleMs = 0;
+    if (this.ended) return '';
     const t = norm(text);
     const short = wordCount(text) <= 6;
 
     if (Date.now() - this.startedAt > MAX_MINUTES * 60_000 && this.phase !== 'roleplay') {
-      say(`That's ${MAX_MINUTES} minutes, nice work today. Your scorecard is in your email. Talk soon.`);
+      say(`That's ${MAX_MINUTES} minutes. Nice work. Talk soon.`);
       this.ended = true;
       return spoken.join(' ');
     }
 
     if (text === IDLE_TOKEN) {
-      if (this.phase === 'roleplay' && DRILL_BY_ID[this.scenario.drill].voicemail && this.run.turns.length) {
-        await this.#finishRun('voicemail', '', say, signal);
-      }
+      // Voicemail: he stopped talking, so the message is left. Hang up like a real voicemail would.
+      if (this.phase === 'roleplay' && DRILL_BY_ID[this.scenario.drill].voicemail && this.run.turns.length) this.#closeRun('voicemail', '');
       return spoken.join(' ');
-    }
-
-    if (this.phase !== 'roleplay' && RE.done.test(t)) {
-      say(this.runs.length ? 'Good work. Your scorecard is in your email. Talk soon.' : 'Okay. Call back any time to practice.');
-      this.ended = true;
-      return spoken.join(' ');
-    }
-
-    if (this.phase === 'menu') {
-      const choice = parseDrillChoice(text);
-      if (!choice) {
-        say('Which one? Say a number from one to eight, or say random.');
-        return spoken.join(' ');
-      }
-      this.#newScenario(choice === 'random' ? '' : choice);
-      say(this.scenario.brief);
-      this.phase = 'brief';
-      return spoken.join(' ');
-    }
-
-    if (this.phase === 'brief') {
-      if (short && RE.menu.test(t)) {
-        this.phase = 'menu';
-        say(MENU_TEXT);
-        return spoken.join(' ');
-      }
-      if (short && RE.repeat.test(t)) {
-        say(this.scenario.brief);
-        return spoken.join(' ');
-      }
-      const choice = short ? parseDrillChoice(text) : null;
-      if (choice) {
-        this.#newScenario(choice === 'random' ? '' : choice);
-        say(this.scenario.brief);
-        return spoken.join(' ');
-      }
-      if (short && (RE.ready.test(t) || !t.trim())) {
-        this.#startRun();
-        say(`Okay, dialing. ${this.scenario.pickup}`);
-        return spoken.join(' ');
-      }
-      // He launched straight into his opener: the prospect already picked up.
-      this.#startRun();
-      return this.#roleplayTurn(text, say, spoken, signal);
     }
 
     if (this.phase === 'roleplay') {
+      // The hidden escape: stop the call and hear the coach. Never announced on the call.
       if (short && RE.safeWord.test(t)) {
-        await this.#finishRun('paused', '', say, signal);
+        await this.#pauseRun(say, signal);
         return spoken.join(' ');
       }
-      // Bailing out of a run: a bare "menu", "next", "skip" or "I'm done" (never words a rep says to a prospect).
-      if (RE.bail.test(t)) {
-        const cmd = t.trim();
-        if (/^(i'm done|im done|i am done|end the drill|end drill)$/.test(cmd)) {
-          say('Okay, stopping there. Good work today.');
-          this.ended = true;
-        } else if (/menu/.test(cmd)) {
-          this.phase = 'menu';
-          say(`Okay, dropping that one. ${MENU_TEXT}`);
-        } else {
-          this.#nextRun('', say);
-        }
+      if (RE.quit.test(t)) {
+        this.#closeRun('rep_ended', 'Wyatt ended the drill himself');
         return spoken.join(' ');
       }
       if (short && RE.restart.test(t)) {
         this.#setScenario(this.scenario);
         this.#startRun();
-        say(`Okay, from the top. Dialing. ${this.scenario.pickup}`);
+        say(this.scenario.pickup);
         return spoken.join(' ');
       }
       return this.#roleplayTurn(text, say, spoken, signal);
     }
 
-    // coach
+    // coach (only after the hidden escape)
+    if (RE.done.test(t)) {
+      say('Good work. Talk soon.');
+      this.ended = true;
+      return spoken.join(' ');
+    }
     if (short && RE.resume.test(t) && this.pausedRun) {
       this.#resume(say);
       return spoken.join(' ');
     }
-    if (short && RE.menu.test(t)) {
-      this.phase = 'menu';
-      say(MENU_TEXT);
-      return spoken.join(' ');
-    }
-    const choice = short ? parseDrillChoice(text) : null;
-    if (short && RE.again.test(t) && !choice) {
+    if (short && RE.again.test(t)) {
       this.#rerun(say);
       return spoken.join(' ');
     }
-    if (choice || (short && (RE.next.test(t) || /^ (yes|yeah|yep|sure|ok|okay|ready|let's go|go) $/.test(t)))) {
-      this.#nextRun(choice && choice !== 'random' ? choice : '', say);
+    if (short && (RE.next.test(t) || RE.menu.test(t))) {
+      say(NEXT_ON_TAB);
+      this.ended = true;
       return spoken.join(' ');
     }
     await this.#coachChat(text, say, signal);
@@ -239,28 +192,17 @@ export class PracticeSession {
 
   // ---- runs ------------------------------------------------------------------------------------
 
-  #newScenario(drillId) {
-    const s = buildScenario({ gender: this.gender, drillId, difficulty: this.difficultyTarget, firstRound: false });
-    this.#setScenario(s);
-    this.pausedRun = null;
-  }
-
   #startRun() {
     this.phase = 'roleplay';
     this.run.startedAt = Date.now();
-    this.pausedRun = null;
   }
 
+  // The same prospect again, from their pickup line. A paused run that was never resumed is kept as it was.
   #rerun(say) {
+    this.#keepPaused();
     this.#setScenario({ ...this.scenario });
     this.#startRun();
-    say(`Same prospect, from the top. Dialing. ${this.scenario.pickup}`);
-  }
-
-  #nextRun(drillId, say) {
-    this.#newScenario(drillId);
-    this.phase = 'brief';
-    say(this.scenario.brief);
+    say(this.scenario.pickup);
   }
 
   #resume(say) {
@@ -273,6 +215,15 @@ export class PracticeSession {
     say('Back on the call. Go ahead.');
   }
 
+  #keepPaused() {
+    if (!this.pausedRun) return;
+    const { scenario, run } = this.pausedRun;
+    if (run.turns.some((x) => x.who === 'rep')) {
+      this.runs.push({ scenario, run: { ...run, turns: [...run.turns], outcome: 'paused', note: 'paused with the coach and never resumed', stats: computeStats(run.turns) }, scorecard: '', score: null, paused: true, endedAt: new Date().toISOString() });
+    }
+    this.pausedRun = null;
+  }
+
   async #roleplayTurn(text, say, spoken, signal) {
     const drill = DRILL_BY_ID[this.scenario.drill];
     this.run.turns.push({ who: 'rep', text });
@@ -280,8 +231,8 @@ export class PracticeSession {
 
     if (drill.voicemail) {
       // The voicemail just listens. When he has been quiet for a few seconds, the socket sends IDLE_TOKEN.
-      this.idleMs = 3500;
-      if (repTurns >= drill.maxRepTurns) await this.#finishRun('voicemail', '', say, signal);
+      this.idleMs = VOICEMAIL_QUIET_MS;
+      if (repTurns >= drill.maxRepTurns) this.#closeRun('voicemail', '');
       return spoken.join(' ');
     }
 
@@ -329,71 +280,68 @@ export class PracticeSession {
     }
 
     if (endTool) {
-      await this.#finishRun(endTool.input?.outcome || 'other', endTool.input?.note || '', say, signal);
+      this.#closeRun(endTool.input?.outcome || 'other', endTool.input?.note || '');
     } else if ((drill.endAfterRepTurns && repTurns >= drill.endAfterRepTurns) || repTurns >= drill.maxRepTurns) {
-      await this.#finishRun(drill.endAfterRepTurns ? 'other' : 'turns', 'the drill ran out of turns', say, signal);
+      this.#closeRun(drill.endAfterRepTurns ? 'other' : 'turns', 'the drill ran out of turns');
     }
     return spoken.join(' ');
   }
 
-  async #finishRun(outcome, note, say, signal) {
-    const paused = outcome === 'paused';
+  // The scene is over: the prospect's last line plays and the call hangs up, like a real call. No coach
+  // and no score on the phone; finishPracticeSession scores it after the call for Hubert's tab and the email.
+  #closeRun(outcome, note) {
     this.idleMs = 0;
-    this.run.outcome = paused ? '' : outcome;
+    this.run.outcome = outcome;
     this.run.note = note;
     this.run.stats = computeStats(this.run.turns);
-    this.phase = 'coach';
-    say(`${BRIDGE[outcome] || BRIDGE.other} Coach here.`);
+    this.runs.push({ scenario: this.scenario, run: { ...this.run, turns: [...this.run.turns] }, scorecard: '', score: null, paused: false, endedAt: new Date().toISOString() });
+    this.phase = 'over';
+    this.ended = true;
+  }
 
+  // The socket closed. A run he was still in (he hung up first) is kept with what was said.
+  closeOpenRun() {
+    if (this.phase === 'roleplay' && this.run.turns.some((x) => x.who === 'rep')) this.#closeRun('rep_hung_up', 'Wyatt hung up before the scene ended');
+    this.#keepPaused();
+  }
+
+  // The hidden escape: quick spoken feedback so far, without giving away anything hidden.
+  async #pauseRun(say, signal) {
+    this.idleMs = 0;
+    this.run.stats = computeStats(this.run.turns);
+    this.phase = 'coach';
+    this.pausedRun = { scenario: this.scenario, actorMessages: this.actorMessages, run: this.run };
+    say('Okay, pausing the call. Coach here.');
     if (!this.run.turns.some((x) => x.who === 'rep')) {
-      say('You didn\'t say anything yet, so nothing to score.');
-    } else {
-      const roundNo = this.runs.length + 1;
-      let scorecard = '';
-      try {
-        const res = await streamReply({
-          model: practiceModels.coach,
-          system: coachSystem(),
-          messages: [{ role: 'user', content: scorecardRequest(this.scenario, this.run, { roundNo, paused }) }],
-          maxTokens: 2000, // room for a little thinking on newer models; the spoken part is about 100 words
-          onSentence: (s) => say(s),
-          signal,
-        });
-        scorecard = res.text;
-      } catch (err) {
-        if (signal?.aborted) return;
-        console.error('[practice] scorecard failed:', err.message);
-        say('Sorry, I couldn\'t score that one.');
-      }
-      if (!scorecard && !signal?.aborted) say('Sorry, I couldn\'t score that one.');
-      // The last "Score: N out of 10" wins, in case the coach corrected itself.
-      const all = [...scorecard.matchAll(/score:?\s*(\d{1,2})\s*(out of|\/)\s*10/gi)];
-      const score = all.length ? Math.min(10, Number(all[all.length - 1][1])) : null;
-      const record = { scenario: this.scenario, run: { ...this.run, turns: [...this.run.turns] }, scorecard, score, paused };
-      if (paused) {
-        this.pausedRun = { scenario: this.scenario, actorMessages: this.actorMessages, run: this.run, record };
-      }
-      this.runs.push(record);
-      // Next run: harder after a strong score, easier after a weak one.
-      if (score !== null && !paused) {
-        if (score >= 8) this.difficultyTarget = Math.min(2, this.difficultyTarget + 1);
-        else if (score <= 4) this.difficultyTarget = Math.max(0, this.difficultyTarget - 1);
-      }
-      this.coachMessages = [
-        { role: 'user', content: `${runFacts(this.scenario, this.run)}\n\nYou gave him this spoken ${paused ? 'feedback so far' : 'scorecard'}: "${scorecard}"\n\n${COACH_CHAT_NOTE}${paused ? '\nThe call is only paused and he may resume it: never reveal the hidden details, the pains or what would make them say yes.' : ''}` },
-        { role: 'assistant', content: 'Got it.' },
-      ];
+      say('You haven\'t said anything yet, so nothing to go on. Say resume to go back in.');
+      return;
     }
-    const first = this.runs.length <= 1;
-    const resume = this.pausedRun ? 'resume to pick the call back up, ' : '';
-    say(first
-      ? `Say ${resume}again to run the same prospect, next for a new one, or menu to pick a drill. Or ask me anything. Say done when you're finished.`
-      : `Say ${resume}again, next, menu, or ask me something.`);
+    let feedback = '';
+    try {
+      const res = await streamReply({
+        model: practiceModels.coach,
+        system: coachSystem(),
+        messages: [{ role: 'user', content: scorecardRequest(this.scenario, this.run, { roundNo: this.runs.length + 1, paused: true }) }],
+        maxTokens: 2000,
+        onSentence: (s) => say(s),
+        signal,
+      });
+      feedback = res.text;
+    } catch (err) {
+      if (signal?.aborted) return;
+      console.error('[practice] paused feedback failed:', err.message);
+    }
+    if (!feedback && !signal?.aborted) say('Sorry, I couldn\'t pull that together.');
+    this.coachMessages = [
+      { role: 'user', content: `${runFacts(this.scenario, this.run)}\n\nYou gave him this spoken feedback so far: "${feedback}"\n\n${COACH_CHAT_NOTE}\nThe call is only paused and he may resume it: never reveal the hidden details, the pains or what would make them say yes.` },
+      { role: 'assistant', content: 'Got it.' },
+    ];
+    say('Say resume to pick the call back up, again to start over, or ask me anything.');
   }
 
   async #coachChat(text, say, signal) {
     if (!this.coachMessages.length) {
-      say('Say next for a new prospect, or menu to pick a drill.');
+      say('Say resume to go back in, or done to hang up.');
       return;
     }
     this.coachMessages.push({ role: 'user', content: text });
@@ -419,18 +367,33 @@ export class PracticeSession {
     this.coachMessages.push({ role: 'assistant', content: res.text || '(ok)' });
     if (!tool) return;
     if (tool.name === 'end_call') {
-      if (!res.text) say('Good work. Your scorecard is in your email. Talk soon.');
+      if (!res.text) say('Good work. Talk soon.');
       this.ended = true;
     } else if (tool.name === 'resume_run' && this.pausedRun) {
       this.#resume(say);
     } else if (tool.name === 'next_run') {
-      const drill = tool.input?.drill && tool.input.drill !== 'random' ? tool.input.drill : '';
-      if (tool.input?.mode === 'same' && !drill) this.#rerun(say);
-      else this.#nextRun(drill, say);
+      if (tool.input?.mode === 'same') this.#rerun(say);
+      else {
+        say(NEXT_ON_TAB);
+        this.ended = true;
+      }
     }
   }
 
-  // ---- for the emailed report ------------------------------------------------------------------
+  // ---- after the call --------------------------------------------------------------------------
+
+  // Write the scorecard for every run that has none yet (runs end without a spoken score now).
+  async scoreRuns({ timeoutMs = 60_000, score = defaultScorer } = {}) {
+    const todo = this.runs.filter((r) => r.score === null && !r.scorecard && r.run.turns.some((x) => x.who === 'rep'));
+    await Promise.all(todo.map(async (r) => {
+      try {
+        r.scorecard = await score(r, { roundNo: this.runs.indexOf(r) + 1, timeoutMs });
+        r.score = parseScore(r.scorecard);
+      } catch (err) {
+        console.error('[practice] scorecard failed:', err.message);
+      }
+    }));
+  }
 
   summary() {
     const scored = this.runs.filter((r) => r.score !== null);
@@ -443,4 +406,19 @@ export class PracticeSession {
   }
 }
 
-export { briefFor };
+async function defaultScorer(r, { roundNo, timeoutMs }) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await streamReply({
+      model: practiceModels.coach,
+      system: coachSystem(),
+      messages: [{ role: 'user', content: scorecardRequest(r.scenario, r.run, { roundNo, paused: false }) }],
+      maxTokens: 2000,
+      signal: controller.signal,
+    });
+    return res.text;
+  } finally {
+    clearTimeout(timer);
+  }
+}

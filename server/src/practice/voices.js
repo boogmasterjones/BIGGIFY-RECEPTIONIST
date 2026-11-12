@@ -65,6 +65,10 @@ export function markVoiceResult(voiceId, { spoke, sentText, seconds }) {
   }
 }
 
+export function isVoiceBad(voiceId) {
+  return badVoices.has(voiceId);
+}
+
 export function voiceHealth() {
   return { speakerEventsSeen, bad: Object.fromEntries(badVoices) };
 }
@@ -74,11 +78,12 @@ export function resetVoiceHealth() {
   speakerEventsSeen = false;
 }
 
-// Pick a voice: male or female at random, never the voice used on the last call when there is
-// another one, never a voice that went silent unless it is the only one of that gender left.
-export function pickVoice({ recent = [], rand = Math.random, voices = practiceVoices() } = {}) {
+// Pick a voice: male or female at random (or the `gender` asked for, when there is a voice of it), never
+// the voice used on the last call when there is another one, never a voice that went silent unless it is
+// the only one of that gender left.
+export function pickVoice({ recent = [], rand = Math.random, voices = practiceVoices(), gender: want = '' } = {}) {
   const genders = [...new Set(voices.map((v) => v.gender))];
-  const gender = genders.length > 1 ? (rand() < 0.5 ? 'm' : 'f') : genders[0];
+  const gender = want && genders.includes(want) ? want : genders.length > 1 ? (rand() < 0.5 ? 'm' : 'f') : genders[0];
   let pool = voices.filter((v) => v.gender === gender);
   const healthy = pool.filter((v) => !badVoices.has(v.id));
   if (healthy.length) pool = healthy;

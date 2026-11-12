@@ -8,8 +8,10 @@ import { parseVoiceList, pickVoice, markVoiceResult, resetVoiceHealth, DEFAULT_V
 import { parseDrillChoice, DRILLS } from '../src/practice/drills.js';
 import { buildScenario, resetRecent } from '../src/practice/scenario.js';
 import { computeStats } from '../src/practice/stats.js';
-import { PracticeSession, RE } from '../src/practice/session.js';
+import { PracticeSession, RE, parseScore } from '../src/practice/session.js';
 import { practiceAnswer, startPracticeCall, takePracticeSession, callerAllowed, registerPracticeRoutes } from '../src/practice/index.js';
+import { memoryStore } from '../src/practice/store.js';
+import { armDrill } from '../src/practice/armed.js';
 import { actorSystem, scorecardRequest } from '../src/practice/prompts.js';
 
 // A tiny seeded random so scenario tests are repeatable.
@@ -150,7 +152,6 @@ test('computeStats measures talk share, times offered, number asked and banned l
   assert.deepEqual(st.banned, ['out of the blue', 'do you have 30 seconds', 'guarantee']);
   assert.equal(st.questions, 3);
 });
-
 // ---- session commands (no model calls) -----------------------------------------------------------
 
 function newSession(drillId = 'full') {
@@ -159,24 +160,25 @@ function newSession(drillId = 'full') {
   return new PracticeSession({ scenario, voice: { id: 'Telnyx.NaturalHD.orion', gender: 'm' } });
 }
 
-test('brief -> menu -> pick a drill -> ready dials and the prospect picks up', async () => {
+test('a call starts on the prospect: no brief, no coach, straight into the drill', () => {
   const s = newSession('full');
-  assert.match(s.greeting, /^Cold call practice\. Drill: full cold call\./);
-  let out = await s.handleUtterance('menu');
-  assert.equal(s.phase, 'menu');
-  assert.match(out, /Say a number/);
-  out = await s.handleUtterance('Two.');
-  assert.equal(s.phase, 'brief');
-  assert.equal(s.scenario.drill, 'objections');
-  assert.equal(s.scenario.speaker.gender, 'm');
-  assert.match(out, /Drill: objection gauntlet/);
-  out = await s.handleUtterance("Okay, I'm ready.");
   assert.equal(s.phase, 'roleplay');
-  assert.ok(out.startsWith('Okay, dialing.'));
-  assert.ok(out.includes(s.scenario.pickup.split(' ')[0]));
+  assert.equal(s.greeting, s.scenario.pickup);
+  assert.doesNotMatch(s.greeting, /practice|drill|coach|ready|one true thing|goal/i);
+  assert.ok(!s.greeting.includes(s.scenario.trueThing));
 });
 
-test('saying done ends the call outside a run, but questions about "done" do not', async () => {
+test('the hidden escape: "time out" pauses for the coach, "resume" goes back in', async () => {
+  const s = newSession('full');
+  const out = await s.handleUtterance('Time out.');
+  assert.equal(s.phase, 'coach');
+  assert.match(out, /Coach here/);
+  const back = await s.handleUtterance('resume');
+  assert.equal(s.phase, 'roleplay');
+  assert.match(back, /Back on the call/);
+});
+
+test('saying done ends the call from the coach, but questions about "done" do not', async () => {
   for (const t of ["I'm done.", 'Okay, bye.', 'That is all', 'done for today thanks', 'Goodbye']) {
     assert.ok(RE.done.test(` ${t.toLowerCase().replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim()} `), t);
   }
@@ -184,42 +186,75 @@ test('saying done ends the call outside a run, but questions about "done" do not
     assert.ok(!RE.done.test(` ${t.toLowerCase().replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim()} `), t);
   }
   const s = newSession();
+  await s.handleUtterance('coach');
   await s.handleUtterance("I'm done.");
   assert.equal(s.ended, true);
 });
 
-test('the voicemail drill waits for silence, then the idle nudge ends the run', async () => {
+test('"next" in the coach hangs up and points at the tab (the next drill is armed there)', async () => {
+  const s = newSession();
+  await s.handleUtterance('coach');
+  const out = await s.handleUtterance('next one');
+  assert.equal(s.ended, true);
+  assert.match(out, /Sales drilling tab/);
+});
+
+test('the voicemail drill listens, then hangs up after he goes quiet (no coach on the phone)', async () => {
   const s = newSession('voicemail');
-  await s.handleUtterance('ready');
   assert.equal(s.phase, 'roleplay');
   assert.match(s.scenario.pickup, /Beep\.$/);
   // Without a message left, the idle nudge does nothing.
   assert.equal(await s.handleUtterance(s.idleToken), '');
-  assert.equal(s.phase, 'roleplay');
+  assert.equal(await s.handleUtterance("Hi Mike, it's Wyatt Brunderman with Biggify in Port Charlotte."), '');
+  assert.ok(s.idleAfterMs() > 0);
+  assert.equal(await s.handleUtterance(s.idleToken), '');
+  assert.equal(s.ended, true);
+  assert.equal(s.runs.length, 1);
+  assert.equal(s.runs[0].run.outcome, 'voicemail');
+  assert.equal(s.runs[0].scorecard, '');
 });
 
-test('restart during a run starts the same prospect over', async () => {
+test('restart during a run starts the same prospect over with just their pickup line', async () => {
   const s = newSession('full');
-  await s.handleUtterance('go');
   const id = s.scenario.id;
   s.run.turns.push({ who: 'rep', text: 'hi' });
   const out = await s.handleUtterance('start over');
   assert.equal(s.scenario.id, id);
   assert.equal(s.run.turns.length, 0);
-  assert.match(out, /from the top/);
+  assert.equal(out, s.scenario.pickup);
+});
+
+test('hanging up mid-call keeps the run for scoring; parseScore reads the last score', () => {
+  const s = newSession('full');
+  s.run.turns.push({ who: 'rep', text: 'Hi Mike, Wyatt with Biggify.' }, { who: 'prospect', text: 'Yeah?' });
+  s.closeOpenRun();
+  assert.equal(s.runs.length, 1);
+  assert.equal(s.runs[0].run.outcome, 'rep_hung_up');
+  assert.equal(parseScore('Score: 6 out of 10. Actually, Score: 5 out of 10.'), 5);
+  assert.equal(parseScore('no score'), null);
 });
 
 // ---- the endpoint ------------------------------------------------------------------------------
 
-test('practice TeXML: random voice, practice socket id, brief as greeting', () => {
-  const call = startPracticeCall({ from: '+19415550000', publicUrl: 'https://biggify-receptionist.onrender.com' });
+test('practice TeXML: the armed prospect picks up, in the armed voice, with nothing read out', async () => {
+  resetRecent();
+  const store = memoryStore();
+  const armed = await armDrill(store, { mode: 'drill', drill: 'gatekeeper' });
+  const call = await startPracticeCall({ from: '+19415550000', publicUrl: 'https://biggify-receptionist.onrender.com', store });
+  assert.equal(call.drillRowId, armed.id);
   assert.match(call.xml, /url="wss:\/\/biggify-receptionist\.onrender\.com\/ws\?practice=[0-9a-f-]{36}"/);
-  assert.match(call.xml, new RegExp(`voice="${call.voice.id.replace(/\./g, '\\.')}"`));
-  assert.match(call.xml, /welcomeGreeting="Cold call practice\. Drill: /);
+  assert.match(call.xml, new RegExp(`voice="${armed.voice.id.replace(/\./g, '\.')}"`));
+  const greeting = /welcomeGreeting="([^"]*)"/.exec(call.xml)[1];
+  assert.equal(greeting, call.scenario.pickup.replace(/'/g, '&apos;').replace(/&(?!apos;)/g, '&amp;'));
+  assert.doesNotMatch(call.xml, /Cold call practice|Drill:|Say ready|one true thing|Goal:/);
+  assert.ok(!call.xml.includes(armed.scenario.trueThing));
   assert.match(call.xml, /events="speaker-events"/);
   assert.equal(call.scenario.speaker.gender, call.voice.gender);
+  assert.equal((await store.get(armed.id)).status, 'live');
+  assert.equal(await store.getArmed(), null);
   const session = takePracticeSession(call.id);
   assert.ok(session?.isPractice);
+  assert.equal(session.phase, 'roleplay');
   assert.equal(takePracticeSession(call.id), null); // only once
   assert.match(practiceAnswer('', { voice: { id: 'Telnyx.NaturalHD.luna' }, greeting: 'a & b', id: 'x' }), /welcomeGreeting="a &amp; b"/);
 });
@@ -236,7 +271,7 @@ test('PRACTICE_ALLOWED_CALLERS limits who can use the line', () => {
 test('POST /practice-call-telnyx answers with TeXML', async () => {
   const app = express();
   app.use(express.urlencoded({ extended: false }));
-  registerPracticeRoutes(app);
+  registerPracticeRoutes(app, { store: memoryStore() });
   const server = app.listen(0);
   try {
     const port = server.address().port;
@@ -249,6 +284,7 @@ test('POST /practice-call-telnyx answers with TeXML', async () => {
     assert.match(res.headers.get('content-type'), /xml/);
     const body = await res.text();
     assert.match(body, /<ConversationRelay url="ws:\/\/localhost:\d+\/ws\?practice=|<ConversationRelay url="wss?:\/\/[^"]+\/ws\?practice=/);
+    assert.doesNotMatch(body, /Cold call practice/);
   } finally {
     server.close();
   }

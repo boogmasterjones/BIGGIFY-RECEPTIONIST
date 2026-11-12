@@ -187,7 +187,7 @@ Wyatt paused this call in the middle to ask for feedback, and he may go back in.
   }
   return `${runFacts(s, run)}
 
-Give Wyatt his spoken scorecard for this run (run number ${roundNo} on this call).
+Give Wyatt his scorecard for this run (run number ${roundNo} on this call). He reads it on his phone right after the call.
 
 Before you speak, check the three automatic fails in your head: (1) something untrue: clients, results or experience he doesn't have ("companies we work with", "I've helped contractors", made-up stats), a wrong answer about where he got their number (it's the county's public business records), a guarantee or a ranking promise; (2) not accepting a no at once (asking again after a second no, or after "don't call me"); (3) pressure, fake deadlines, discounts. Any one of these caps the score at 4 and is the biggest fix. A softer overstatement ("that's costing you calls", "money on the table") is not an automatic fail: take a point off and mention it only if nothing bigger went wrong. Never talk about the checking itself: don't say "check", "cap" or "automatic fail"; just name the problem plainly.
 

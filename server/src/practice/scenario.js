@@ -60,9 +60,11 @@ export function pickDrill(rand = Math.random) {
 
 export const DIFFICULTIES = ['easy', 'normal', 'tough'];
 
-function pickDifficulty(rand, target) {
-  // `target` (0 easy .. 2 tough) comes from how the last runs went; the dice still move it a step sometimes.
+function pickDifficulty(rand, target, exact = false) {
+  // `target` (0 easy .. 2 tough) comes from how the last runs went; the dice still move it a step sometimes,
+  // unless he picked the level himself (easier/harder on Hubert's Sales drilling tab).
   const t = Number.isInteger(target) ? target : 1;
+  if (exact) return DIFFICULTIES[Math.max(0, Math.min(2, t))];
   const r = rand();
   const idx = r < 0.6 ? t : r < 0.8 ? t - 1 : t + 1;
   return DIFFICULTIES[Math.max(0, Math.min(2, idx))];
@@ -96,12 +98,13 @@ function money(n) {
  * @param {string} o.gender      'm' | 'f' — the voice's gender; whoever speaks must match it
  * @param {string} [o.drillId]   a drill id, or empty for random
  * @param {number} [o.difficulty] 0..2 target difficulty
+ * @param {boolean} [o.exactDifficulty] use `difficulty` as it is (no dice)
  * @param {boolean} [o.firstRound] the brief mentions the menu and the safe word only on the first round
  * @param {Function} [o.rand]
  */
-export function buildScenario({ gender, drillId = '', difficulty = 1, firstRound = true, rand = Math.random } = {}) {
+export function buildScenario({ gender, drillId = '', difficulty = 1, exactDifficulty = false, firstRound = true, rand = Math.random } = {}) {
   const drill = DRILL_BY_ID[drillId] || pickDrill(rand);
-  const level = pickDifficulty(rand, difficulty);
+  const level = pickDifficulty(rand, difficulty, exactDifficulty);
 
   // Who answers. In the gatekeeper drill the voice is the gatekeeper and the owner (any gender) never speaks.
   const speaker = person(rand, gender);
