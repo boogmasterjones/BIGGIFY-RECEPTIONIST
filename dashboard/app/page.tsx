@@ -28,7 +28,6 @@ const WORK: Work[] = [
   { key: 'clearvant', trade: 'Window cleaning · Southwest Florida', before: true },
   { key: 'tropicalbaybuilders', trade: 'Remodeling & construction · Southwest Florida', before: true },
   { key: 'rsitile', trade: 'Tile contractor · Southwest Florida', before: true },
-  { key: 'rocksolidlvp', trade: 'Flooring contractor · Southwest Florida', tag: 'New website' },
   { key: 'interiormotives', trade: 'Interior design · Southwest Florida', tag: 'New website' },
   { key: 'brunderman', trade: 'Home builder · Southwest Florida', tag: 'New website' },
   { key: 'tropicalbayrentals', trade: 'E-bike & jet ski rentals · Southwest Florida', tag: 'New website' },
