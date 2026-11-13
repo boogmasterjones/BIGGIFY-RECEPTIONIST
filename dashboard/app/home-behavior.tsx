@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 // the before/after sliders and their carousel, card glare, the phone call bar, the late-loaded booking calendar and the
 // desktop "Call our receptionist" reveal. Everything here works on the server-rendered markup in app/page.tsx and renders
 // nothing itself. Animations always play (owner 2026-10-26).
-const RECEPTIONIST = '(941) 327-9667';
+const RECEPTIONIST = '(941) 401-8288';
 
 export default function HomeBehavior() {
   useEffect(() => {

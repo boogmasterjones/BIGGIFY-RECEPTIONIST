@@ -151,7 +151,7 @@ export default function HowItWorksPage() {
   useEffect(() => {
     const isMobile = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent)
       || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
-    const NUMBER = '(941) 327-9667';
+    const NUMBER = '(941) 401-8288';
     document.querySelectorAll('.call-btn').forEach((btn: any) => {
       btn.addEventListener('click', (e: any) => {
         if (isMobile) return;
@@ -247,10 +247,10 @@ export default function HowItWorksPage() {
                   <a href="/how-it-works">How it works</a>
                   <a href="/#faq">FAQ</a>
                   <a className="menu-only" href="/login">Sign in</a>
-                  <a className="menu-only" href="tel:+19413279667">📞 (941) 327-9667</a>
+                  <a className="menu-only" href="tel:+19414018288">📞 (941) 401-8288</a>
                 </div>
               </div>
-              <a className="nav-phone" href="tel:+19413279667">📞 (941) 327-9667</a>
+              <a className="nav-phone" href="tel:+19414018288">📞 (941) 401-8288</a>
               <a className="btn btn-primary nav-signin" href="/login">Sign in</a>
               <a className="btn btn-primary" href="/#contact">Get a Free Quote</a>
             </div>
@@ -384,7 +384,7 @@ export default function HowItWorksPage() {
                 <li><b>Keep your info current.</b> Change your hours or add a service in the dashboard and the receptionist speaks from the new info immediately.</li>
                 <li><b>Check your alerts.</b> That's the whole "monitoring" job.</li>
               </ul>
-              <div className="tiny">Want to hear it? <a href="tel:+19413279667" className="call-btn" style={{ color: '#fff', textDecoration: 'underline' }}>Call (941) 327-9667</a> — it'll answer.</div>
+              <div className="tiny">Want to hear it? <a href="tel:+19414018288" className="call-btn" style={{ color: '#fff', textDecoration: 'underline' }}>Call (941) 401-8288</a> — it'll answer.</div>
             </div>
           </div>
         </div>
@@ -467,7 +467,7 @@ export default function HowItWorksPage() {
           <h2>Ready to plug the leaks?</h2>
           <p>Book a free 15-minute call and we'll tell you honestly which step you're losing the most jobs at — or call our receptionist right now and hear Step 3 for yourself.</p>
           <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <a className="btn btn-primary call-btn" href="tel:+19413279667" style={{ background: '#fff', color: 'var(--brand)' }}>📞 Call our receptionist</a>
+            <a className="btn btn-primary call-btn" href="tel:+19414018288" style={{ background: '#fff', color: 'var(--brand)' }}>📞 Call our receptionist</a>
             <a className="btn btn-ghost" href="/#contact">Get a Free Quote</a>
           </div>
         </div>

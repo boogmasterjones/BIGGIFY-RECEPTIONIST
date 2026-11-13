@@ -18,8 +18,8 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://gobiggify.com/' },
 };
 
-const RECEPTIONIST_TEL = 'tel:+19413279667';
-const RECEPTIONIST_DISPLAY = '(941) 327-9667';
+const RECEPTIONIST_TEL = 'tel:+19414018288';
+const RECEPTIONIST_DISPLAY = '(941) 401-8288';
 
 type Work = { key: string; trade: string; before?: boolean; tag?: string };
 // The pictures are the ones already in public/work. Captions are a trade and an area only.
@@ -29,7 +29,6 @@ const WORK: Work[] = [
   { key: 'tropicalbaybuilders', trade: 'Remodeling & construction · Southwest Florida', before: true },
   { key: 'rsitile', trade: 'Tile contractor · Southwest Florida', before: true },
   { key: 'interiormotives', trade: 'Interior design · Southwest Florida', tag: 'New website' },
-  { key: 'brunderman', trade: 'Home builder · Southwest Florida', tag: 'New website' },
   { key: 'tropicalbayrentals', trade: 'E-bike & jet ski rentals · Southwest Florida', tag: 'New website' },
 ];
 
