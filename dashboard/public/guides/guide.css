@@ -262,3 +262,32 @@ body.guide-page{background:var(--cream)}
   .g-article>section{break-inside:avoid-page}
   a{text-decoration:none!important}
 }
+
+/* "Your next steps": the closing card on every guide and playbook (owner 2026-11-13). It replaces the old end card: the
+   do-it-yourself steps from the page, the free tool that fits, then "rather not do it yourself?" with the plans. One per page. */
+.g-end.g-next{display:block}
+@media(min-width:760px){.g-end.g-next{display:block;padding:46px 48px}}
+.g-article .g-end h2{color:#fff} /* .g-article h2 was turning the end card's heading dark-on-dark */
+.g-next h2{margin-bottom:4px}
+.g-next-list{list-style:none;counter-reset:n;display:grid;gap:14px;margin:20px 0 24px;padding:0}
+.g-next-list li{counter-increment:n;display:grid;grid-template-columns:34px 1fr;gap:12px;font-size:16.5px;line-height:1.5;color:#d9dcec}
+.g-next-list li::before{content:counter(n);width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:rgba(255,77,77,.16);color:#ff8a7a;font-family:var(--g-display);font-weight:800;font-size:16px}
+.g-next-list strong,.g-next-tool strong,.g-next-dfy strong{color:#fff}
+.g-next-tool{display:grid;gap:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:16px;padding:18px}
+@media(min-width:760px){.g-next-tool{grid-template-columns:1fr auto;align-items:center;gap:24px;padding:20px 22px}}
+.g-end.g-next .g-next-tool p{margin:0;max-width:none;font-size:16px}
+.g-end.g-next .btn{margin-top:0}
+@media(max-width:759px){.g-next-tool .btn{width:100%}}
+.g-next-dfy{margin-top:24px;padding-top:22px;border-top:1px solid rgba(255,255,255,.13)}
+.g-end.g-next .g-next-dfy p{max-width:640px}
+.g-next-links{display:flex;flex-wrap:wrap;align-items:center;gap:6px 20px;margin-top:16px}
+.g-article .g-next a:not(.btn){color:#fff;font-weight:700;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px}
+.g-article .g-next a:not(.btn):hover{color:#ffb3a8}
+.g-next-links a:not(.btn){display:inline-block;padding:10px 0}
+@media(max-width:479px){.g-next-links .btn{width:100%}}
+@media print{
+  .g-end.g-next{display:block!important;background:#fff;color:#000;border:1px solid #ccc;padding:18px}
+  .g-end.g-next::before,.g-next .btn,.g-next-links,.g-next .g-sign{display:none!important}
+  .g-next h2,.g-next p,.g-next li,.g-next strong{color:#000!important}
+  .g-next-tool{background:none;border:0;padding:0}
+}

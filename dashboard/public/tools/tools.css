@@ -343,3 +343,26 @@ footer a:hover{color:#fff}
 @media(max-width:480px){.callout{font-size:11.5px;letter-spacing:.05em;padding:6px 10px}}
 /* trade + town + state on one line from 560px (the forms that ask where the business is) */
 @media(min-width:560px){.row-2.row-tcs{grid-template-columns:1.25fr 1fr 92px}}
+
+/* ---------- "Your next steps": the closing card on every free tool (owner 2026-11-13) ---------- */
+/* Do-it-yourself steps for that page, then "rather not do it yourself?" with the plans. On pages with a thank-you view it
+   sits after .thanks and hides once that view (which has its own next step) is showing, so a page never has two. */
+.next-steps{margin-top:34px;max-width:780px;margin-inline:auto}
+.thanks:not([hidden]) ~ .next-steps{display:none}
+.next-steps h2{font-family:var(--display);font-stretch:70%;font-weight:900;text-transform:uppercase;font-size:clamp(26px,4vw,34px);line-height:1.02;letter-spacing:.01em;margin:10px 0 6px}
+.ns-list{list-style:none;counter-reset:n;display:grid;gap:14px;margin:20px 0 6px;padding:0}
+.ns-list li{counter-increment:n;display:grid;grid-template-columns:32px 1fr;gap:12px;font-size:16.5px;line-height:1.5;color:var(--ink-soft)}
+.ns-list li::before{content:counter(n);display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--brand-grad);color:#fff;font-size:15px;font-weight:900;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 2px 0 #7c0000}
+.ns-list b{color:var(--ink)}
+.next-steps a:not(.btn){color:var(--brand);font-weight:700;text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px}
+.next-steps a:not(.btn):hover{color:var(--brand-2)}
+.ns-tool{display:grid;gap:14px;align-items:center;background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:20px}
+@media(min-width:700px){.ns-tool{grid-template-columns:1fr auto;gap:22px;padding:16px 20px}}
+.ns-tool p{margin:0;color:var(--ink-soft);font-size:16px}
+.ns-tool b{color:var(--ink)}
+.ns-dfy{margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+.ns-dfy p{color:var(--ink-soft);font-size:16.5px}
+.ns-dfy p b{color:var(--ink)}
+.ns-links{display:flex;flex-wrap:wrap;align-items:center;gap:6px 20px;margin-top:14px}
+.ns-links a:not(.btn){display:inline-block;padding:10px 0}
+@media(max-width:479px){.ns-links .btn,.ns-tool .btn{width:100%}}
