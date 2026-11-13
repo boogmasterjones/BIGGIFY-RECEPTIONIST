@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your playbook is ready | Biggify</title>
+<meta name="description" content="Thanks for grabbing the Complete Website Playbook for Trade Businesses." />
+<meta name="robots" content="noindex" />
+<link rel="canonical" href="https://gobiggify.com/tools/website-playbook/thanks.html" />
+<link rel="icon" href="/LOGO.png" />
+<!-- Shared look for every free tool: tools/tools.css (owned by the tools helper). The small block below is only for this page. -->
+<link rel="stylesheet" href="/tools/tools.css" />
+<style>
+.ty h1{font-size:clamp(30px,5vw,46px)}
+.deliver{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:18px}
+.next p{font-size:18px;color:var(--ink-soft);margin:0 0 12px}
+.next .lead-in{font-size:clamp(20px,2.6vw,24px);color:var(--ink);font-weight:800;letter-spacing:-.01em;line-height:1.3;margin-bottom:12px}
+.start{list-style:none;display:grid;gap:10px;margin:0 0 6px;padding:0}
+.start li{display:grid;grid-template-columns:30px 1fr;gap:10px;font-size:17px;color:var(--ink)}
+.start li b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--brand-grad);color:#fff;font-size:14px}
+.wyatt-video[hidden]{display:none}
+.wyatt-video{margin:0 0 22px;border-radius:16px;overflow:hidden;background:#000;aspect-ratio:16/9}
+.wyatt-video iframe,.wyatt-video video{width:100%;height:100%;border:0;display:block}
+</style>
+<!-- tools/config.js (shared): window.Biggify = where forms post, tracking tags, consent words. -->
+<script src="/tools/config.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header>
+  <div class="wrap">
+    <nav>
+      <a class="logo" href="/"><img src="/LOGO.png" alt="Biggify" /></a>
+      <div class="nav-cta">
+        <a class="nav-phone" href="tel:+19414018288">📞 (941) 401-8288</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero ty">
+  <div class="wrap">
+    <span class="eyebrow light">The Complete Website Playbook</span>
+    <h1 data-greet>Thanks!</h1>
+    <p class="lead">Your playbook is ready to open right now, and a copy is on its way to your email. Don't see the email? Check your spam folder.</p>
+    <div class="deliver"><a class="btn btn-primary" href="/tools/website-playbook/print.html">Open the playbook</a><a class="btn btn-outline" href="/tools/website-playbook/print.html" data-print>Print or save as PDF</a></div>
+  </div>
+</section>
+<section>
+  <div class="wrap">
+    <div class="card">
+      <p class="lead-in" style="font-size:22px;font-weight:800;margin-bottom:12px">Where to start (this week)</p>
+      <ol class="start">
+        <li><b>1</b><span>Do the 5-second test from chapter 1 on your phone.</span></li>
+        <li><b>2</b><span>Fill in your own quote form as a customer and make sure it arrives (chapter 11).</span></li>
+        <li><b>3</b><span>Log in to your domain registrar and check it's in your name, with auto-renew on (chapter 16).</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+<section class="next">
+  <div class="wrap">
+    <div class="offer">
+      <span class="tag">Your next step</span>
+      <!-- ===== VIDEO SLOT: Short video from Wyatt: why the Google profile comes next =====
+     To switch it on: put the video's address between the quotes of data-video, e.g. data-video="https://youtu.be/XXXX" or data-video="wyatt.mp4".
+     Leave it empty and nothing shows. -->
+      <figure class="wyatt-video" data-video="" hidden aria-label="Short video from Wyatt: why the Google profile comes next"></figure>
+      <p class="lead-in">Your website is half of it. The other half is your Google Business Profile.</p>
+      <p>For most trades, a lot of calls come straight from the Google listing in Maps, often before anyone opens your website. And the listing sends people to your site.</p>
+      <p>My free Google Profile X-Ray looks at your listing and shows you what's holding it back, in plain English.</p>
+      <div style="margin-top:18px"><a id="next-link" class="btn btn-primary" href="/tools/xray">Get my free X-Ray</a></div>
+    </div>
+  </div>
+</section>
+</main>
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <a class="logo" href="/"><img src="/LOGO-light.png" alt="Biggify" style="height:36px" /></a>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/how-it-works">How it works</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="tel:+19414018288">(941) 401-8288</a>
+      </nav>
+    </div>
+    <p class="small" style="margin-top:14px">© Biggify LLC · Port Charlotte, FL</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var B = window.Biggify || null;
+  var MAGNET = "website_playbook";
+  var store = { get: function(k){ try { return JSON.parse(sessionStorage.getItem(k) || 'null'); } catch(e){ return null; } },
+                set: function(k,v){ try { sessionStorage.setItem(k, JSON.stringify(v)); } catch(e){} } };
+
+  // utm_* tags and src (the partner or channel). config.js keeps them 30 days; without it, for this visit.
+  var utm = {};
+  if (B && B.tracking) utm = B.tracking();
+  else { var q = new URLSearchParams(location.search); utm = store.get('bgf_utm') || {};
+    ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','src'].forEach(function(k){ var v = q.get(k); if (v) utm[k] = v.slice(0,150); });
+    store.set('bgf_utm', utm); }
+
+  // The video slot shows only once it has an address.
+  document.querySelectorAll('.wyatt-video').forEach(function(fig){
+    var src = (fig.getAttribute('data-video') || '').trim(); if (!src) return;
+    var yt = src.match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/);
+    fig.innerHTML = yt ? '<iframe src="https://www.youtube-nocookie.com/embed/' + yt[1] + '" title="Video from Wyatt" allow="encrypted-media; picture-in-picture" allowfullscreen loading="lazy"></iframe>'
+                       : '<video src="' + src.replace(/"/g,'') + '" controls playsinline preload="metadata"></video>';
+    fig.hidden = false;
+  });
+
+  // "Print or save as PDF" opens the playbook and starts printing.
+  var pr = document.querySelector('[data-print]');
+  if (pr) pr.addEventListener('click', function(e){ e.preventDefault(); var w = window.open('print.html', '_blank'); if (!w) { location.href = '/tools/website-playbook/print.html'; return; } w.addEventListener('load', function(){ w.print(); }); });
+
+  var greet = document.querySelector('[data-greet]'), done = store.get('bgf_done');
+  if (greet && done && done.magnet === MAGNET && done.name) greet.textContent = 'Thanks, ' + String(done.name).slice(0,40) + '!';
+
+  // Carry the visit's tags to the next tool.
+  var nx = document.getElementById('next-link'); if (nx && Object.keys(utm).length) { var u = new URL(nx.href, location.href); Object.keys(utm).forEach(function(k){ u.searchParams.set(k, utm[k]); }); nx.href = u.toString(); }
+})();
+</script>
+</body>
+</html>

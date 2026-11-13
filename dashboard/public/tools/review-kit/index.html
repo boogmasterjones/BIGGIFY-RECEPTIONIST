@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Free Review Booster Kit | Biggify</title>
+<meta name="description" content="Free for contractors: type your business name and Google review link, and get a printable review card with your own QR code plus 20 ready-to-send review texts." />
+<link rel="icon" type="image/png" href="/favicon.png" />
+<link rel="preload" href="/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="stylesheet" href="/tools/tools.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to the form</a>
+<header>
+  <div class="wrap">
+    <nav aria-label="Main">
+      <a class="logo" href="/"><img src="/logo.webp" alt="Biggify home" width="239" height="132" /></a>
+      <div class="nav-cta">
+        <a class="nav-link hide-sm" href="/tools">Free tools</a>
+        <a class="nav-phone" data-phone-link href="tel:+19414018288">(941) 401-8288</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap">
+      <span class="callout">For service businesses anywhere in the US</span>
+      <h1>Get more <span class="grad">Google reviews</span>. Your free card is 2 minutes away.</h1>
+      <p class="lead">Type your business name and your Google review link. You get a card with your own QR code, ready to print, plus 20 texts you can send today.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="landing" id="tool">
+        <div class="card">
+          <h2>Make my review card</h2>
+          <form id="kit-form" class="tool-form" novalidate>
+            <div class="form-error" id="kit-error" role="alert"></div>
+            <div class="field" data-name="business">
+              <label for="business">Business name</label>
+              <input id="business" name="business" type="text" autocomplete="organization" maxlength="160" required />
+              <p class="error">Enter your business name.</p>
+            </div>
+            <div class="field" data-name="reviewLink">
+              <label for="reviewLink">Your Google review link</label>
+              <input id="reviewLink" name="reviewLink" type="url" inputmode="url" autocomplete="off" placeholder="https://g.page/r/.../review" required />
+              <span class="hint">A Google Maps link or a Place ID works too.</span>
+              <p class="error">Paste your Google review link.</p>
+              <details class="help">
+                <summary>How do I find my link?</summary>
+                <div class="body">
+                  <p><b>The best link (2 minutes):</b></p>
+                  <ol>
+                    <li>On your phone, sign in to the Google account that runs your business profile.</li>
+                    <li>Search Google for your business name.</li>
+                    <li>Your profile shows up with buttons. Tap <b>"Ask for reviews"</b> (it may say "Get more reviews").</li>
+                    <li>Tap <b>Copy</b>, then paste it in the box above.</li>
+                  </ol>
+                  <p style="margin-top:10px"><b>No buttons?</b> Open Google Maps, find your business, tap <b>Share</b>, and copy the link. That works too. It opens your profile, and people tap "Write a review".</p>
+                  <p style="margin-top:10px"><b>Or use your Place ID:</b> search your business on Google's free <a class="link" href="https://developers.google.com/maps/documentation/places/web-service/place-id#find-id" target="_blank" rel="noopener">Place ID finder</a>. Copy the code that starts with "ChIJ" and paste it above. I'll turn it into a direct review link.</p>
+                </div>
+              </details>
+            </div>
+            <div class="field" data-name="trade">
+              <label for="trade">Your trade</label>
+              <select id="trade" name="trade">
+                <option value="other">Pick one (optional)</option>
+                <option value="plumbing">Plumbing</option>
+                <option value="electrical">Electrical</option>
+                <option value="hvac">Heating &amp; air (HVAC)</option>
+                <option value="roofing">Roofing</option>
+                <option value="water_heater">Water heaters</option>
+                <option value="tile_flooring">Tile &amp; flooring</option>
+                <option value="remodeling">Remodeling &amp; building</option>
+                <option value="painting">Painting</option>
+                <option value="pool">Pool service</option>
+                <option value="cleaning">House cleaning</option>
+                <option value="pressure_washing">Pressure washing</option>
+                <option value="window_cleaning">Window cleaning</option>
+                <option value="landscaping">Lawn &amp; landscaping</option>
+                <option value="pest_control">Pest control</option>
+                <option value="garage_door">Garage doors</option>
+                <option value="handyman">Handyman</option>
+                <option value="auto">Auto repair / mobile mechanic</option>
+                <option value="other">Something else</option>
+              </select>
+              <p class="error"></p>
+            </div>
+            <div class="field" data-name="email">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" required />
+              <p class="error">Enter your email.</p>
+            </div>
+            <div class="field" data-name="phone">
+              <label for="phone">Phone <span class="muted">(optional)</span></label>
+              <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(555) 555-0123" />
+              <p class="error">Enter a 10-digit phone number.</p>
+            </div>
+            <div class="consent">
+              <input id="smsConsent" name="smsConsent" type="checkbox" />
+              <div>
+                <label for="smsConsent">Text me about my request (optional).</label>
+                <details><summary>The details</summary><p data-consent-text></p></details>
+              </div>
+            </div>
+            <div class="hp" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+            <button class="btn btn-primary btn-block" type="submit" id="kit-btn">Make my review card</button>
+            <p class="privacy-note">Free. No card. <a href="/privacy">Privacy policy</a></p>
+          </form>
+        </div>
+        <div>
+          <ul class="under" style="margin-top:0">
+            <li>A printable card with <b>your own</b> QR code. People scan it and land on your review page.</li>
+            <li>A phone image of the card to text or show at the job.</li>
+            <li>20 ready-to-send texts. Tap to copy.</li>
+            <li>Follows Google's rules. No tricks, no rewards.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Thank-you view: the kit itself, then the next step (page rule 4) -->
+      <div class="thanks" id="thanks" hidden tabindex="-1">
+        <div class="done-head"><span class="tick" aria-hidden="true">✓</span><h2 style="font-size:clamp(22px,3vw,28px)">Your kit is ready, <span id="t-biz"></span>.</h2></div>
+        <p class="note" id="t-note"></p>
+
+        <div class="kit-section">
+          <h3>1. Your review card</h3>
+          <p>Print it, cut it out, and hand one to every customer at the end of the job.</p>
+          <div class="previews">
+            <div class="preview-box">
+              <div class="scale-wrap"><div class="scale-inner" id="card-scale"><div class="rcard" id="card-preview"></div></div></div>
+              <div class="preview-actions">
+                <button class="btn btn-primary btn-small" type="button" id="print-btn">Print 10 cards (or save as PDF)</button>
+                <button class="btn btn-outline btn-small" type="button" id="img-btn">Save phone image</button>
+              </div>
+              <p class="cap">On a computer, pick "Save as PDF" in the print box to keep a file.</p>
+            </div>
+            <div>
+              <p style="color:var(--ink-soft)"><b>What to say when you hand it over:</b></p>
+              <p style="color:var(--ink-soft);font-style:italic;margin-top:6px">"I'm really glad it came out the way you wanted. Can I ask a favor? Reviews are how a small business like mine gets found. Would you leave me a quick Google review? I'll text you the link right now so it takes a minute."</p>
+              <p class="note">Your link: <span id="t-link" style="word-break:break-all"></span></p>
+              <p class="note" id="t-link-kind"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="kit-section">
+          <h3>2. Your 20 texts</h3>
+          <p>Send them from your own phone, one person at a time. Change [Name] and [Your name] first.</p>
+          <div class="msg-list" id="texts"></div>
+        </div>
+
+        <div class="kit-section rules">
+          <h4>Google's rules (keep your reviews safe)</h4>
+          <ul>
+            <li>Ask every customer, not just the ones you think are happy.</li>
+            <li>Never give anything for a review: no discount, no gift card, no prize.</li>
+            <li>Ask for an honest review. Don't ask for "5 stars".</li>
+            <li>Let them use their own phone, not yours.</li>
+            <li>Send one reminder at most. If someone says stop, stop.</li>
+          </ul>
+        </div>
+
+        <div class="offer next-step">
+          <span class="tag">Your next step</span>
+          <p class="consistency">Now that you've made your review card, the next step to get the most out of it is to have me send the asks for you after every job.</p>
+          <div class="video-slot" role="img" aria-label="Video from Wyatt, coming soon">Video from Wyatt (coming soon)<small>60 seconds: how done-for-you review texts work</small></div>
+          <ul class="under" style="margin-bottom:18px">
+            <li>I set up a texting number for your business.</li>
+            <li>After each job, your customer gets the ask, plus one reminder.</li>
+            <li>You never have to remember.</li>
+          </ul>
+          <button class="btn btn-primary btn-block" type="button" id="dfy-btn">Ask me about done-for-you review texts</button>
+          <p class="note">Season starts in January. That's when you'll have the most customers to ask.</p>
+          <div class="done" id="dfy-done" role="status">Got it. I'll call you this week. Can't wait? Call or text me at <a data-phone-link href="tel:+19414018288">(941) 401-8288</a>.</div>
+          <div class="form-error" id="dfy-error" role="alert"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- What prints: 10 cards on one letter page -->
+<div class="print-sheet" id="print-sheet" aria-hidden="true"></div>
+
+<footer>
+  <div class="wrap foot-row">
+    <span>© Biggify · Port Charlotte, FL · <a data-phone-link href="tel:+19414018288">(941) 401-8288</a></span>
+    <nav aria-label="Footer"><a href="/tools">Free tools</a><a href="/">Home</a><a href="/privacy">Privacy</a></nav>
+  </div>
+</footer>
+
+<script src="/tools/config.js"></script>
+<script src="/tools/vendor/qrcode.min.js"></script>
+<script src="/tools/review-kit/kit.js"></script>
+</body>
+</html>
