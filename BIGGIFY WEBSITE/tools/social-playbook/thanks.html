@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your playbook is ready | Biggify</title>
+<meta name="description" content="Thanks for grabbing The Complete Social Media Playbook for Trade Businesses." />
+<meta name="robots" content="noindex" />
+<link rel="canonical" href="https://gobiggify.com/tools/social-playbook/thanks.html" />
+<link rel="icon" href="../../LOGO.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&display=swap" />
+<link rel="stylesheet" href="../tools.css" />
+<link rel="stylesheet" href="../../guides/guide.css" />
+<style>
+.ty-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.ty-actions .btn-outline{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
+.ty-next{max-width:820px;margin:34px auto 10px}
+.ty-next .g-end{margin-top:0}
+</style>
+<!-- tools/config.js (shared): window.Biggify = where forms post, tracking tags, consent words. -->
+<script src="../config.js"></script>
+</head>
+<body class="guide-page">
+<a class="skip" href="#main">Skip to content</a>
+<header>
+  <div class="wrap">
+    <nav>
+      <a class="logo" href="../../index.html"><img src="../../LOGO.png" alt="Biggify" /></a>
+      <div class="nav-cta">
+        <a class="nav-link hide-sm" href="../../guides/">Guides</a>
+        <a class="nav-link hide-sm" href="../">Free tools</a>
+        <a class="nav-phone" href="tel:+19414018288">📞 (941) 401-8288</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="g-hero">
+  <div class="g-grain" aria-hidden="true"></div>
+  <div class="wrap">
+    <div>
+      <span class="g-chip"><i></i>Social Media Playbook</span>
+      <h1 data-greet>Thanks! <em>Your playbook is ready.</em></h1>
+      <p class="g-lead">It's on its way to your email too. Don't see it? Check your spam folder. You don't have to wait for it: open the playbook now, and print it or save it as a PDF from there.</p>
+      <div class="ty-actions">
+        <a class="btn btn-primary" href="print.html">Open the playbook</a>
+      </div>
+    </div>
+    <aside class="g-takeaways" aria-label="Start here">
+      <p>Start here</p>
+      <ul>
+        <li>Make a "Post" album on your phone today</li>
+        <li>Run the setup checklist once (section 2)</li>
+        <li>Put the 10-minute routine in your calendar (section 7)</li>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<div class="wrap ty-next">
+  <div class="g-end">
+    <div>
+      <h2>Next: check the page people see first</h2>
+      <p>Your social pages back up your Google profile, and that's where most customers find you. If the Google profile has gaps, posting won't fix them. Send me your business name and I'll check it and send back the 3 things I'd fix first, in plain English. Free, no call needed.</p>
+      <div class="g-sign"><span class="g-avatar" aria-hidden="true">W</span><div><b>Wyatt, Biggify</b><small>I run Google profiles, reviews, posts and phones for trade businesses.</small></div></div>
+    </div>
+    <a id="next-link" class="btn btn-primary" href="../xray/">Get my free Google Profile X-Ray</a>
+  </div>
+</div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>&copy; Biggify LLC · <a href="../../privacy.html">Privacy</a> · <a href="../../guides/">Guides</a> · <a href="../">Free tools</a></p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var B = window.Biggify || null;
+  var MAGNET = "social_playbook";
+  var store = { get: function(k){ try { return JSON.parse(sessionStorage.getItem(k) || 'null'); } catch(e){ return null; } } };
+  var utm = {};
+  if (B && B.tracking) utm = B.tracking();
+  else utm = store.get('bgf_utm') || {};
+
+  // Greet by first name when they just signed up on this playbook's page.
+  var greet = document.querySelector('[data-greet]'), done = store.get('bgf_done');
+  if (greet && done && done.magnet === MAGNET && done.name) {
+    var em = greet.querySelector('em'); greet.textContent = 'Thanks, ' + String(done.name).slice(0,40) + '! '; if (em) greet.appendChild(em);
+  }
+
+  // Carry the visit's tags to the next tool.
+  var nx = document.getElementById('next-link'); if (nx && Object.keys(utm).length) { var u = new URL(nx.href, location.href); Object.keys(utm).forEach(function(k){ u.searchParams.set(k, utm[k]); }); nx.href = u.toString(); }
+})();
+</script>
+</body>
+</html>

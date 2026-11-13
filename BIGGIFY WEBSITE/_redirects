@@ -1,0 +1,13 @@
+# Short, easy-to-say addresses for the free tools (owner 2026-11-10; list in Hubert docs/lead-magnets/INTAKE_CONTRACT.md).
+# 302, so a destination can move later without browsers remembering the old one. Netlify passes the query string through,
+# so gobiggify.com/calls?src=bni still carries the tracking tag.
+/calls          /tools/missed-calls/       302
+/reviews        /tools/review-kit/         302
+/demo           /tools/demo-line/          302
+/guide-calls    /tools/missed-call-guide/  302
+/guide-reviews  /tools/review-guide/       302
+/posts          /tools/google-posts/       302
+/xray           /tools/xray/               302
+/trial          /tools/trial/              302
+/tuneup         /tools/tuneup/             302
+/free           /tools/                    302

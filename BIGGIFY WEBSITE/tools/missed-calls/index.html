@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Missed Call Money Leak Calculator | Biggify</title>
+<meta name="description" content="Free calculator for contractors. Answer 3 questions and see what the calls you miss could be worth in a week, a month and a year. The math is shown." />
+<link rel="icon" href="/LOGO.png" />
+<link rel="stylesheet" href="/tools/tools.css" />
+</head>
+<body>
+<a class="skip" href="#main">Skip to the calculator</a>
+<header>
+  <div class="wrap">
+    <nav aria-label="Main">
+      <a class="logo" href="/"><img src="/LOGO.png" alt="Biggify home" /></a>
+      <div class="nav-cta">
+        <a class="nav-link hide-sm" href="/tools/">Free tools</a>
+        <a class="nav-phone" data-phone-link href="tel:+19414018288">(941) 401-8288</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap">
+      <span class="callout">Attention Southwest Florida contractors</span>
+      <h1>What are your <span class="grad">missed calls</span> costing you?</h1>
+      <p class="lead">Answer 3 quick questions. You'll see the dollar number right away, with the math.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <!-- STEP 1: the calculator and the form (one call to action: save my result) -->
+      <div class="landing" id="tool">
+        <div class="card">
+          <form id="calc" class="tool-form" novalidate>
+            <fieldset>
+              <legend><span class="num">1</span> Your numbers</legend>
+              <div class="field" data-name="missedPerWeek">
+                <label for="missedPerWeek">How many calls do you miss in a week?</label>
+                <input id="missedPerWeek" name="missedPerWeek" type="number" inputmode="decimal" min="0" max="1000" step="any" placeholder="For example, 5" autocomplete="off" />
+                <span class="hint">Not sure? Check your phone's missed calls for last week.</span>
+                <p class="error">Enter a number from 0 to 1,000.</p>
+              </div>
+              <div class="field" data-name="bookedOutOf10">
+                <label for="bookedOutOf10">Out of 10 callers, how many usually book?</label>
+                <input id="bookedOutOf10" name="bookedOutOf10" type="number" inputmode="decimal" min="0" max="10" step="any" placeholder="For example, 5" autocomplete="off" />
+                <p class="error">Enter a number from 0 to 10.</p>
+              </div>
+              <div class="field" data-name="avgJob">
+                <label for="avgJob">What's an average job worth?</label>
+                <div class="with-unit pre"><span class="unit">$</span><input id="avgJob" name="avgJob" type="number" inputmode="decimal" min="1" max="1000000" step="any" placeholder="For example, 400" autocomplete="off" /></div>
+                <p class="error">Enter a dollar amount.</p>
+              </div>
+            </fieldset>
+
+            <div id="out" class="calc-out" aria-live="polite">
+              <div class="label">What missed calls could be worth to you</div>
+              <div class="big" id="perYear">$0 a year</div>
+              <div class="row"><span><b id="perMonth">$0</b> a month</span><span><b id="perWeek">$0</b> a week</span><span><b id="jobsMonth">0</b> jobs a month</span></div>
+              <ol class="working" id="working"><li>Fill in the 3 boxes to see the math.</li></ol>
+              <p class="fine">These are your own numbers multiplied, nothing else. Some people do call back, so the real number may be lower.</p>
+            </div>
+          </form>
+        </div>
+
+        <div class="card" id="save-card">
+          <h2>Save your result</h2>
+          <p class="muted" style="margin-bottom:16px">Keep your number and get my free 30-day trial offer. Takes 20 seconds.</p>
+          <form id="save" class="tool-form" novalidate>
+            <div class="form-error" id="save-error" role="alert"></div>
+            <div class="field" data-name="email">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" required />
+              <p class="error">Enter your email.</p>
+            </div>
+            <div class="row-2">
+              <div class="field" data-name="name">
+                <label for="name">Your name <span class="muted">(optional)</span></label>
+                <input id="name" name="name" type="text" autocomplete="name" />
+                <p class="error"></p>
+              </div>
+              <div class="field" data-name="business">
+                <label for="business">Business name <span class="muted">(optional)</span></label>
+                <input id="business" name="business" type="text" autocomplete="organization" />
+                <p class="error"></p>
+              </div>
+            </div>
+            <div class="field" data-name="phone">
+              <label for="phone">Phone <span class="muted">(optional)</span></label>
+              <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(941) 555-0123" />
+              <p class="error">Enter a 10-digit phone number.</p>
+            </div>
+            <div class="consent">
+              <input id="smsConsent" name="smsConsent" type="checkbox" />
+              <div>
+                <label for="smsConsent">Text me about my request (optional).</label>
+                <details><summary>The details</summary><p data-consent-text></p></details>
+              </div>
+            </div>
+            <div class="hp" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+            <button class="btn btn-primary btn-block" type="submit" id="save-btn">Save my result</button>
+            <p class="privacy-note">No spam. I don't sell your info. <a href="/privacy.html">Privacy policy</a></p>
+          </form>
+          <ul class="under">
+            <li>Free. No card.</li>
+            <li>The math is shown, line by line.</li>
+            <li>Made by Wyatt at Biggify, Port Charlotte.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- STEP 2: the thank-you view (page rule 4) -->
+      <div class="thanks" id="thanks" hidden tabindex="-1">
+        <div class="card">
+          <div class="done-head"><span class="tick" aria-hidden="true">✓</span><h2 style="font-size:24px">Saved. Here's your number.</h2></div>
+          <div class="calc-out">
+            <div class="label">What missed calls could be worth to you</div>
+            <div class="big" id="t-perYear"></div>
+            <div class="row"><span><b id="t-perMonth"></b> a month</span><span><b id="t-perWeek"></b> a week</span></div>
+            <ol class="working" id="t-working"></ol>
+          </div>
+          <p class="note" id="t-saved-note">I have a copy too. Screenshot or print this page to keep yours.</p>
+          <p style="margin-top:10px"><button class="btn btn-outline btn-small" type="button" onclick="window.print()">Print my result</button></p>
+        </div>
+
+        <div class="offer next-step">
+          <span class="tag">Your next step</span>
+          <p class="consistency">Now that you've seen what missed calls could cost you, the next step to get the most out of it is to let my AI receptionist catch them, free for 30 days.</p>
+          <div class="video-slot" role="img" aria-label="Video from Wyatt, coming soon">Video from Wyatt (coming soon)<small>60 seconds: how the free trial works</small></div>
+          <ul class="under" style="margin-bottom:18px">
+            <li>Your phone still rings first. It only answers the calls you miss.</li>
+            <li>It takes the caller's name and what they need, and texts it to you.</li>
+            <li>No card. It turns off by itself on day 31 unless you tell me in writing to keep it.</li>
+            <li id="t-breakeven" hidden></li>
+          </ul>
+          <button class="btn btn-primary btn-block" type="button" id="trial-btn">Start my free 30-day trial</button>
+          <p class="note">I set up each trial by hand, so I only run 5 at a time.</p>
+          <div class="done" id="trial-done" role="status">Got it. I'll get in touch to set it up. It takes about 20 minutes. Can't wait? Call or text me at <a data-phone-link href="tel:+19414018288">(941) 401-8288</a>.</div>
+          <div class="form-error" id="trial-error" role="alert"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <span>© Biggify · Port Charlotte, FL · <a data-phone-link href="tel:+19414018288">(941) 401-8288</a></span>
+    <nav aria-label="Footer"><a href="/tools/">Free tools</a><a href="/">Home</a><a href="/privacy.html">Privacy</a></nav>
+  </div>
+</footer>
+
+<script src="/tools/config.js"></script>
+<script src="/tools/missed-calls/calc.js"></script>
+</body>
+</html>
