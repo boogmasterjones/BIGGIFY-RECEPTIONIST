@@ -25,6 +25,13 @@ const MAX_MINUTES = Number(process.env.PRACTICE_MAX_MINUTES) || 30;
 export const IDLE_TOKEN = '__practice_idle__';
 // The voicemail drill: once he has been quiet this long after speaking, the message is over.
 const VOICEMAIL_QUIET_MS = 5000;
+// The prospect may not end the scene before the rep's second line (2026-11-13: two calls in a row ended on the
+// prospect's first reply). Only a tough prospect hanging up on a bad opener, or the rep saying goodbye, ends it sooner.
+const MIN_REP_TURNS_TO_END = 2;
+// The actor sometimes forgets who it is and talks as the caller ("No, this is Wyatt with Biggify..."). Such a
+// sentence is never spoken; the reply is asked for again with a reminder.
+const ROLE_BREAK = /\b(this is|it'?s|i'?m|i am|my name is|name'?s) wyatt\b|\b(i'?m|i am|we'?re|we are)( \w+)? (with|from|calling from) biggify\b|\bi'?m calling (about|because|from|to)\b|\bthe reason i'?m calling\b/i;
+export const roleBreak = (t) => ROLE_BREAK.test(String(t || ''));
 
 const wordCount = (t) => String(t || '').trim().split(/\s+/).filter(Boolean).length;
 const norm = (t) => ` ${String(t || '').toLowerCase().replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim()} `;
@@ -69,7 +76,8 @@ export class PracticeSession {
    * @param {string|null} [o.drillRowId] the practice_drills row this call took (null when nothing could be saved)
    * @param {object|null} [o.drillRow]   that row (sticky drill, difficulty target)
    */
-  constructor({ scenario, voice, from = '', greeting = '', drillRowId = null, drillRow = null }) {
+  constructor({ scenario, voice, from = '', greeting = '', drillRowId = null, drillRow = null, reply = streamReply }) {
+    this.reply = reply;
     this.isPractice = true;
     this.voice = voice;
     this.gender = voice.gender;
@@ -243,19 +251,50 @@ export class PracticeSession {
 
     let reply;
     let line = '';
+    // The drill's last line (opener reps stop after his third line): the prospect wraps up instead of asking him
+    // something he never gets to answer.
+    const lastLine = (drill.endAfterRepTurns && repTurns >= drill.endAfterRepTurns) || repTurns >= drill.maxRepTurns;
+    const wrapNote = lastLine ? '\n\n(Note from the line, not spoken by the caller: this is your last line on this call. Answer him in one short line and wrap the call up naturally, the way this person would ("Alright, send me something." / "I gotta go, call me later." / "Not interested, take care."). Do not ask him a question.)' : '';
+    const me = `${this.scenario.speaker.first}${this.scenario.role === 'owner' ? `, the owner of ${this.scenario.biz.name}` : ` at ${this.scenario.biz.name}`}`;
     try {
-      reply = await streamReply({
-        model: practiceModels.actor,
-        system: actorSystem(this.scenario, { today: todayFor(this.scenario.biz.tz) }),
-        messages: this.actorMessages,
-        tools: [END_SCENE_TOOL],
-        maxTokens: 220,
-        onSentence: (s) => {
-          line += `${s} `;
-          say(s);
-        },
-        signal,
-      });
+      for (let attempt = 0; attempt < 2; attempt++) {
+        let broke = false;
+        const lastUser = this.actorMessages[this.actorMessages.length - 1].content;
+        const messages = attempt === 0 ? (wrapNote ? [...this.actorMessages.slice(0, -1), { role: 'user', content: `${lastUser}${wrapNote}` }] : this.actorMessages) : [
+          ...this.actorMessages.slice(0, -1),
+          { role: 'user', content: `${lastUser}${wrapNote}
+
+(Note from the line, not spoken by the caller: you are ${me}, the person who ANSWERED the phone. The caller is the salesman. Never introduce yourself as him or his company. Reply as ${this.scenario.speaker.first}.)` },
+        ];
+        reply = await this.reply({
+          model: practiceModels.actor,
+          system: actorSystem(this.scenario, { today: todayFor(this.scenario.biz.tz) }),
+          messages,
+          tools: [END_SCENE_TOOL],
+          maxTokens: 1000,
+          onSentence: (s) => {
+            if (broke || roleBreak(s)) {
+              broke = true;
+              return;
+            }
+            line += `${s} `;
+            say(s);
+          },
+          signal,
+        });
+        if (!broke && roleBreak(reply.text)) broke = true;
+        if (!broke) break;
+        console.warn('[practice] actor spoke as the caller; asking again:', String(reply.text).slice(0, 160));
+        if (attempt === 1) {
+          // Still confused: keep only what it said in character, or a plain confused line.
+          if (!line.trim()) say('Sorry, who is this?');
+          reply = { ...reply, text: line.trim() || 'Sorry, who is this?', message: { ...reply.message, content: [] } };
+        } else if (line.trim()) {
+          // Part of it was already spoken in character: keep that and stop here.
+          reply = { ...reply, text: line.trim(), message: { ...reply.message, content: [] } };
+          break;
+        }
+      }
     } catch (err) {
       if (signal?.aborted || err?.name === 'APIUserAbortError' || err?.name === 'AbortError') {
         if (line.trim()) {
@@ -268,11 +307,16 @@ export class PracticeSession {
     }
     if (signal?.aborted) return spoken.join(' ');
 
-    const content = reply.message.content;
-    const endTool = content.find((b) => b.type === 'tool_use' && b.name === 'end_scene');
+    const content = reply.message?.content || [];
+    let endTool = content.find((b) => b.type === 'tool_use' && b.name === 'end_scene');
+    const said = (line.trim() || reply.text || '').trim();
+    if (endTool && !this.#mayEnd(endTool.input?.outcome, text, repTurns, said)) {
+      console.warn(`[practice] end_scene ignored (rep line ${repTurns}, outcome ${endTool.input?.outcome}): ${said.slice(0, 120)}`);
+      endTool = null;
+    }
     // Only text goes into the history: the scene is over when end_scene is called, so the tool call
     // never needs a result.
-    const prospectLine = reply.text || (endTool ? 'Alright. Bye.' : '');
+    const prospectLine = (line.trim() || reply.text) || (endTool ? 'Alright. Bye.' : '');
     if (!reply.text && prospectLine) say(prospectLine);
     if (prospectLine) {
       this.actorMessages.push({ role: 'assistant', content: prospectLine });
@@ -285,6 +329,15 @@ export class PracticeSession {
       this.#closeRun(drill.endAfterRepTurns ? 'other' : 'turns', 'the drill ran out of turns');
     }
     return spoken.join(' ');
+  }
+
+  // Is the actor allowed to end the scene now? Not on a question (the rep has to be able to answer it), and not
+  // before the rep's second line unless he said goodbye or a tough prospect hung up on him.
+  #mayEnd(outcome, repText, repTurns, line) {
+    if (/\b(bye|goodbye|take care|have a good (one|day|night))\b/i.test(repText)) return true;
+    if (/\?\s*$/.test(line)) return false;
+    if (repTurns >= MIN_REP_TURNS_TO_END) return true;
+    return this.scenario.difficulty === 'tough' && outcome === 'hung_up';
   }
 
   // The scene is over: the prospect's last line plays and the call hangs up, like a real call. No coach

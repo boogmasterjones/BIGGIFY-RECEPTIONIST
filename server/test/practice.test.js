@@ -441,3 +441,93 @@ test('POST /practice-call-telnyx answers with TeXML', async () => {
     server.close();
   }
 });
+
+// ---- the actor's reply, with a fake model (2026-11-13: hung up on its first line, and once answered AS Wyatt) ----
+
+// A fake model: each call returns the next scripted reply, sentence by sentence, like streamReply does.
+function fakeModel(replies) {
+  const calls = [];
+  const fn = async ({ messages, onSentence }) => {
+    calls.push(messages);
+    const r = replies[Math.min(calls.length - 1, replies.length - 1)];
+    for (const s of r.text.split(/(?<=[.?!])\s+/).filter(Boolean)) onSentence?.(s);
+    return { text: r.text, message: { content: r.end ? [{ type: 'tool_use', name: 'end_scene', input: { outcome: r.end } }] : [] } };
+  };
+  fn.calls = calls;
+  return fn;
+}
+
+function sessionWith(replies, { drillId = 'full', difficulty } = {}) {
+  resetRecent();
+  const scenario = buildScenario({ gender: 'm', drillId });
+  if (difficulty) scenario.difficulty = difficulty;
+  const reply = fakeModel(replies);
+  const s = new PracticeSession({ scenario, voice: { id: 'Telnyx.NaturalHD.orion', gender: 'm' }, reply });
+  return { s, reply };
+}
+
+test('the prospect cannot hang up on its very first reply (easy or normal)', async () => {
+  const { s } = sessionWith([{ text: 'Not interested.', end: 'not_interested' }], { drillId: 'opener', difficulty: 'easy' });
+  const out = await s.handleUtterance('hey is this Mike? It\'s Wyatt with Biggify.');
+  assert.match(out, /Not interested/);
+  assert.equal(s.ended, false);
+  assert.equal(s.phase, 'roleplay');
+});
+
+test('the prospect never hangs up on a question it just asked', async () => {
+  const { s } = sessionWith([{ text: 'Yeah?' }, { text: 'Not interested. Who is this?', end: 'not_interested' }], { drillId: 'full' });
+  await s.handleUtterance('Hi, is this the owner?');
+  await s.handleUtterance('Great, the reason I\'m calling is your Google listing.');
+  assert.equal(s.ended, false);
+});
+
+test('a tough prospect may still hang up on a bad opener, and anyone may once the rep says bye', async () => {
+  const tough = sessionWith([{ text: 'Not interested. Bye.', end: 'hung_up' }], { drillId: 'full', difficulty: 'tough' });
+  await tough.s.handleUtterance('so sorry to bother you, do you have thirty seconds');
+  assert.equal(tough.s.ended, true);
+  const bye = sessionWith([{ text: 'Alright, take care.', end: 'other' }], { drillId: 'full', difficulty: 'easy' });
+  await bye.s.handleUtterance('okay no problem, have a good one, bye');
+  assert.equal(bye.s.ended, true);
+});
+
+test('after the second line the prospect can end the scene normally', async () => {
+  const { s } = sessionWith([{ text: 'Yeah?' }, { text: 'Not interested, take care.', end: 'not_interested' }], { drillId: 'full' });
+  await s.handleUtterance('Hey, is this Jeff?');
+  await s.handleUtterance('I can walk you through all our services, websites, reviews, social, receptionist, all of it.');
+  assert.equal(s.ended, true);
+  assert.equal(s.runs[0].run.outcome, 'not_interested');
+});
+
+test('a reply where the prospect talks as Wyatt is never spoken; it asks again with a reminder', async () => {
+  const { s, reply } = sessionWith([
+    { text: 'No, this is Wyatt with Biggify. When is a good time to call you back?', end: 'callback_time' },
+    { text: 'No, this is Dawn. Who is this?' },
+  ], { drillId: 'hotseat' });
+  const out = await s.handleUtterance('hey is this Ron');
+  assert.doesNotMatch(out, /Wyatt|Biggify/);
+  assert.match(out, /this is Dawn|Who is this/);
+  assert.equal(reply.calls.length, 2);
+  assert.match(reply.calls[1].at(-1).content, /the person who ANSWERED the phone/);
+  assert.equal(s.ended, false);
+  assert.doesNotMatch(JSON.stringify(s.actorMessages), /Wyatt with Biggify/);
+});
+
+test('if it is still confused, the prospect just asks who this is', async () => {
+  const { s } = sessionWith([{ text: "Hi, I'm Wyatt from Biggify." }], { drillId: 'full' });
+  const out = await s.handleUtterance('hello?');
+  assert.equal(out.trim(), 'Sorry, who is this?');
+});
+
+test('the role check leaves a prospect\'s normal questions alone', async () => {
+  const { roleBreak } = await import('../src/practice/session.js');
+  for (const ok of ['So you\'re from Biggify?', 'What does Biggify do?', 'Who is Wyatt?', 'Why are you calling me?', 'No, this is Mike.']) assert.equal(roleBreak(ok), false, ok);
+  for (const bad of ['No, this is Wyatt with Biggify.', "Hey, it's Wyatt.", "I'm calling about your Google listing.", 'The reason I\'m calling is simple.', "I'm with Biggify."]) assert.equal(roleBreak(bad), true, bad);
+});
+
+test('the actor is told it is never the caller, and how to take a wrong name', () => {
+  resetRecent();
+  const sys = actorSystem(buildScenario({ gender: 'f', drillId: 'hotseat' })).map((b) => b.text).join('\n');
+  assert.match(sys, /You are NEVER the caller/);
+  assert.match(sys, /gets your name or your business name wrong/);
+  assert.match(sys, /Never end the call on your first reply/);
+});

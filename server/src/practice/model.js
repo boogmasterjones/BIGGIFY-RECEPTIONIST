@@ -3,13 +3,15 @@ import { config } from '../config.js';
 import { forSpeech, sentenceEnd } from '../claude.js';
 
 // Models for the practice line, all changeable on Render without a code change:
-//   PRACTICE_MODEL         the prospect (live, every turn: must be fast)   default CLAUDE_MODEL / claude-haiku-4-5
+//   PRACTICE_MODEL         the prospect (live, every turn: must be fast)   default claude-haiku-5-5
+//                          (2026-11-13: Haiku 4.5 hung up on its first line and once answered AS Wyatt;
+//                          it no longer follows the receptionist's CLAUDE_MODEL)
 //   PRACTICE_COACH_MODEL   the spoken scorecard and coach questions        default claude-sonnet-5-5 at low effort
 //                          (in local tests Haiku mixed up who said what and graded too kindly; Sonnet's
 //                          scorecard starts in about 1 to 2 s, while the bridge line plays)
 //   PRACTICE_REVIEW_MODEL  the written review emailed after the call       default claude-opus-5-5 (not live, so speed doesn't matter)
 export const practiceModels = {
-  actor: process.env.PRACTICE_MODEL || config.claudeModel,
+  actor: process.env.PRACTICE_MODEL || 'claude-haiku-5-5',
   coach: process.env.PRACTICE_COACH_MODEL || 'claude-sonnet-5-5',
   review: process.env.PRACTICE_REVIEW_MODEL || 'claude-opus-5-5',
 };
