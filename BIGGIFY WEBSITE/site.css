@@ -259,7 +259,8 @@ a[href^="tel:"]{white-space:nowrap}
 /* ---------- stats ---------- */
 .stats{position:relative;padding:48px 0}
 .stat-grid{display:grid;gap:8px}
-@media(min-width:760px){.stat-grid{grid-template-columns:repeat(3,1fr);gap:24px}.stats{padding:64px 0}}
+@media(min-width:760px){.stat-grid{grid-template-columns:repeat(3,1fr);gap:24px}.stat-grid.two{grid-template-columns:repeat(2,1fr);max-width:900px}.stats{padding:64px 0}}
+.stat .src{display:block;margin-top:6px;font-size:12px;letter-spacing:0;text-transform:none;opacity:.6;font-weight:500}
 .stat{padding:16px 4px;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:16px}
 @media(min-width:760px){.stat{display:block;text-align:left;padding:8px 24px;border-left:2px solid rgba(255,90,77,.5)}}
 .stat .n{font-family:var(--display);font-stretch:66%;font-weight:900;font-size:clamp(52px,7vw,84px);line-height:.9;min-width:150px;color:transparent;background:linear-gradient(120deg,#ff8f7d,#ff3d30 55%,#ffb35c);-webkit-background-clip:text;background-clip:text}
