@@ -271,6 +271,12 @@
       </div>
 
       <div class="calc-row">
+        <label for="bookRate">Out of 10 callers, how many book a job? <span class="val" id="bookedLabel">5</span></label>
+        <input type="range" id="bookRate" min="1" max="10" step="1" value="5" />
+        <div class="calc-scale"><span>1</span><span>10</span></div>
+      </div>
+
+      <div class="calc-row">
         <label id="missLabel">How often do calls get missed today?</label>
         <div class="toggle-group" id="missToggle" role="group" aria-labelledby="missLabel">
           <button type="button" class="toggle-opt" data-low="0.05" data-high="0.15" aria-pressed="false">I answer almost every call</button>
@@ -280,9 +286,9 @@
       </div>
 
       <div class="calc-result" aria-live="polite">
-        <div class="label">Estimated potential revenue per year</div>
-        <div class="range" id="resultRange">$8,000 – $22,000</div>
-        <div class="sub">Based on the calls you'd otherwise miss, that most of those callers won't call you back, and that Biggify recovers most — not all — of that lost business.</div>
+        <div class="label">What your missed calls could be worth per year</div>
+        <div class="range" id="resultRange">&nbsp;</div>
+        <div class="sub">Low end: the 1 in 5 missed callers who go straight to a competitor (CallRail survey of 1,000 US consumers). High end: the 85% of missed calls that leave no voicemail (Quo, 18 million missed calls). Times how often your callers book, times your average job.</div>
       </div>
       <div class="calc-caveat">This is <em>potential</em> revenue, not guaranteed income. To actually capture all of it, you'd need to supply all of that demand — and most contractors can only take on so many jobs a month. Think of this as the ceiling, not a promise.</div>
     </div>
@@ -361,6 +367,8 @@
   var callsLabel = document.getElementById('callsLabel');
   var toggleOpts = document.querySelectorAll('#missToggle .toggle-opt');
   var resultRange = document.getElementById('resultRange');
+  var bookedEl = document.getElementById('bookRate');
+  var bookedLabel = document.getElementById('bookedLabel');
 
   var fmtMoney = function(n){
     n = Math.round(n / 100) * 100;
@@ -372,6 +380,8 @@
   function recalc(){
     var jobValue = Number(jobValueEl.value);
     var calls = Number(callsEl.value);
+    var bookRate = Number(bookedEl.value) / 10;
+    bookedLabel.textContent = String(bookedEl.value);
 
     jobValueLabel.textContent = '$' + jobValue.toLocaleString('en-US');
     callsLabel.textContent = calls.toLocaleString('en-US');
@@ -380,23 +390,18 @@
     var missedLow = calls * activeMiss.low;
     var missedHigh = calls * activeMiss.high;
 
-    // Of missed calls, most callers don't call back (60%-85% — matches the
-    // "85% call a competitor" stat, with 60% as a more conservative floor).
-    var lostJobsLow = missedLow * 0.60;
-    var lostJobsHigh = missedHigh * 0.85;
-
-    // Biggify doesn't recover every single one of those — 70%-95% capture rate.
-    var savedLow = lostJobsLow * 0.70;
-    var savedHigh = lostJobsHigh * 0.95;
-
-    var annualLow = savedLow * jobValue * 12;
-    var annualHigh = savedHigh * jobValue * 12;
+    // Only sourced figures (owner 2026-11-13). Low: 21% of callers call another business right away when nobody answers
+    // (CallRail survey of 1,000 US consumers). High: 85% of missed calls leave no voicemail (Quo, 18 million missed calls).
+    // Then the caller's own booking rate and average job. No recovery rate is claimed.
+    var annualLow = missedLow * 0.21 * bookRate * jobValue * 12;
+    var annualHigh = missedHigh * 0.85 * bookRate * jobValue * 12;
 
     resultRange.textContent = fmtMoney(annualLow) + ' – ' + fmtMoney(annualHigh);
   }
 
   jobValueEl.addEventListener('input', recalc);
   callsEl.addEventListener('input', recalc);
+  bookedEl.addEventListener('input', recalc);
   toggleOpts.forEach(function(opt){
     opt.addEventListener('click', function(){
       toggleOpts.forEach(function(o){ o.classList.remove('active'); o.setAttribute('aria-pressed','false'); });
