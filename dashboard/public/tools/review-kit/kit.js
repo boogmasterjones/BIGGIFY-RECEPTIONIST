@@ -46,7 +46,7 @@
     var job = JOBS[trade] || JOBS.other;
     return [
       ["The ask, same day", "Hi [Name], it's [Your name] from " + biz + ". Thanks again for having us out today! If you have a minute, a Google review would mean a lot to a small business like ours: " + link + " Thank you!"],
-      ["One reminder, 3 days later", "Hi [Name], just a quick nudge in case the link got buried: " + link + " No worries if you're busy. Thanks again for choosing " + biz + "!"],
+      ["Weekly reminder (weeks 1 to 3)", "Hi [Name], just a quick nudge in case the link got buried: " + link + " No worries if you're busy. Thanks again for choosing " + biz + "!"],
       ["Short and simple", "Hi [Name], [Your name] from " + biz + " here. Would you leave us a quick, honest Google review? " + link + " Thanks!"],
       ["Right after you finish", "Hi [Name], all done! Thanks for trusting " + biz + " with your " + job + ". If you have a minute, an honest Google review helps us a lot: " + link],
       ["Past customer (last month)", "Hi [Name], it's [Your name] from " + biz + ". We did your " + job + " last month. I hope it's all working well. Would you mind leaving us an honest Google review? " + link],
@@ -63,7 +63,7 @@
       ["After a follow-up visit", "Hi [Name], thanks for letting us come back and check on things. If you have a minute, a Google review about how we handled it would help " + biz + ": " + link],
       ["Seasonal thank-you", "Hi [Name], [Your name] from " + biz + " here. Thanks for being a customer this year! If you have a minute, an honest Google review helps neighbors find us: " + link],
       ["In Spanish", "Hola [Nombre], soy [Su nombre] de " + biz + ". ¡Gracias por elegirnos! Si tiene un minuto, una reseña honesta en Google nos ayuda mucho: " + link + " ¡Gracias!"],
-      ["Last note (then stop)", "Hi [Name], last note from me, I promise. If you'd like to share how the " + job + " went, here's the link: " + link + " Thanks either way! [Your name], " + biz],
+      ["Last note, week 4 (then stop)", "Hi [Name], last note from me, I promise. If you'd like to share how the " + job + " went, here's the link: " + link + " Thanks either way! [Your name], " + biz],
       ["Thank them for their review", "Thank you so much for the review, [Name]! It really helps a small business like ours. We're here any time you need us. [Your name], " + biz],
     ];
   }
