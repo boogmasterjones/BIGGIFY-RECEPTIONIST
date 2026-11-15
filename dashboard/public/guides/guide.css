@@ -142,9 +142,11 @@ body.guide-page{background:var(--cream)}
 .g-dodont h4 i{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-style:normal;font-size:14px;font-weight:900}
 .g-do h4{color:var(--g-green)}.g-do h4 i{background:var(--g-green-soft)}
 .g-dont h4{color:var(--g-red)}.g-dont h4 i{background:var(--g-red-soft)}
-.g-dodont ul{list-style:none;display:grid;gap:9px}
-.g-dodont li{font-size:16px;line-height:1.5;padding-left:20px;position:relative}
-.g-dodont li::before{content:"";position:absolute;left:2px;top:.62em;width:7px;height:7px;border-radius:50%}
+/* The lists inside have no class, so ".g-article ul:not([class]) li" (0,2,2) used to win and cut padding-left to 4px: the
+   dot sat on the first letter. These selectors out-rank it (fixed 2026-11-15). */
+.g-dodont ul,.g-article .g-dodont ul:not([class]){list-style:none;display:grid;gap:9px;padding:0;margin:0}
+.g-dodont li,.g-article .g-dodont ul:not([class]) li{font-size:16px;line-height:1.5;margin:0;padding:0 0 0 22px;position:relative}
+.g-dodont li::before{content:"";position:absolute;left:3px;top:.62em;width:8px;height:8px;border-radius:50%}
 .g-do li::before{background:var(--g-green)}.g-dont li::before{background:var(--g-red)}
 
 /* risk / comparison table: a table on wide screens, cards on phones */
