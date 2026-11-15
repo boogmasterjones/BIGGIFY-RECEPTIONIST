@@ -28,7 +28,9 @@ export default function LoginPage() {
       setError(error.message);
       return;
     }
-    router.push('/home');
+    // Back to the website editor when that's where you came from (only /editor addresses are accepted).
+    const next = new URLSearchParams(window.location.search).get('next');
+    router.push(next && /^\/editor(?:\/[a-z0-9/-]*)?$/.test(next) && !next.includes('//') ? next : '/home');
     router.refresh();
   }
 
