@@ -23,7 +23,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        {/* Vercel Web Analytics: page views and referrers (owner 2026-11-16: see if the Facebook outreach is working). */}
+        <script defer src="/_vercel/insights/script.js" />
+      </body>
     </html>
   );
 }
