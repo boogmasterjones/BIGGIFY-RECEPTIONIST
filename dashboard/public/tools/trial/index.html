@@ -11,6 +11,12 @@
 <link rel="stylesheet" href="/tools/tools.css" />
   <script defer src="/_vercel/insights/script.js"></script>
   <script defer src="/tools/beacon.js"></script>
+  <!-- Video links (gobiggify.com/100-calls and the like, see /tools/videos.js): a viewer tagged src=yt-<slug> sees that video's
+       offer instead of the prices. Loaded here, before the page shows, so the offer never flashes in late. -->
+  <style>html[data-video] [data-default-only]{display:none!important}html:not([data-video]) [data-video-only]{display:none!important}</style>
+  <script src="/tools/config.js"></script>
+  <script src="/tools/videos.js"></script>
+  <script src="/tools/trial/video-offer.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to the form</a>
@@ -28,10 +34,16 @@
 
 <main id="main">
   <section class="hero">
-    <div class="wrap">
+    <div class="wrap" data-default-only>
       <span class="callout">For service businesses anywhere in the US</span>
       <h1>Try my <span class="grad">AI receptionist</span> free for 30 days</h1>
       <p class="lead">It answers the calls you miss. It takes the caller's name and what they need, and texts it to you right away. No card. It turns off by itself on day 31.</p>
+    </div>
+    <div class="wrap" data-video-only>
+      <span class="callout">From my video: <span data-video-title></span></span>
+      <h1>Try my <span class="grad">AI receptionist</span> free for 30 days</h1>
+      <p class="lead">Thanks for watching! Here is my deal for you. Use it free for 30 days. No card. If you keep it, you get <b data-video-offer></b>.</p>
+      <p class="lead" style="margin-top:12px">It answers the calls you miss. It texts you who called and what they need.</p>
     </div>
   </section>
 
@@ -146,9 +158,13 @@
           <span class="tag">After the 30 days</span>
           <p class="consistency">Now that you've started your free trial, the next step to get the most out of it is keeping it on after day 30, if it earns its place.</p>
           <div class="video-slot" role="img" aria-label="Video from Wyatt, coming soon">Video from Wyatt (coming soon)<small>60 seconds: what the receptionist does on a real call</small></div>
-          <ul class="under">
+          <ul class="under" data-default-only>
             <li>$147 a month, no commitment.</li>
             <li>Or $127 a month on 6 months, or $80 a month on 12.</li>
+            <li>Only if you tell me yes in writing. If you don't, it just switches off.</li>
+          </ul>
+          <ul class="under" data-video-only>
+            <li>You came from my video, so you get <b data-video-offer></b>.</li>
             <li>Only if you tell me yes in writing. If you don't, it just switches off.</li>
           </ul>
         </div>
@@ -181,8 +197,7 @@
   </div>
 </footer>
 
-<script src="/tools/config.js"></script>
-<!-- The form script is shared by the three "I do it for you" pages and lives with the X-Ray page. -->
+<!-- /tools/config.js is loaded in the head (the video offer needs it before the page shows). The form script is shared by the three "I do it for you" pages and lives with the X-Ray page. -->
 <script src="/tools/xray/service-form.js"></script>
 </body>
 </html>
