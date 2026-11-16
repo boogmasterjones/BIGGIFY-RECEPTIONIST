@@ -23,6 +23,12 @@ import { forSpeech } from '../claude.js';
 
 const MAX_MINUTES = Number(process.env.PRACTICE_MAX_MINUTES) || 30;
 export const IDLE_TOKEN = '__practice_idle__';
+// The socket cancelled the last reply before he heard a word of it (he kept talking, or it was only noise) and
+// no new words came: answer the turn that is still waiting. (turns.js / index.js)
+export const OWED_TOKEN = '__practice_owed__';
+// The prospect's lines stay short so they never talk over him (2026-11-16). A reply stops being spoken after
+// this many words; the history keeps only what was actually said.
+const MAX_PROSPECT_WORDS = 40;
 // The voicemail drill: once he has been quiet this long after speaking, the message is over.
 const VOICEMAIL_QUIET_MS = 5000;
 // The prospect may not end the scene before the rep's second line (2026-11-13: two calls in a row ended on the
@@ -34,6 +40,7 @@ const ROLE_BREAK = /\b(this is|it'?s|i'?m|i am|my name is|name'?s) wyatt\b|\b(i'
 export const roleBreak = (t) => ROLE_BREAK.test(String(t || ''));
 
 const wordCount = (t) => String(t || '').trim().split(/\s+/).filter(Boolean).length;
+const sentences = (t) => String(t || '').split(/(?<=[.?!])\s+/).map((x) => x.trim()).filter(Boolean);
 const norm = (t) => ` ${String(t || '').toLowerCase().replace(/[^a-z0-9' ]+/g, ' ').replace(/\s+/g, ' ').trim()} `;
 
 export const RE = {
@@ -150,6 +157,12 @@ export class PracticeSession {
       return spoken.join(' ');
     }
 
+    if (text === OWED_TOKEN) {
+      const lastTurn = this.run.turns[this.run.turns.length - 1];
+      if (this.phase !== 'roleplay' || lastTurn?.who !== 'rep') return '';
+      return this.#roleplayTurn(null, say, spoken, signal);
+    }
+
     if (text === IDLE_TOKEN) {
       // Voicemail: he stopped talking, so the message is left. Hang up like a real voicemail would.
       if (this.phase === 'roleplay' && DRILL_BY_ID[this.scenario.drill].voicemail && this.run.turns.length) this.#closeRun('voicemail', '');
@@ -232,10 +245,18 @@ export class PracticeSession {
     this.pausedRun = null;
   }
 
+  // `text` null: answer his last line again (its first answer was cancelled before any word of it was heard).
   async #roleplayTurn(text, say, spoken, signal) {
     const drill = DRILL_BY_ID[this.scenario.drill];
-    this.run.turns.push({ who: 'rep', text });
+    const prevTurn = this.run.turns[this.run.turns.length - 1];
+    if (text !== null) {
+      // His last line never got an answer (cancelled before a word was heard): this is the same turn going on,
+      // not a new one. One turn of his gets one reply.
+      if (prevTurn?.who === 'rep' && !drill.voicemail) prevTurn.text = `${prevTurn.text} ${text}`;
+      else this.run.turns.push({ who: 'rep', text });
+    }
     const repTurns = this.run.turns.filter((x) => x.who === 'rep').length;
+    const repText = this.run.turns[this.run.turns.length - 1].text;
 
     if (drill.voicemail) {
       // The voicemail just listens. When he has been quiet for a few seconds, the socket sends IDLE_TOKEN.
@@ -246,8 +267,15 @@ export class PracticeSession {
 
     // Keep the actor history alternating even if a reply was cut off before any words.
     const last = this.actorMessages[this.actorMessages.length - 1];
-    if (last?.role === 'user' && typeof last.content === 'string') last.content += ` ${text}`;
+    if (text === null) {
+      if (last?.role !== 'user') return spoken.join(' ');
+    } else if (last?.role === 'user' && typeof last.content === 'string') last.content += ` ${text}`;
     else this.actorMessages.push({ role: 'user', content: text });
+
+    // Never the same thing twice: a sentence (3+ words) already in the prospect's last line is not said again.
+    const prevProspect = [...this.run.turns].reverse().find((x) => x.who === 'prospect');
+    const alreadySaid = new Set(sentences(prevProspect?.text).map(norm).filter((x) => wordCount(x) >= 3));
+    let words = 0;
 
     let reply;
     let line = '';
@@ -277,8 +305,12 @@ export class PracticeSession {
               broke = true;
               return;
             }
-            line += `${s} `;
-            say(s);
+            if (words >= MAX_PROSPECT_WORDS) return;
+            const piece = sentences(s).filter((x) => !alreadySaid.has(norm(x))).join(' ');
+            if (!piece) return;
+            words += wordCount(piece);
+            line += `${piece} `;
+            say(piece);
           },
           signal,
         });
@@ -287,8 +319,11 @@ export class PracticeSession {
         console.warn('[practice] actor spoke as the caller; asking again:', String(reply.text).slice(0, 160));
         if (attempt === 1) {
           // Still confused: keep only what it said in character, or a plain confused line.
-          if (!line.trim()) say('Sorry, who is this?');
-          reply = { ...reply, text: line.trim() || 'Sorry, who is this?', message: { ...reply.message, content: [] } };
+          if (!line.trim()) {
+            say('Sorry, who is this?');
+            line = 'Sorry, who is this?';
+          }
+          reply = { ...reply, text: line.trim(), message: { ...reply.message, content: [] } };
         } else if (line.trim()) {
           // Part of it was already spoken in character: keep that and stop here.
           reply = { ...reply, text: line.trim(), message: { ...reply.message, content: [] } };
@@ -309,15 +344,15 @@ export class PracticeSession {
 
     const content = reply.message?.content || [];
     let endTool = content.find((b) => b.type === 'tool_use' && b.name === 'end_scene');
-    const said = (line.trim() || reply.text || '').trim();
-    if (endTool && !this.#mayEnd(endTool.input?.outcome, text, repTurns, said)) {
-      console.warn(`[practice] end_scene ignored (rep line ${repTurns}, outcome ${endTool.input?.outcome}): ${said.slice(0, 120)}`);
+    const saidLine = line.trim();
+    if (endTool && !this.#mayEnd(endTool.input?.outcome, repText, repTurns, saidLine)) {
+      console.warn(`[practice] end_scene ignored (rep line ${repTurns}, outcome ${endTool.input?.outcome}): ${saidLine.slice(0, 120)}`);
       endTool = null;
     }
-    // Only text goes into the history: the scene is over when end_scene is called, so the tool call
-    // never needs a result.
-    const prospectLine = (line.trim() || reply.text) || (endTool ? 'Alright. Bye.' : '');
-    if (!reply.text && prospectLine) say(prospectLine);
+    // Only text goes into the history, and only what was actually spoken: the scene is over when end_scene is
+    // called, so the tool call never needs a result.
+    const prospectLine = saidLine || (endTool ? 'Alright, take care.' : '');
+    if (!saidLine && prospectLine) say(prospectLine);
     if (prospectLine) {
       this.actorMessages.push({ role: 'assistant', content: prospectLine });
       this.run.turns.push({ who: 'prospect', text: prospectLine });

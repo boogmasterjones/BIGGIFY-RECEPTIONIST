@@ -57,9 +57,9 @@ The prospects are the people you actually call: plumbers, roofers, tile, pools, 
 more, in Port Charlotte and the towns around it, and in the out-of-state cities on your lists (Spokane, Mesa,
 Austin). Out-of-state calls remind you the meeting is a phone call from your cell.
 
-Their personalities change too: busy and gruff, friendly but won't commit, burned by a marketing company before,
+Their personalities change too: busy and blunt, friendly but won't commit, burned by a marketing company before,
 price shopper, already has a guy, "just send me an email", not interested, chatty, suspicious, old-school, wants
-specifics, on a job, angry, "I have to ask my wife". Some calls are easy, some are tough. Score 8 or more and the
+specifics, on a job, tired of sales calls, "I have to ask my wife". Some calls are easy, some are tough. Score 8 or more and the
 next one gets harder; score 4 or less and it gets easier.
 
 ## What the coach grades on
@@ -80,6 +80,11 @@ the transcripts. The transcripts come from speech-to-text, so a few words may be
 - **You hear nothing after the call connects**: hang up and call again. That voice gets skipped from then on.
 - **It keeps mishearing you**: speak a little slower, off speakerphone.
 - **Calls cut off at 30 minutes** of practice. Call back for more.
+- **Turn-taking (2026-11-16)**: the prospect waits until you have been quiet for about 1.4 seconds before it answers
+  (about 2.6 seconds when your words stop mid-thought, on "and", "so", "because"...), so you can pause while reading
+  your script. It answers each thing you say once, keeps its lines short, and stays polite: tough prospects are
+  harder to win, never rude. If it still jumps in too soon, set PRACTICE_TURN_WAIT_MS on Render (for example 1800);
+  if it feels slow, lower it (1100). PRACTICE_SPEECH_MODEL=flux tries Deepgram Flux turn detection (optional).
 
 ---
 
