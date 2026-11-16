@@ -20,6 +20,8 @@ import { syncCreateAppointment, syncUpdateAppointment, syncDeleteAppointment } f
 import { createPaymentLink, handleWebhook } from './stripe.js';
 import { telnyxAnswer, telnyxRingFirst } from './telnyx.js';
 import { registerPracticeRoutes, takePracticeSession, finishPracticeSession } from './practice/index.js';
+import { TurnGate } from './practice/turns.js';
+import { OWED_TOKEN } from './practice/session.js';
 
 // Resolve which business a call is for by the dialed number, falling back to
 // the single-business env config.
@@ -309,6 +311,10 @@ wss.on('connection', (ws, req) => {
   let clientSpeaking = false;
   let clientStoppedAt = 0;
   let resumeTimer = null;
+  // Practice line only: collects the pieces of one thing Wyatt says (he pauses mid-sentence reading his script)
+  // and answers them once, after he has finished. See practice/turns.js.
+  let gate = null;
+  let turnSeq = 0; // only the newest turn may start a reply
   // Twilio follows a false barge-in with an empty 'prompt', which resumes us. Telnyx sends nothing when the
   // "speech" was just echo or noise, so the receptionist went silent mid-sentence. On Telnyx, once the caller has
   // been quiet for a moment and no words arrived, finish what we were saying.
@@ -318,7 +324,9 @@ wss.on('connection', (ws, req) => {
     resumeTimer = setInterval(() => {
       if (!pendingInterrupt) return clearInterval(resumeTimer);
       const quietFor = clientSpeaking ? 0 : Date.now() - Math.max(clientStoppedAt, started);
-      if (quietFor >= 1200 || Date.now() - started > 8000) {
+      // Practice: wait a little longer, so a slow transcript of real words is not answered twice (the rest of
+      // the old line, then the reply to his words).
+      if (quietFor >= (gate ? 2000 : 1200) || Date.now() - started > 8000) {
         clearInterval(resumeTimer);
         if (pendingInterrupt && !clientSpeaking) resumeAfterFalseBargeIn();
       }
@@ -377,13 +385,15 @@ wss.on('connection', (ws, req) => {
     const ms = session?.idleAfterMs?.() || 0;
     if (!ms) return;
     idleTimer = setTimeout(() => {
-      if (clientSpeaking || inflight || endPendingSince) return armIdle();
+      if (clientSpeaking || inflight || endPendingSince || gate?.pending) return armIdle();
       runPrompt(session.idleToken);
     }, ms);
   }
 
   async function runPrompt(text) {
+    const mine = ++turnSeq;
     await cancelInflight(); // if the caller interrupted, drop the old reply
+    if (mine !== turnSeq) return; // a newer turn came in while this one waited: only that one is answered
     pendingInterrupt = null;
     const controller = new AbortController();
     spokenText = '';
@@ -433,6 +443,12 @@ wss.on('connection', (ws, req) => {
         }
         spokenText = session.greeting || '';
         speaking = Boolean(spokenText);
+        gate = new TurnGate({
+          onTurn: (text) => {
+            if (endPendingSince || session.ended) return;
+            runPrompt(text || OWED_TOKEN).then(armIdle);
+          },
+        });
         console.log(`[practice] setup ${msg.callSid}`);
         return;
       }
@@ -472,6 +488,15 @@ wss.on('connection', (ws, req) => {
       if (msg.name === 'clientSpeaking') {
         clientSpeaking = msg.value === 'on';
         if (!clientSpeaking) clientStoppedAt = Date.now();
+        if (gate) {
+          gate.setSpeaking(clientSpeaking);
+          // He started talking again before a word of the reply went out: drop that reply, and answer once he
+          // is done (together with whatever he says now).
+          if (clientSpeaking && inflight && !speaking && !endPendingSince) {
+            cancelInflight();
+            gate.owe();
+          }
+        }
       }
       if (msg.name === 'agentSpeaking' && msg.value === 'on') session?.noteAgentSpeaking?.();
       if (msg.name === 'agentSpeaking' && msg.value === 'off' && endPendingSince && Date.now() - endPendingSince > 800) finishCall();
@@ -516,6 +541,16 @@ wss.on('connection', (ws, req) => {
         pendingInterrupt = null;
         if (heard) session.markInterrupted(heard);
       }
+      if (gate) {
+        // Practice: more words while the reply is still being written (nothing spoken yet) are the same turn:
+        // drop that reply; the session joins his words into one line and it is answered once.
+        if (inflight && !speaking) {
+          cancelInflight();
+          gate.owe();
+        }
+        gate.add(text);
+        return;
+      }
       await runPrompt(text);
       armIdle();
       return;
@@ -530,6 +565,7 @@ wss.on('connection', (ws, req) => {
     clearTimeout(endTimer);
     clearTimeout(idleTimer);
     if (session?.isPractice) {
+      gate?.close();
       clearInterval(resumeTimer);
       cancelInflight();
       finishPracticeSession(session);

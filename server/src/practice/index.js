@@ -52,7 +52,7 @@ export function callerAllowed(from) {
   return list.includes(String(from || '').replace(/\D/g, '').slice(-10));
 }
 
-export function practiceAnswer(publicUrl, { voice, greeting, id }) {
+export function practiceAnswer(publicUrl, { voice, greeting, id, speechModel = (process.env.PRACTICE_SPEECH_MODEL || '').trim() }) {
   const base = (publicUrl ? publicUrl.replace(/^http/, 'ws') : `ws://localhost:${config.port}`) + '/ws';
   const wsUrl = `${base}?practice=${encodeURIComponent(id)}`;
   return (
@@ -64,6 +64,10 @@ export function practiceAnswer(publicUrl, { voice, greeting, id }) {
     ` voice="${escapeXml(voice.id)}"` +
     ` language="en"` +
     ` transcriptionProvider="${escapeXml(config.telnyx.transcriptionProvider)}"` +
+    // TeXML has no end-of-speech / silence setting, so the server waits for him to finish (turns.js). Optional
+    // on Render: PRACTICE_SPEECH_MODEL=flux tries Deepgram Flux, whose own end-of-turn detection waits for a
+    // finished thought instead of the first pause. Not set = Telnyx's default model, as before.
+    (speechModel ? ` speechModel="${escapeXml(speechModel)}"` : '') +
     // He can talk over the prospect, the way real calls go, even over the "hello".
     ` interruptible="speech"` +
     ` welcomeGreetingInterruptible="speech"` +

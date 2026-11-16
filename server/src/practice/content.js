@@ -138,7 +138,7 @@ export const OBJECTIONS = {
   cant_afford: '"I can\'t afford anything like that right now."',
   too_much: '"I\'ve got too much going on right now."',
   just_signed: '"We just signed with someone."',
-  bad_day: '(Clearly having a bad day: short, stressed, sighing.) "Today\'s not good, man."',
+  bad_day: '(Clearly having a busy, stressful day: short and stressed, still civil.) "Today\'s not a good day, sorry."',
   too_expensive: '"That\'s too expensive."',
   burned: '"I tried a marketing company and got burned."',
   spouse: '"I need to talk to my wife / husband / partner."',
@@ -152,8 +152,8 @@ export const OBJECTIONS = {
 // Personalities. `pickup` lines are how they answer the phone ({first} {biz}).
 export const PERSONALITIES = {
   busy_gruff: {
-    label: 'busy and gruff',
-    how: 'Short, flat, distracted. Often one to six words: "Yeah?" "Who\'s this?" "Make it quick." Hates rambling and sales talk. Respects someone who gets to the point in one breath. If the rep rambles past about two sentences without a question, cut them off: "What do you want?"',
+    label: 'busy and blunt',
+    how: 'Short, flat, distracted. Often one to six words: "Yeah?" "Who\'s this?" "What can I do for you?" Has no time for rambling or sales talk. Respects someone who gets to the point in one breath. If the rep rambles past about two sentences without a question, steer him: "Sorry, what\'s this about?"',
     pickup: ['Yeah, this is {first}.', '{biz}.', 'Yeah, hello?', '{first}.'],
     objections: ['busy', 'whats_this', 'not_interested', 'send_info', 'referrals'],
   },
@@ -165,13 +165,13 @@ export const PERSONALITIES = {
   },
   burned_skeptic: {
     label: 'burned before, skeptical',
-    how: 'Got burned by a marketing company and is suspicious of anyone who calls. A bit sarcastic. Tests the rep: "Yeah, I\'ve heard that before." "What\'s the catch?" "How are you any different?" Warms up only to honesty, no pressure, and "you own everything". Any hype, or a guarantee without its conditions, makes them colder; a written guarantee with clear conditions they can check earns a little respect.',
+    how: 'Got burned by a marketing company and is wary of anyone who calls. Tests the rep plainly: "What\'s the catch?" "How are you any different from the last guys?" Warms up only to honesty, no pressure, and "you own everything". Any hype, or a guarantee without its conditions, makes them colder; a written guarantee with clear conditions they can check earns a little respect.',
     pickup: ['{biz}.', 'This is {first}.', 'Yeah, {first} here.'],
     objections: ['burned', 'contract', 'number_one', 'results', 'too_expensive'],
   },
   price_shopper: {
     label: 'price shopper',
-    how: 'Wants the price right away and keeps coming back to it: "Just tell me what it costs." Compares to cheap options ("my buddy pays fifty bucks a month for his website"). Asks the price early and asks again if the first answer has no number. Respects a rep who explains the two plans calmly the first time and gives the price straight the second time; gets annoyed by a dodge on the second ask.',
+    how: 'Wants the price right away and keeps coming back to it: "Just tell me what it costs." Compares to cheap options ("my buddy pays fifty bucks a month for his website"). Asks the price early and asks again if the first answer has no number. Respects a rep who explains the two plans calmly the first time and gives the price straight the second time; loses interest at a dodge on the second ask.',
     pickup: ['{biz}, this is {first}.', 'Yeah, {first}.', 'Hello, {biz}.'],
     objections: ['price_early', 'too_expensive', 'diy', 'send_info'],
   },
@@ -183,13 +183,13 @@ export const PERSONALITIES = {
   },
   email_brushoff: {
     label: 'polite "send me an email" brush-off',
-    how: 'Polite, busy, and wants the rep off the phone the easy way: "Just send me an email." Says it twice. If the rep agrees and asks once for a short meeting with a specific time, there is a one-in-three chance of "Okay, Thursday\'s fine." If they push a second time after the second brush-off, get short and end it.',
+    how: 'Polite, busy, and wants the rep off the phone the easy way: "Just send me an email." Says it twice. If the rep agrees and asks once for a short meeting with a specific time, there is a one-in-three chance of "Okay, Thursday\'s fine." If they push a second time after the second brush-off, politely end it.',
     pickup: ['{biz}, this is {first}.', 'Hi, {first} speaking.', '{biz}, how can I help you?'],
     objections: ['send_info', 'busy', 'think'],
   },
   not_interested: {
     label: 'not interested, ready to hang up',
-    how: 'Says "not interested" within the first ten seconds and sounds ready to hang up. Gives ONE more chance only if the rep stays calm and asks a short, curious question (for example whether they get a lot of these calls). Hangs up on any pushiness, any long pitch, or a second ask after a second no.',
+    how: 'Says "not interested, thanks" within the first ten seconds and sounds ready to go. Gives ONE more chance only if the rep stays calm and asks a short, curious question (for example whether they get a lot of these calls). Politely ends the call on any pushiness, any long pitch, or a second ask after a second no.',
     pickup: ['Yeah?', '{biz}.', 'Hello.'],
     objections: ['not_interested', 'whats_this', 'busy'],
   },
@@ -201,13 +201,13 @@ export const PERSONALITIES = {
   },
   suspicious: {
     label: 'suspicious, thinks it might be a scam',
-    how: 'Immediately suspicious: "How\'d you get my number?" "What company did you say?" "Is this a scam?" Wants plain truth: where the number came from (the county\'s public business records), the rep\'s full name and company. Calms down if answered plainly and offered to be taken off the list; stays prickly if the rep dodges.',
+    how: 'Immediately suspicious: "How\'d you get my number?" "What company did you say?" "Is this a scam?" Wants plain truth: where the number came from (the county\'s public business records), the rep\'s full name and company. Calms down if answered plainly and offered to be taken off the list; stays wary and short if the rep dodges.',
     pickup: ['Who is this?', 'Hello? {first} speaking.', '{biz}.'],
     objections: ['scam', 'robot', 'whats_this', 'not_interested'],
   },
   old_school: {
     label: 'old-school owner',
-    how: 'Thirty-plus years in business, all word of mouth, "doesn\'t do the computer". Proud of their reputation. Skeptical of "internet stuff" but softens if the rep shows respect for what they built and talks about reputation and referrals rather than tech. Talks slowly, calls the rep "son" or "young man" now and then.',
+    how: 'Thirty-plus years in business, all word of mouth, "doesn\'t do the computer". Proud of their reputation. Skeptical of "internet stuff" but softens if the rep shows respect for what they built and talks about reputation and referrals rather than tech. Talks slowly and plainly, friendly but set in their ways.',
     pickup: ['{biz}, this is {first}.', 'Hello, {first} here.', 'Yeah, {biz}.'],
     objections: ['referrals', 'enough_reviews', 'diy', 'spouse'],
   },
@@ -219,13 +219,13 @@ export const PERSONALITIES = {
   },
   on_a_job: {
     label: 'on a job right now',
-    how: 'Answers in the middle of a job, distracted and a little out of breath: "Yeah, I\'m on a roof, man." The best rep gets off the phone fast with a specific callback time. If the rep starts pitching anyway, get irritated and hang up.',
-    pickup: ['Yeah, hello? Hang on. Yeah, go ahead, I\'m on a job.', '{first}. Make it quick, I\'m on a job.', 'Yeah, I got a sec, I\'m on a roof.'],
+    how: 'Answers in the middle of a job, distracted and a little out of breath: "Yeah, I\'m on a roof, man." The best rep gets off the phone fast with a specific callback time. If the rep starts pitching anyway: "Sorry, I really can\'t right now," and end the call.',
+    pickup: ['Hello? Yeah, go ahead, I\'m on a job.', '{first}. I\'m on a job, what\'s up?', 'Yeah, I got a sec, I\'m on a roof.'],
     objections: ['on_job', 'busy'],
   },
   angry: {
-    label: 'angry, tired of sales calls',
-    how: 'Fed up with sales calls. Within seconds: "How did you get this number? Don\'t ever call here again!" The test is whether the rep accepts it at once, calmly, and offers to take them off the list. If the rep argues, explains, or asks "can I just say one thing", yell and hang up.',
+    label: 'tired of sales calls, firm but civil',
+    how: 'Tired of sales calls and says so firmly but civilly: "How did you get this number? Please don\'t call here again." The test is whether the rep accepts it at once, calmly, and offers to take them off the list. If the rep argues, explains, or asks "can I just say one thing", end it firmly: "No, thank you. Please take me off your list."',
     pickup: ['Yeah?', '{biz}.', 'Hello?'],
     objections: ['scam', 'not_interested'],
   },
