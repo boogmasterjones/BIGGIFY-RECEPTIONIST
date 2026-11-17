@@ -52,6 +52,9 @@ const nextConfig: NextConfig = {
         { source: "/guides/:slug", destination: "/guides/:slug/index.html" },
         { source: "/tools", destination: "/tools/index.html" },
         { source: "/tools/:slug", destination: "/tools/:slug/index.html" },
+        // The free video pages, built from content/video-pages by scripts/build-video-pages.mjs (npm run videos; also prebuild).
+        { source: "/videos", destination: "/videos/index.html" },
+        { source: "/videos/:slug", destination: "/videos/:slug/index.html" },
       ],
       fallback: [],
     };

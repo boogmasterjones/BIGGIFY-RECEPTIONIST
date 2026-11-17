@@ -685,6 +685,7 @@ export default function LandingPage() {
                 <p className="foot-h">Free help</p>
                 <a href="/tools">Free tools</a>
                 <a href="/guides">Guides</a>
+                <a href="/videos">Videos</a>
                 <a href="/privacy">Privacy Policy</a>
                 <a href="/terms">Terms</a>
                 <a href="/sms">Text Messaging</a>

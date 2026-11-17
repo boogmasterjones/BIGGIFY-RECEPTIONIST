@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "videos": "node scripts/build-video-pages.mjs",
+    "prebuild": "node scripts/build-video-pages.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

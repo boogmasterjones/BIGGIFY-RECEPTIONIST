@@ -37,8 +37,8 @@ function run(opts: { href: string; referrer?: string; storage?: Record<string, s
 }
 
 describe('beacon tag on the pages', () => {
-  it('every guide and tool page (30) loads /tools/beacon.js once, right after Vercel Analytics', () => {
-    expect(itemPages.length).toBe(30);
+  it('every guide and tool page (33: 30 + the 3 video checklists) loads /tools/beacon.js once, right after Vercel Analytics', () => {
+    expect(itemPages.length).toBe(33);
     for (const p of itemPages) {
       const html = readFileSync(join(PUBLIC, p), 'utf8');
       expect(html.match(/<script defer src="\/tools\/beacon\.js"><\/script>/g), p).toHaveLength(1);

@@ -1,0 +1,48 @@
+/* Biggify video pages (gobiggify.com/videos/...). Loads after tools.css and guide.css and only adds what those don't have:
+   a one-column reading width, the video player slot, the copy button on texts, and the hub's topic list. */
+
+.v-main{max-width:780px;margin:0 auto;position:relative;z-index:2}
+.v-hero .wrap{padding-bottom:84px}
+@media(min-width:1000px){.v-hero .wrap{grid-template-columns:minmax(0,1fr);max-width:none}.v-hero .wrap>div{max-width:820px}}
+.v-page .g-article{margin-top:28px}
+.v-page .g-article section{scroll-margin-top:84px}
+
+/* the contents list: folded on phones, open on wide screens (guide.js handles the toggle) */
+.v-toc{margin:-44px 0 0;position:relative;z-index:3}
+.v-video+.v-toc{margin-top:18px}
+.v-page .v-toc{background:#fff;border:1px solid var(--g-line);border-radius:16px;padding:6px;box-shadow:var(--g-shadow)}
+.v-page .v-toc summary{padding:12px 14px;font-size:15px;letter-spacing:0;text-transform:none;color:var(--g-ink)}
+.v-page .v-toc ol{border-left:0;margin-left:0;padding:0 6px 10px}
+.v-page .v-toc a{margin-left:0;border-left:0;border-radius:10px}
+@media(min-width:900px){.v-page .v-toc ol{grid-template-columns:1fr 1fr;column-gap:8px}}
+
+/* video slot: only printed when videos.js has a YouTube ID. A thumbnail button; the player loads on tap (no YouTube cookies before). */
+.v-video{margin:-56px 0 18px;position:relative;z-index:3}
+.v-play{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;aspect-ratio:16/9;border:0;border-radius:var(--g-radius);background:#0a0f1f center/cover no-repeat;box-shadow:var(--g-shadow);cursor:pointer;color:#fff;font:700 17px/1 var(--font);overflow:hidden}
+.v-play::before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(10,15,31,.65),rgba(10,15,31,.15))}
+.v-play svg,.v-play span{position:relative}
+.v-play svg{width:64px;height:64px;color:#fff;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5))}
+.v-play:hover svg,.v-play:focus-visible svg{transform:scale(1.06)}
+.v-video iframe{display:block;width:100%;aspect-ratio:16/9;border:0;border-radius:var(--g-radius);background:#000}
+.v-video figcaption{font-size:14px;margin-top:8px;color:var(--g-soft)}
+.v-video figcaption a{color:var(--g-soft)}
+.g-article .v-video{margin:18px 0}
+
+/* copy-paste texts */
+.v-copy{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:7px 12px;border-radius:999px;border:1px solid var(--g-line);background:#fff;color:var(--g-ink);font:700 13.5px/1 var(--font);cursor:pointer}
+.v-copy svg{width:15px;height:15px}
+.v-copy.is-copied{background:var(--g-green-soft);border-color:var(--g-green);color:var(--g-green)}
+
+/* hub */
+.v-hub-hero .wrap{padding-bottom:56px}
+@media(min-width:1000px){.v-hub-hero .wrap{grid-template-columns:1fr;padding-bottom:64px}}
+.v-topics{display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:center;gap:8px;margin-top:24px;padding:0}
+.v-topics a{font-size:14px;font-weight:700;color:#e3e6f3;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);padding:8px 14px;border-radius:999px;text-decoration:none}
+.v-topics a:hover{background:rgba(255,255,255,.14);color:#fff}
+.v-hub{position:relative;z-index:2;padding:8px 0 30px}
+.v-hub section{scroll-margin-top:84px}
+.v-hub-h{font-family:var(--g-display);font-size:clamp(24px,3vw,30px);letter-spacing:-.02em;color:var(--g-ink);margin:40px 0 16px}
+.v-hub-h span{display:block;font-family:var(--font);font-size:15px;font-weight:600;letter-spacing:0;color:var(--g-soft);margin-top:4px}
+.v-hub .g-cards{gap:16px}
+
+@media print{.v-video,.v-copy,.v-toc{display:none}}

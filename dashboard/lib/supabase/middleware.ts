@@ -51,6 +51,7 @@ export async function updateSession(request: NextRequest) {
     path.startsWith('/sms') ||
     path.startsWith('/guides') ||
     path.startsWith('/tools') ||
+    path.startsWith('/videos') ||
     path.startsWith('/fonts');
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
