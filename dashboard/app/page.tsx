@@ -56,7 +56,7 @@ const TOOL_FAMILIES: { title: string; blurb: string; tools: Tool[] }[] = [
     title: 'Your Google profile',
     blurb: 'The listing people see before they call you.',
     tools: [
-      { slug: 'xray', name: 'Google Profile X-Ray', kind: 'Report · 1 business day' },
+      { slug: 'xray', name: 'X-Ray: Google, website & social', kind: 'Report · 1 business day' },
       { slug: 'google-posts', name: '4 Free Google Posts', kind: 'Done for you · 4 posts' },
       { slug: 'tuneup', name: 'Google Profile Tune-Up', kind: 'Done for you · 5 a month' },
     ],

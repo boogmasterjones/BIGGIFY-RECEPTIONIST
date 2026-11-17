@@ -47,6 +47,9 @@
     var digits = value("phone").replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
     if (value("phone") && digits.length !== 10) return ["phone", "Enter a 10-digit phone number."];
     if (form.elements.smsConsent && form.elements.smsConsent.checked && !value("phone")) return ["phone", "Add your phone number, or untick the texting box."];
+    // The X-Ray's optional website field. Hubert tidies and safety-checks it again; this only catches typos.
+    var site = value("siteUrl");
+    if (site && !/^(https?:\/\/)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(site)) return ["siteUrl", "Type your website like yourbusiness.com, or leave it blank."];
     var one = form.getAttribute("data-one-of");
     if (one) {
       var names = one.split(",");
