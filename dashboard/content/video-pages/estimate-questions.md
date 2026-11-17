@@ -1,6 +1,7 @@
 ---
 {
   "title": "The 2 questions I tell my trade businesses to ask at every estimate",
+  "seoTitle": "The 2 questions to ask at every estimate",
   "description": "Two questions before you leave an estimate can win you the job: \"When are you hoping to get this done?\" and \"Who else needs to see this?\" Here's why.",
   "summary": "Before leaving an estimate, I tell my trade businesses to ask two questions. \"When are you hoping to get this done?\" gives you a date to check in, and it's not pushy because they told you to. \"Who else needs to see this?\" finds the wife, husband or landlord who often makes a job get stuck, so you can offer to answer their questions too.",
   "chip": "Estimate questions",

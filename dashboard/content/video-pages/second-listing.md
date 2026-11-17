@@ -1,6 +1,7 @@
 ---
 {
   "title": "A client's Google reviews were on a second listing: how I check for one",
+  "seoTitle": "Reviews on a second Google listing? How I check",
   "description": "A client's real reviews were sitting on a second Google listing nobody had claimed. The 1-minute check I now do for every client, and what happens next.",
   "summary": "A client had real Google reviews, but his profile showed none. They were on a second listing nobody had claimed, with his old address and old phone number. Now I check every client for this: search the business name on Google Maps, then the phone number, then any old address. If a second listing turns up, it gets merged with the real one once Google has verified the real profile.",
   "chip": "Duplicate listings",

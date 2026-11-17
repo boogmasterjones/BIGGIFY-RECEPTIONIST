@@ -1,6 +1,7 @@
 ---
 {
   "title": "\"We can get you to page one of Google.\" What I think of these calls",
+  "seoTitle": "\"Page one of Google\" sales calls: what I think of them",
   "description": "Trade owners get \"page one of Google\" calls all the time. Why I call them more spam than scam, the tell to listen for, and the one question I ask.",
   "summary": "\"We can get you to page one of Google\" calls are more spam than scam to me. They call a long list and don't know a thing about your shop. The tell is the promise: Google itself says no one can guarantee a number one ranking. So I ask one thing: \"Show me the calls you got a shop like mine.\" Not clicks. Calls.",
   "chip": "\"Page one\" calls",

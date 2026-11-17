@@ -1,7 +1,8 @@
 ---
 {
   "title": "How I make a small contractor look like the best choice in town (without lying)",
-  "description": "What I put on every client's website so a small trade shop looks like the best choice: real photos, true claims said loud, and a first screen built to get the call.",
+  "seoTitle": "How I make a small contractor look like the best choice",
+  "description": "What I put on every client's website so a small trade shop looks like the best choice: real photos, true claims, and a first screen built to get the call.",
   "summary": "Customers can't see your work before they call. They see your website. So on my clients' sites I use real photos (never stock, never AI), say every true claim loud (licensed, insured, years, five stars when it's really five stars), build a first screen with the job, the town, a big call button and a real photo, and add one thing that's only theirs. Nothing made up.",
   "chip": "Websites",
   "crumb": "Look like the best choice",

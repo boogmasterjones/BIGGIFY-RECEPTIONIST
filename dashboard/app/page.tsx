@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   title: 'Biggify — Marketing & AI Receptionist for Home Service Businesses',
   description:
     'Biggify helps service businesses anywhere in the US make more money: custom websites, Google profiles worked every week, steady reviews and an AI receptionist that answers every call.',
-  alternates: { canonical: 'https://gobiggify.com/' },
+  alternates: { canonical: 'https://www.gobiggify.com/' },
 };
 
 const RECEPTIONIST_TEL = 'tel:+19414018288';

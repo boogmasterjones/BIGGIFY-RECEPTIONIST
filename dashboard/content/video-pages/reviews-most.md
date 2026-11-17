@@ -1,6 +1,7 @@
 ---
 {
   "title": "How I get my trade businesses the most Google reviews possible",
+  "seoTitle": "How I get my trade businesses the most Google reviews",
   "description": "My whole Google review system for trade businesses: when I ask, the texts word for word, the QR card, past customers, replies, and what I never do.",
   "summary": "I ask every customer, right after the job, by text from the business's own number, with a link that opens the review box in one tap. I hand them a QR code card too. If they don't leave one, I follow up twice, a week apart, then stop. I go back to past customers a few at a time, and I reply to every review as the business.",
   "chip": "Google reviews",

@@ -1,6 +1,7 @@
 ---
 {
   "title": "How my review replies are set up so a bad review never gets worse",
+  "seoTitle": "How I set up review replies so a bad review never gets worse",
   "description": "How I set up Google review replies for my trade businesses: first person as the business, what needs my OK first, and what's never allowed in a reply.",
   "summary": "A reply isn't really for the person who left the review. It's for every new customer who reads it later. So my clients' replies are written as the business, in first person. Four and five stars get a warm thank-you. Anything under four stars comes to me first, and nothing goes out until I say OK. Promises, refund talk, blame and legal words are never allowed.",
   "chip": "Review replies",

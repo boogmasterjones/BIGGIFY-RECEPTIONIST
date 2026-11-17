@@ -9,6 +9,8 @@
 import { parseDoc, type P5El } from './htmldoc';
 import { EditorError, SLUG_RE, slugify } from './paths';
 import { escapeAttr, escapeText, plainText } from './sanitize';
+import { BYLINE, ORGANIZATION, ORG_ID, PERSON, PERSON_ID, WEBSITE, WEBSITE_ID, clip, metaDescription, pageTitle } from '@/lib/seo/entities';
+import { SITE } from '@/lib/seo/site';
 
 export interface NewGuideInput {
   title: string;
@@ -121,23 +123,33 @@ export function templateParts(guideHtml: string): TemplateParts {
 
 const ld = (o: unknown) => JSON.stringify(o).replace(/</g, '\\u003c');
 
-export function buildGuideHtml(g: CleanGuide, parts: TemplateParts, siteUrl = 'https://gobiggify.com'): string {
+export function buildGuideHtml(g: CleanGuide, parts: TemplateParts, siteUrl = SITE): string {
   const url = `${siteUrl}/guides/${g.slug}`;
   const words = [g.intro, ...g.sections.map((s) => `${s.heading} ${s.body}`)].join(' ').split(/\s+/).filter(Boolean).length;
   const minutes = Math.max(2, Math.ceil(words / 200));
   const schema = {
     '@context': 'https://schema.org',
     '@graph': [
+      // The same Biggify / Wyatt nodes as every other guide (SEO + GEO pass, owner 2026-11-16). No dates (owner rule).
+      ORGANIZATION,
+      PERSON,
+      WEBSITE,
       {
         '@type': 'Article',
-        headline: g.title,
+        '@id': `${url}#article`,
+        headline: clip(g.title, 110),
         description: g.description,
-        author: { '@type': 'Person', name: 'Wyatt Brunderman', worksFor: { '@type': 'Organization', name: 'Biggify' } },
-        publisher: { '@type': 'Organization', name: 'Biggify', logo: { '@type': 'ImageObject', url: `${siteUrl}/LOGO.png` } },
+        author: { '@id': PERSON_ID },
+        publisher: { '@id': ORG_ID },
+        image: `${siteUrl}/LOGO.png`,
+        inLanguage: 'en-US',
+        isPartOf: { '@id': WEBSITE_ID },
         mainEntityOfPage: url,
+        breadcrumb: { '@id': `${url}#breadcrumb` },
       },
       {
         '@type': 'BreadcrumbList',
+        '@id': `${url}#breadcrumb`,
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Biggify', item: `${siteUrl}/` },
           { '@type': 'ListItem', position: 2, name: 'Guides', item: `${siteUrl}/guides` },
@@ -167,14 +179,17 @@ ${bodyToHtml(s.body, '        ') || '        <p>Write this part here.</p>'}
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>${t} | Biggify</title>
-<meta name="description" content="${escapeAttr(g.description)}" />
+<title>${escapeText(pageTitle(g.title))}</title>
+<meta name="description" content="${escapeAttr(metaDescription(g.description))}" />
 <link rel="canonical" href="${escapeAttr(url)}" />
 <meta property="og:type" content="article" />
+<meta property="og:site_name" content="Biggify" />
 <meta property="og:title" content="${escapeAttr(g.title)}" />
 <meta property="og:description" content="${escapeAttr(g.description)}" />
 <meta property="og:url" content="${escapeAttr(url)}" />
 <meta property="og:image" content="${siteUrl}/LOGO.png" />
+<meta property="og:image:alt" content="Biggify logo" />
+<meta name="twitter:card" content="summary" />
 <link rel="icon" href="/LOGO.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -202,7 +217,7 @@ ${parts.header}
       <p class="g-lead">${escapeText(g.intro || g.description)}</p>
       <div class="g-meta">
         <span>${clock}${minutes} min read</span>
-        <span>${person}By Wyatt, Biggify</span>
+        <span>${person}${BYLINE}</span>
       </div>
     </div>
   </div>

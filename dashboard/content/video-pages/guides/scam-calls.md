@@ -5,7 +5,7 @@
   "summary": "Trade owners get the same calls over and over. \"We can get you to page one of Google\" is more spam than scam to me. \"I'd like to invest in your business\" is usually a sales call, not a check. And a call or text from \"Google\" asking for money? I assume it's not Google. Google says it never asks for payment info over the phone. My rules: give nothing private on a call you didn't make, look them up yourself, and call back on a number you found.",
   "chip": "Free list",
   "crumb": "Sales and scam calls",
-  "seoTitle": "Scam and sales calls aimed at contractors: what I do | Biggify",
+  "seoTitle": "Scam and sales calls aimed at contractors",
   "card": "\"Page one of Google\", \"I'd like to invest\", and \"Google\" wanting money. What I do with each call.",
   "resource": { "href": "/guides/questions-before-you-sign", "label": "Get the 30 questions", "text": "**Thinking of hiring a marketer for real?** Here are 30 questions I'd ask anyone before I signed, with a good answer and a red flag for each." },
   "next": [

@@ -1,6 +1,10 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import sitemap from '@/app/sitemap';
+import { ORGANIZATION, PERSON, WEBSITE } from '@/lib/seo/entities';
+import { SITE } from '@/lib/seo/site';
+import * as gen from '../scripts/build-video-pages.mjs';
 import { build, parseVideoConfig, type VideoConfig } from '../scripts/build-video-pages.mjs';
 
 // The free video pages (owner 2026-11-16: every video gets its own gobiggify.com page). Built from content/video-pages by
@@ -45,8 +49,8 @@ describe('the generated video pages', () => {
     for (const [file, html] of pageFiles) {
       const path = rel(file).replace(/\/index\.html$/, '');
       expect((html.match(/<h1[\s>]/g) ?? []).length, rel(file)).toBe(1);
-      expect(html).toContain(`<link rel="canonical" href="https://gobiggify.com${path}" />`);
-      expect(html).toContain(`<meta property="og:url" content="https://gobiggify.com${path}" />`);
+      expect(html).toContain(`<link rel="canonical" href="${SITE}${path}" />`);
+      expect(html).toContain(`<meta property="og:url" content="${SITE}${path}" />`);
       expect(html).toMatch(/<meta property="og:title" content="[^"]+" \/>/);
       const title = /<title>([^<]+)<\/title>/.exec(html)![1];
       expect(titles.has(title), `duplicate title ${title}`).toBe(false);
@@ -94,15 +98,15 @@ describe('the generated video pages', () => {
 
   it('keep drafts noindex and out of the hub and the sitemap', () => {
     const hub = result.files.get(join(PUBLIC, 'videos', 'index.html'))!;
-    const sitemap = result.files.get(join(PUBLIC, 'videos', 'sitemap.xml'))!;
+    const urls = sitemap().map((e) => e.url);
     expect(result.drafts.map((d) => d.slug)).toEqual(Object.keys(config.draft));
     for (const d of result.drafts) {
       expect(result.files.get(join(PUBLIC, d.path.slice(1), 'index.html'))).toContain('<meta name="robots" content="noindex, follow" />');
       expect(hub).not.toContain(`href="${d.path}"`);
-      expect(sitemap).not.toContain(d.path);
+      expect(urls).not.toContain(`${SITE}${d.path}`);
     }
     for (const p of [...result.live, ...result.guides]) {
-      expect(sitemap).toContain(`<loc>https://gobiggify.com${p.path}</loc>`);
+      expect(urls).toContain(`${SITE}${p.path}`);
       expect(result.files.get(join(PUBLIC, p.path.slice(1), 'index.html'))).not.toContain('noindex');
     }
     for (const p of result.live) expect(hub, p.path).toContain(`href="${p.path}"`);
@@ -114,6 +118,15 @@ describe('the generated video pages', () => {
       expect(html, p.path).toContain('class="g-next-tool"');
       expect(html, p.path).toContain('class="g-next-dfy"');
     }
+  });
+});
+
+describe('the shared SEO entities', () => {
+  it('the generator uses the same host, Organization, Person and WebSite as lib/seo', () => {
+    expect(gen.SITE).toBe(SITE);
+    expect(gen.ORGANIZATION).toEqual(ORGANIZATION);
+    expect(gen.PERSON).toEqual(PERSON);
+    expect(gen.WEBSITE).toEqual(WEBSITE);
   });
 });
 

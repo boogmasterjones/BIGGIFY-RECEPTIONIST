@@ -1,6 +1,7 @@
 ---
 {
   "title": "164 Google reviews and still invisible: what I found on the profile",
+  "seoTitle": "164 Google reviews and still invisible: what I found",
   "description": "A client had 164 Google reviews and still didn't show up for their main search. The two profile problems I found, and how to check yours in 2 minutes.",
   "summary": "A client of mine had 164 Google reviews and still didn't show up for their main search when I checked. More reviews weren't the fix. On the profile, the website button went to a booking page instead of their own site, and the hours showed closed every night and on Sundays. When reviews aren't the problem, I check the profile first.",
   "chip": "Google profile",

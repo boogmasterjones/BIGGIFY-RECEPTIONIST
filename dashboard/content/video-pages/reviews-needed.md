@@ -1,6 +1,7 @@
 ---
 {
   "title": "How many Google reviews do you really need? I checked for my clients",
+  "seoTitle": "How many Google reviews do you really need?",
   "description": "My number for when the phone starts ringing, how I find the review bar in any town, and three of my clients where the answer was different.",
   "summary": "From what I've seen with my own clients, around 30 Google reviews is when the phone starts to ring. After that, the total matters less than how many new ones come in each week. But every town has its own bar. I find it by searching the trade and the town, then counting the reviews on the shops that show up first.",
   "chip": "How many reviews",

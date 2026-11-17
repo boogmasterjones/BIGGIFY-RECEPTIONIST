@@ -1,11 +1,11 @@
 ---
 {
   "title": "The 1-minute phone test: what your customers hear when they call",
-  "description": "A free checklist for trade owners: call your own business from another phone, let it ring out, and test the call buttons on your Google profile and website.",
+  "description": "A free checklist for trade owners: call your own business from another phone, let it ring out, and test the call buttons on Google and your site.",
   "summary": "Grab a second phone and call your own business like a customer would. Let it ring all the way out and listen to what they hear. Then tap the call button on your Google profile and on your website, and make sure each one rings the right number. If a call rings out, a lot of people won't leave a message. They call the next shop.",
   "chip": "Free checklist",
   "crumb": "The 1-minute phone test",
-  "seoTitle": "The 1-minute phone test for trade businesses (free checklist) | Biggify",
+  "seoTitle": "The 1-minute phone test for trade businesses",
   "card": "Call yourself like a customer, let it ring out, and test the call buttons on Google and your site.",
   "resource": { "href": "/tools/missed-calls", "label": "Open the free calculator", "text": "**Found calls that ring out?** Put the calls you miss each week in my free calculator and see what they could cost you in a year." },
   "next": [

@@ -1,7 +1,8 @@
 ---
 {
   "title": "\"I'd like to invest in your business.\" What I do with these calls",
-  "description": "Trade owners get \"I'd like to invest in your business\" calls. My rule: no sales numbers, bank info or tax papers on a first call, and how I check who it is.",
+  "seoTitle": "\"I'd like to invest in your business\" calls: what I do",
+  "description": "Trade owners get \"I'd like to invest in your business\" calls. My rule: no sales numbers, bank info or tax papers on a first call, and how I check them.",
   "summary": "\"I'd like to invest in your business\" sounds great. But to me, it's usually a sales call, not a check. My rule: on a first call, I don't give out my sales, bank info or tax papers. I ask for the full company name, look them up myself and call back on a number I find. If it's real, it will still be real tomorrow.",
   "chip": "\"Investor\" calls",
   "crumb": "\"Investor\" calls",

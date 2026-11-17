@@ -1,6 +1,7 @@
 ---
 {
   "title": "Do I need a website if I have a Google profile? Here's what I think",
+  "seoTitle": "Do I need a website if I have a Google profile?",
   "description": "My view for trade businesses: yes. Your Google profile gets you found, but its website button is where people go to check you out. And where Facebook fits.",
   "summary": "I think you do need a website. Your Google profile gets you found, but there's a website button on it, and that's where people go to check you out. If the button goes nowhere, some people just call the next guy. On my clients' sites each job gets a page, and so does each town, plus a form, real photos and their reviews. Facebook and Instagram help Google and AI like you, but mostly they build trust.",
   "chip": "Website vs Google",

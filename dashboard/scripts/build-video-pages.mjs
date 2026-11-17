@@ -1,6 +1,6 @@
 // Builds the free video resource pages (owner 2026-11-16: "every video gets its own gobiggify.com page, so Biggify has a frick ton
 // of resources"). Source: content/video-pages/*.md (one per page) and content/video-pages/guides/*.md (the free checklists the videos
-// point to). Output: plain static pages in public/videos/<slug>/ and public/guides/<slug>/, the /videos hub and /videos/sitemap.xml,
+// point to). Output: plain static pages in public/videos/<slug>/ and public/guides/<slug>/, and the /videos hub (app/sitemap.ts and /llms.txt pick them up from public/ through lib/seo/site-pages.ts),
 // in the same look as the other guides (tools.css + guide.css + videos.css).
 //
 // The YouTube IDs and the draft list live in ONE file, public/videos/videos.js. A page shows a player only for a video that has an ID
@@ -18,7 +18,10 @@ import { fileURLToPath } from "node:url";
 const DASH = join(dirname(fileURLToPath(import.meta.url)), "..");
 const PUBLIC = join(DASH, "public");
 const SRC = join(DASH, "content", "video-pages");
-const SITE = "https://gobiggify.com";
+// Same host and entities as lib/seo/site.ts and lib/seo/entities.ts (this plain-JS script can't import those TypeScript files;
+// tests/video-pages.test.ts checks the copies below stay identical to them).
+export const SITE = "https://www.gobiggify.com";
+export const BYLINE = "By Wyatt, founder of Biggify, Port Charlotte FL";
 
 export const TOPICS = [
   ["calls", "Calls", "Every call picked up, and what a missed one really costs."],
@@ -198,7 +201,7 @@ function readPages(dir, kind) {
     const slug = f.replace(/\.md$/, "");
     for (const k of ["title", "description", "summary", "chip"]) if (!meta[k]) throw new Error(`${f}: front matter needs "${k}"`);
     if (kind === "video" && !TOPICS.some(([id]) => id === meta.topic)) throw new Error(`${f}: unknown topic "${meta.topic}"`);
-    if (meta.description.length > 165) throw new Error(`${f}: description is ${meta.description.length} characters (keep it under 165)`);
+    if (meta.description.length > 155 || meta.description.length < 70) throw new Error(`${f}: description is ${meta.description.length} characters (70 to 155)`);
     return { ...meta, slug, kind, file: f, body: m[2], path: kind === "video" ? `/videos/${slug}` : `/guides/${slug}` };
   });
 }
@@ -220,6 +223,7 @@ ${noindex ? '<meta name="robots" content="noindex, follow" />\n' : ""}<link rel=
 <meta property="og:description" content="${attr(description)}" />
 <meta property="og:url" content="${SITE}${path}" />
 <meta property="og:image" content="${SITE}/LOGO.png" />
+<meta property="og:image:alt" content="Biggify logo" />
 <meta name="twitter:card" content="summary" />
 <link rel="icon" href="/LOGO.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -264,11 +268,20 @@ const FOOTER = `<footer>
 </html>
 `;
 
-const ORG = { "@type": "Organization", "@id": `${SITE}/#org`, name: "Biggify", url: `${SITE}/`, logo: { "@type": "ImageObject", url: `${SITE}/LOGO.png` }, telephone: "+1-941-401-8288", description: "Marketing for trade businesses: websites, Google Business Profiles, reviews, social posts and an AI receptionist for missed calls." };
-const PERSON = { "@type": "Person", "@id": `${SITE}/#wyatt`, name: "Wyatt Brunderman", jobTitle: "Owner", worksFor: { "@id": `${SITE}/#org` } };
+export const ORGANIZATION = { "@type": "Organization", "@id": `${SITE}/#org`, name: "Biggify", legalName: "Biggify LLC", url: `${SITE}/`, logo: { "@type": "ImageObject", url: `${SITE}/LOGO.png` }, telephone: "+1-941-401-8288", address: { "@type": "PostalAddress", addressLocality: "Port Charlotte", addressRegion: "FL", addressCountry: "US" }, founder: { "@id": `${SITE}/#wyatt` } };
+export const PERSON = { "@type": "Person", "@id": `${SITE}/#wyatt`, name: "Wyatt Brunderman", jobTitle: "Founder", description: "Founder of Biggify in Port Charlotte, FL. Runs Google profiles, reviews and phones for trade businesses.", worksFor: { "@id": `${SITE}/#org` } };
+export const WEBSITE = { "@type": "WebSite", "@id": `${SITE}/#website`, url: `${SITE}/`, name: "Biggify", publisher: { "@id": `${SITE}/#org` }, inLanguage: "en-US" };
 
-function crumbs(list) {
-  return { "@type": "BreadcrumbList", itemListElement: list.map(([name, path], i) => ({ "@type": "ListItem", position: i + 1, name, item: `${SITE}${path}` })) };
+/** Same rule as pageTitle() in lib/seo/entities.ts, except a title that doesn't fit is an error here: write a seoTitle instead. */
+export function pageTitle(title, file) {
+  const withBrand = `${title} | Biggify`;
+  if (withBrand.length <= 60) return withBrand;
+  if (title.length <= 60) return title;
+  throw new Error(`${file}: title "${title}" is ${title.length} characters; add a "seoTitle" of 60 or less`);
+}
+
+function crumbs(list, path) {
+  return { "@type": "BreadcrumbList", "@id": `${SITE}${path}#breadcrumb`, itemListElement: list.map(([name, path], i) => ({ "@type": "ListItem", position: i + 1, name, item: `${SITE}${path}` })) };
 }
 
 function wordCount(html) { return html.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length; }
@@ -343,18 +356,19 @@ export function build({ write = true, config } = {}) {
 
     const dfy = p.dfy || "We build websites and run Google profiles, review requests and social posts for local trades, with an AI receptionist for the calls you miss. My promise is simple: 300% ROI in 3 months or you don't pay.";
     const html = `${head({
-      title: p.seoTitle || `${p.title} | Biggify`,
+      title: pageTitle(p.seoTitle || p.title, p.file),
       description: p.description,
       path: p.path,
       noindex: draft,
       jsonld: {
         "@context": "https://schema.org",
         "@graph": [
-          { "@type": "Article", headline: p.title, description: p.description, abstract: p.summary, inLanguage: "en-US", author: { "@id": `${SITE}/#wyatt` }, publisher: { "@id": `${SITE}/#org` }, mainEntityOfPage: `${SITE}${p.path}`, isPartOf: { "@type": "WebSite", name: "Biggify", url: `${SITE}/` }, ...(pageVideos.length ? { video: pageVideos.map((v) => ({ "@id": v.embedUrl })) } : {}) },
+          { "@type": "Article", "@id": `${SITE}${p.path}#article`, headline: p.title, description: p.description, abstract: p.summary, author: { "@id": `${SITE}/#wyatt` }, publisher: { "@id": `${SITE}/#org` }, image: `${SITE}/LOGO.png`, inLanguage: "en-US", isPartOf: { "@id": `${SITE}/#website` }, mainEntityOfPage: `${SITE}${p.path}`, breadcrumb: { "@id": `${SITE}${p.path}#breadcrumb` }, ...(pageVideos.length ? { video: pageVideos.map((v) => ({ "@id": v.embedUrl })) } : {}) },
           ...pageVideos.map((v) => ({ ...v, "@id": v.embedUrl })),
-          crumbs(crumbList),
+          crumbs(crumbList, p.path),
+          ORGANIZATION,
           PERSON,
-          ORG,
+          WEBSITE,
           ...((p.faq || []).length ? [{ "@type": "FAQPage", mainEntity: p.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: plain(a) } })) }] : []),
         ],
       },
@@ -373,7 +387,7 @@ ${HEADER}
       <p class="g-lead">${inline(p.summary)}</p>
       <div class="g-meta">
         <span>${svg("clock")}${minutes} min read</span>
-        <span>${svg("person")}By Wyatt, Biggify</span>
+        <span>${svg("person")}${BYLINE}</span>
       </div>
     </div>
   </div>
@@ -441,15 +455,16 @@ ${FOOTER}`;
   const hubJson = {
     "@context": "https://schema.org",
     "@graph": [
-      { "@type": "CollectionPage", name: "Free videos for trade business owners, written out", description: "", url: `${SITE}/videos`, about: "Marketing for trade businesses", publisher: { "@id": `${SITE}/#org` }, mainEntity: { "@type": "ItemList", itemListElement: live.map((p, i) => ({ "@type": "ListItem", position: i + 1, url: `${SITE}${p.path}`, name: p.title })) } },
-      crumbs([["Biggify", "/"], ["Videos", "/videos"]]),
+      { "@type": "CollectionPage", "@id": `${SITE}/videos#page`, name: "Free videos for trade business owners, written out", description: "", url: `${SITE}/videos`, about: "Marketing for trade businesses", author: { "@id": `${SITE}/#wyatt` }, publisher: { "@id": `${SITE}/#org` }, isPartOf: { "@id": `${SITE}/#website` }, inLanguage: "en-US", breadcrumb: { "@id": `${SITE}/videos#breadcrumb` }, mainEntity: { "@type": "ItemList", itemListElement: live.map((p, i) => ({ "@type": "ListItem", position: i + 1, url: `${SITE}${p.path}`, name: p.title })) } },
+      crumbs([["Biggify", "/"], ["Videos", "/videos"]], "/videos"),
+      ORGANIZATION,
       PERSON,
-      ORG,
+      WEBSITE,
     ],
   };
-  const hubDesc = "Every Biggify video written out for trade owners: missed calls, Google reviews, your Google profile, websites, estimates and choosing a marketer. Free.";
+  const hubDesc = "Every Biggify video written out for trade owners: missed calls, Google reviews, Google profiles, websites, estimates and picking a marketer.";
   hubJson["@graph"][0].description = hubDesc;
-  const hub = `${head({ title: "Free videos for trade business owners, written out | Biggify", description: hubDesc, path: "/videos", ogType: "website", jsonld: hubJson })}
+  const hub = `${head({ title: "Free videos for trade owners, written out | Biggify", description: hubDesc, path: "/videos", ogType: "website", jsonld: hubJson })}
 <body class="guide-page v-page">
 ${HEADER}
 <main id="main">
@@ -491,13 +506,6 @@ ${TOPICS.filter(([id]) => live.some((p) => p.topic === id)).map(([id, name, blur
 ${FOOTER}`;
   files.set(join(PUBLIC, "videos", "index.html"), hub);
 
-  // sitemap (videos hub, live video pages, the new checklists)
-  const urls = ["/videos", ...live.map((p) => p.path), ...guides.map((p) => p.path)];
-  files.set(join(PUBLIC, "videos", "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((u) => `  <url><loc>${SITE}${u}</loc></url>`).join("\n")}
-</urlset>
-`);
 
   if (errors.length) throw new Error("Video pages:\n  " + errors.join("\n  "));
   if (write) for (const [f, c] of files) { mkdirSync(dirname(f), { recursive: true }); writeFileSync(f, c); }

@@ -1,6 +1,7 @@
 ---
 {
   "title": "How I check who really owns a business's website, in 60 seconds",
+  "seoTitle": "Who really owns your website? The 60-second check",
   "description": "Your website might not be yours. The free 60-second domain check I use, step by step, and the other 3 keys every trade business should own.",
   "summary": "Your website might not be in your name, even if you paid for it. Here's the check I use: look up your web address at lookup.icann.org, write down the registrar (the company where your domain lives), then try to log in there yourself. If you can't log in, you don't own it yet. The domain is one of 4 keys every business should own: the domain, the website, the Google profile and the phone number.",
   "chip": "Website ownership",

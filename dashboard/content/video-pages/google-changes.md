@@ -1,6 +1,7 @@
 ---
 {
   "title": "How I change my clients' Google profiles without getting them suspended",
+  "seoTitle": "How I change Google profiles without getting suspended",
   "description": "My 6 rules for changing a Google Business Profile safely: one big change a week, the real name, the phone swap, real hours, no fake address, one profile.",
   "summary": "I change my clients' Google profiles all the time, and none of them has been suspended. My rules: change one big thing (name, address, main phone, main category or website), then wait about a week. Use the real name only. Swap a phone by adding the new one as main and keeping the old as an extra. Show real hours. Never use a fake address. Keep one profile per shop.",
   "chip": "Google profile changes",

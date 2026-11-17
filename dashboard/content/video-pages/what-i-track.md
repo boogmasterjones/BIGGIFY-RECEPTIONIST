@@ -1,6 +1,7 @@
 ---
 {
   "title": "I don't track where you show on the map. Here's what I track instead",
+  "seoTitle": "Forget your map spot: what I track instead",
   "description": "Your spot on Google Maps changes with where you stand, so I don't chase it. I track calls and website clicks from Google. How to find yours.",
   "summary": "I don't track where my clients show on the map, because that spot changes with where you're standing. Move a mile and you can get a new list. Instead I track calls and website clicks that come from the Google profile. If they go from 20 a month to 30, that's real work coming in. You can see your own numbers on your Google profile.",
   "chip": "What I track",

@@ -1,7 +1,8 @@
 ---
 {
   "title": "How I change a shop's phone number on Google without breaking anything",
-  "description": "New business number? How I put it on a Google profile safely: new number as main, old one as an extra, the website the same week, nothing else big that week.",
+  "seoTitle": "How I change a shop's phone number on Google safely",
+  "description": "New business number? How I put it on Google safely: new number as main, old one as an extra, the website the same week, nothing else big that week.",
   "summary": "When a shop gets a new phone number, I put the new line in as the main number on the Google profile and keep the old number on as an extra number. The website gets the new number that same week. And I don't change anything else big on the profile that week. Google also wants the number to be in the shop's control.",
   "chip": "Phone number change",
   "crumb": "Changing your number",

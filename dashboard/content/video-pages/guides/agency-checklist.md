@@ -5,7 +5,7 @@
   "summary": "Ask any marketing agency these 5 questions before you sign: Who owns my stuff? Can you show me real results? What happens if I leave? Will you tell me what you did each month, in plain words? Do you stand behind your work? The big test is one question: \"If I leave, does all of it come with me?\"",
   "chip": "Free checklist",
   "crumb": "5 questions for any agency",
-  "seoTitle": "5 questions to ask any marketing agency: free checklist | Biggify",
+  "seoTitle": "5 questions to ask any marketing agency (checklist)",
   "card": "Print it, take it to the meeting, tick a box for every good answer. Built around one test: if I leave, does all of it come with me?",
   "resource": { "href": "/guides/who-owns-your-stuff", "label": "Get the free ownership guide", "text": "**Want to go deeper?** My free ownership guide shows how to check each of your accounts, step by step." },
   "next": [

@@ -1,6 +1,7 @@
 ---
 {
   "title": "Why my clients get a business line instead of giving out a personal cell",
+  "seoTitle": "Personal cell vs a business line for your trade business",
   "description": "\"Just call my cell\" costs trade owners jobs. Here's why my clients get one business line for calls and texts, and a test you can do tonight.",
   "summary": "A personal cell can't be handed to anyone, it rings out when you're on a job, and a lot of callers won't leave a message. So my clients get one business line for calls and texts. It rings the owner first. If he can't pick up, my receptionist does, and the texts reach the right people.",
   "chip": "Business phone line",

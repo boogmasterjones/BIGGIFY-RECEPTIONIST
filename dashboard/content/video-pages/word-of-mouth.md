@@ -1,6 +1,7 @@
 ---
 {
   "title": "\"I get all my work from word of mouth.\" Here's what I show trade owners",
+  "seoTitle": "\"I get all my work from word of mouth\": what I show owners",
   "description": "Word of mouth is great, but people look you up before they call. What they see in those 10 seconds, and how I make word of mouth louder for my clients.",
   "summary": "Word of mouth is great, and I don't try to replace it. But when a friend says your name, the next thing people do is look you up on their phone. If they find a few old reviews, no website, or a call that goes to voicemail, the tip goes to someone else. So I make word of mouth louder: reviews from every customer, a full Google profile, a website that says the job and the town, and every call picked up.",
   "chip": "Word of mouth",

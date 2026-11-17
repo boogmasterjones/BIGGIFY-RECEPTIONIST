@@ -1,6 +1,7 @@
 ---
 {
   "title": "Customers are asking ChatGPT who to hire. Here's how I make sure AI picks my clients",
+  "seoTitle": "How I make sure ChatGPT and AI pick my trade clients",
   "description": "More people ask AI who to hire, not just Google. How I test what ChatGPT says, and the 5 things I do so AI has every reason to name my trade businesses.",
   "summary": "More people ask AI who to hire now, not just Google. So I test it: a fresh chat, one plain question like \"Who is the best plumber in Port Charlotte, Florida?\", then I check every business it names. Nobody can promise what AI will say, but five things give it every reason to pick you: a page for each service in each town, steady reviews with replies, a full Google profile, the same business info everywhere, and real job photos.",
   "chip": "AI and ChatGPT",

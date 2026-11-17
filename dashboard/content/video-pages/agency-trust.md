@@ -17,7 +17,7 @@
     "**Ask: \"If I leave, does all of it come with me?\"** Listen for a short, clear yes.",
     "**Check you can log in** to your domain, website, Google profile and phone account yourself, today."
   ],
-  "related": ["/guides/agency-checklist", "/videos/website-ownership", "/videos/seo-calls", "/guides/questions-before-you-sign", "/guides/who-owns-your-stuff"],
+  "related": ["/guides/agency-checklist", "/videos/website-ownership", "/videos/one-per-town", "/videos/seo-calls", "/guides/questions-before-you-sign"],
   "faq": [
     ["What should I ask a marketing agency before I sign?", "My five: Who owns my stuff? Can you show real results? What happens if I leave? Will you tell me what you did each month in plain words? Do you stand behind your work?"],
     ["Should my marketing company own my website or Google profile?", "No. Your website, domain, Google profile and phone number should be in your name. The test I use: \"If I leave, does all of it come with me?\""],

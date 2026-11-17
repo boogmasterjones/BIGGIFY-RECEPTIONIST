@@ -1,7 +1,8 @@
 ---
 {
   "title": "Two of my clients' website forms were broken: the 1-minute test that catches it",
-  "description": "Website forms break without telling anyone. The 1-minute test I do on a client's site: tap the call button, send the form with the word test, check it arrived.",
+  "seoTitle": "The 1-minute test that catches a broken website form",
+  "description": "Website forms break without telling anyone. My 1-minute test: tap the call button, send the form with the word test, and check that it arrived.",
   "summary": "Two of my clients' quote forms broke. People filled them out and nothing came through, and those leads were gone. Now I use a one-minute test: open the site on a phone, tap the call button and make sure it rings, then send the form with the word \"test\" and check that the lead showed up where it should. Do it every week, because forms can break and nobody tells you.",
   "chip": "Website forms",
   "crumb": "The form test",

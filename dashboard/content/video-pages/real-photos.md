@@ -1,7 +1,7 @@
 ---
 {
   "title": "Why I use real job photos, never stock photos or AI pictures",
-  "description": "Stock photos make a trade shop look like everyone else, and AI pictures make a promise you can't keep. The real photos I use for my clients, and the 3 to take.",
+  "description": "Stock photos make a trade shop look like everyone else, and AI pictures promise work you didn't do. The real photos I use, and the 3 to take.",
   "summary": "Stock photos make you look like everyone else, and customers can tell. AI pictures are worse: they show work you didn't do, and then the real job has to live up to it. So I only use real photos from real jobs for my trade businesses. Phone photos are fine. On the next job, take three before you leave: the truck, the crew, and the finished work.",
   "chip": "Real photos",
   "crumb": "Real photos only",

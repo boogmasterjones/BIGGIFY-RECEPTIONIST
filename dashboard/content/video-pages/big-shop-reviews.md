@@ -1,6 +1,7 @@
 ---
 {
   "title": "The big shop has 2,000 reviews. Here's the fight I pick instead",
+  "seoTitle": "Up against 2,000 reviews? The fight I pick instead",
   "description": "When a client is up against shops with thousands of Google reviews, I don't chase the count. I aim them at one job in one town. Here's how.",
   "summary": "When the big shops on a search have hundreds or thousands of reviews, I don't try to out-review them this year. I aim my client at one job in one town they really serve, like drain line cleaning in one town, with a website page for it. And they keep asking every customer for a review the whole time.",
   "chip": "Picking your fight",

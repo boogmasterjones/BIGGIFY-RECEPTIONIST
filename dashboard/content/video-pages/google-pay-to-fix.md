@@ -1,7 +1,8 @@
 ---
 {
   "title": "Someone wants money to fix your Google profile? Here's what I'd do",
-  "description": "A caller says they're Google and wants money to fix your profile. What I'd do: hang up, check the profile myself, and use Google's own appeal form if needed.",
+  "seoTitle": "Someone wants money to fix your Google profile?",
+  "description": "A caller says they're Google and wants money to fix your profile. What I'd do: hang up, check the profile myself, and use Google's own appeal form.",
   "summary": "If someone calls, says they're Google, and wants money to fix your profile, I'd hang up without pressing any buttons. My rule of thumb: if \"Google\" calls or texts me, I assume it's not Google. Google emails me from a real Google address, and Google itself says it never asks for payment info over the phone. Then I'd log in to the profile myself and look.",
   "chip": "\"Google\" calls",
   "crumb": "Pay-to-fix calls",

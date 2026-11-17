@@ -1,6 +1,7 @@
 ---
 {
   "title": "The phone stopped ringing? These are the 5 things I check first",
+  "seoTitle": "Phone stopped ringing? The 5 things I check first",
   "description": "When an owner tells me the phone stopped ringing, I check 5 things on the Google profile first. You can do all five tonight on your phone in a few minutes.",
   "summary": "When an owner tells me the phone stopped ringing, I check five things on the Google profile first: is the main category his exact trade, are his services and towns there, when was the last review, does the phone number on the profile ring, and does the website button go to his site. All five take a few minutes on a phone.",
   "chip": "Quiet phone",

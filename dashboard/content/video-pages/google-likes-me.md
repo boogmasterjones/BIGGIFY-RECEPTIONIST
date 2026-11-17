@@ -1,6 +1,7 @@
 ---
 {
   "title": "How I make Google like my trade businesses over their competitors",
+  "seoTitle": "How I make Google pick my trade clients over competitors",
   "description": "Google says it ranks local businesses on relevance, distance and prominence. Here's each one in plain words, and what I do about each for my clients.",
   "summary": "Google says in writing how it picks local businesses: relevance (do you do what they searched for), distance (how close you are) and prominence (how well known you are). For relevance I fill in the Google profile all the way and build a page per service per town. For distance I set real service areas and never fake an address. For prominence I get steady reviews with replies, weekly posts, real photos and the same business info everywhere. Then I track calls and website clicks, not map spots.",
   "chip": "Google's 3 rules",
@@ -17,7 +18,7 @@
     "**List every service you do** on your Google profile, and the towns you really serve.",
     "**Open the part of your profile that shows calls and website clicks.** That's the number to watch."
   ],
-  "related": ["/videos/fake-address", "/videos/what-i-track", "/videos/reviews-most", "/videos/one-job-five", "/videos/google-changes"],
+  "related": ["/videos/fake-address", "/videos/what-i-track", "/videos/reviews-most", "/videos/one-job-five", "/videos/chatgpt-picks-me"],
   "faq": [
     ["How does Google decide which local businesses to show?", "Google's own help page names three things: relevance (how well you match the search), distance (how far you are from the search location) and prominence (how well known you are, including your reviews and what the web says about you)."],
     ["Can I pay Google to rank higher on Maps?", "Not in the regular map results. Ads are labeled as ads. The rest has to be earned."],
