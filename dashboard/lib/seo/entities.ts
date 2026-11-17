@@ -18,6 +18,8 @@ export const ORGANIZATION = {
   telephone: '+1-941-401-8288',
   address: { '@type': 'PostalAddress', addressLocality: 'Port Charlotte', addressRegion: 'FL', addressCountry: 'US' },
   founder: { '@id': PERSON_ID },
+  // Biggify's own Facebook page (found 2026-11-16 in "Pages you manage"). Biggify has no Google Business Profile yet.
+  sameAs: ['https://www.facebook.com/profile.php?id=61596442231096'],
 } as const;
 
 export const PERSON = {

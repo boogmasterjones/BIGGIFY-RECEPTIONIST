@@ -268,7 +268,7 @@ const FOOTER = `<footer>
 </html>
 `;
 
-export const ORGANIZATION = { "@type": "Organization", "@id": `${SITE}/#org`, name: "Biggify", legalName: "Biggify LLC", url: `${SITE}/`, logo: { "@type": "ImageObject", url: `${SITE}/LOGO.png` }, telephone: "+1-941-401-8288", address: { "@type": "PostalAddress", addressLocality: "Port Charlotte", addressRegion: "FL", addressCountry: "US" }, founder: { "@id": `${SITE}/#wyatt` } };
+export const ORGANIZATION = { "@type": "Organization", "@id": `${SITE}/#org`, name: "Biggify", legalName: "Biggify LLC", url: `${SITE}/`, logo: { "@type": "ImageObject", url: `${SITE}/LOGO.png` }, telephone: "+1-941-401-8288", address: { "@type": "PostalAddress", addressLocality: "Port Charlotte", addressRegion: "FL", addressCountry: "US" }, founder: { "@id": `${SITE}/#wyatt` }, sameAs: ["https://www.facebook.com/profile.php?id=61596442231096"] };
 export const PERSON = { "@type": "Person", "@id": `${SITE}/#wyatt`, name: "Wyatt Brunderman", jobTitle: "Founder", description: "Founder of Biggify in Port Charlotte, FL. Runs Google profiles, reviews and phones for trade businesses.", worksFor: { "@id": `${SITE}/#org` } };
 export const WEBSITE = { "@type": "WebSite", "@id": `${SITE}/#website`, url: `${SITE}/`, name: "Biggify", publisher: { "@id": `${SITE}/#org` }, inLanguage: "en-US" };
 
