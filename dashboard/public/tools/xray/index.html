@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Free Google Business Profile Audit (X-Ray) | Biggify</title>
-<meta name="description" content="Free Google Business Profile audit for US service businesses. I check your profile against the top 3 near you and email you the 3 fixes that matter most." />
+<title>Free Google, Website &amp; Social Audit (X-Ray) | Biggify</title>
+<meta name="description" content="Free audit for US service businesses: I check your Google Business Profile, website and social media, compare you to the top 3 near you, and send 3 fixes." />
 <link rel="canonical" href="https://www.gobiggify.com/tools/xray" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Biggify" />
-<meta property="og:title" content="Free Google Profile X-Ray" />
-<meta property="og:description" content="Free for service businesses anywhere in the US: I look at your Google profile and the top 3 near you, and email you a short report with the 3 fixes that matter most." />
+<meta property="og:title" content="Free X-Ray: Google Profile, Website &amp; Social" />
+<meta property="og:description" content="Free for service businesses anywhere in the US: I check your Google profile, your website and your social media, compare you to the top 3 near you, and email you the 3 fixes that matter most." />
 <meta property="og:url" content="https://www.gobiggify.com/tools/xray" />
 <meta property="og:image" content="https://www.gobiggify.com/LOGO.png" />
 <meta property="og:image:alt" content="Biggify logo" />
@@ -22,8 +22,8 @@
 {"@type":"Organization","@id":"https://www.gobiggify.com/#org","name":"Biggify","legalName":"Biggify LLC","url":"https://www.gobiggify.com/","logo":{"@type":"ImageObject","url":"https://www.gobiggify.com/LOGO.png"},"telephone":"+1-941-401-8288","address":{"@type":"PostalAddress","addressLocality":"Port Charlotte","addressRegion":"FL","addressCountry":"US"},"founder":{"@id":"https://www.gobiggify.com/#wyatt"}},
 {"@type":"Person","@id":"https://www.gobiggify.com/#wyatt","name":"Wyatt Brunderman","jobTitle":"Founder","description":"Founder of Biggify in Port Charlotte, FL. Runs Google profiles, reviews and phones for trade businesses.","worksFor":{"@id":"https://www.gobiggify.com/#org"}},
 {"@type":"WebSite","@id":"https://www.gobiggify.com/#website","url":"https://www.gobiggify.com/","name":"Biggify","publisher":{"@id":"https://www.gobiggify.com/#org"},"inLanguage":"en-US"},
-{"@type":"WebPage","@id":"https://www.gobiggify.com/tools/xray#page","name":"See how your Google profile stacks up. Free.","description":"Free Google Business Profile audit for US service businesses. I check your profile against the top 3 near you and email you the 3 fixes that matter most.","url":"https://www.gobiggify.com/tools/xray","author":{"@id":"https://www.gobiggify.com/#wyatt"},"publisher":{"@id":"https://www.gobiggify.com/#org"},"inLanguage":"en-US","isPartOf":{"@id":"https://www.gobiggify.com/#website"},"breadcrumb":{"@id":"https://www.gobiggify.com/tools/xray#breadcrumb"}},
-{"@type":"BreadcrumbList","@id":"https://www.gobiggify.com/tools/xray#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Biggify","item":"https://www.gobiggify.com/"},{"@type":"ListItem","position":2,"name":"Free tools","item":"https://www.gobiggify.com/tools"},{"@type":"ListItem","position":3,"name":"Free Google Profile X-Ray","item":"https://www.gobiggify.com/tools/xray"}]}
+{"@type":"WebPage","@id":"https://www.gobiggify.com/tools/xray#page","name":"See how your Google profile, website and social media stack up. Free.","description":"Free audit for US service businesses: I check your Google Business Profile, website and social media, compare you to the top 3 near you, and send 3 fixes.","url":"https://www.gobiggify.com/tools/xray","author":{"@id":"https://www.gobiggify.com/#wyatt"},"publisher":{"@id":"https://www.gobiggify.com/#org"},"inLanguage":"en-US","isPartOf":{"@id":"https://www.gobiggify.com/#website"},"breadcrumb":{"@id":"https://www.gobiggify.com/tools/xray#breadcrumb"}},
+{"@type":"BreadcrumbList","@id":"https://www.gobiggify.com/tools/xray#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Biggify","item":"https://www.gobiggify.com/"},{"@type":"ListItem","position":2,"name":"Free tools","item":"https://www.gobiggify.com/tools"},{"@type":"ListItem","position":3,"name":"Free X-Ray: Google, website and social","item":"https://www.gobiggify.com/tools/xray"}]}
 ]}
 </script>
   <script defer src="/_vercel/insights/script.js"></script>
@@ -47,8 +47,8 @@
   <section class="hero">
     <div class="wrap">
       <span class="callout">For service businesses anywhere in the US</span>
-      <h1>See how your <span class="grad">Google profile</span> stacks up. Free.</h1>
-      <p class="lead">I look at your Google profile and the top 3 near you. Then I email you a short report: your reviews next to theirs, what's missing, and the 3 fixes that matter most.</p>
+      <h1>See how your <span class="grad">Google profile, website and social media</span> stack up. Free.</h1>
+      <p class="lead">I check your Google profile, your website and your social media, and I compare your reviews to the top 3 near you. Then I email you a short report: a score for each part, what's missing, and the 3 fixes that matter most.</p>
     </div>
   </section>
 
@@ -73,6 +73,12 @@
             <div class="field" data-name="address">
               <label for="address">Or your business address</label>
               <input id="address" name="address" data-answer type="text" autocomplete="street-address" maxlength="240" />
+              <p class="error"></p>
+            </div>
+            <div class="field" data-name="siteUrl">
+              <label for="siteUrl">Your website <span class="muted">(optional)</span></label>
+              <input id="siteUrl" name="siteUrl" data-answer type="text" inputmode="url" autocomplete="url" maxlength="300" placeholder="yourbusiness.com" />
+              <span class="hint">Leave it blank and I'll use the one on your Google profile.</span>
               <p class="error"></p>
             </div>
             <div class="row-2 row-tcs">
@@ -144,7 +150,8 @@
           <ul class="under" style="margin-top:0">
             <li>In your inbox within 1 business day.</li>
             <li>I read every report myself before it goes out.</li>
-            <li>Only public Google info, read the day I look.</li>
+            <li>Only public info: what anyone can see on Google, your website and your social pages, read the day I look. I never log in to anything.</li>
+            <li>Social media won't bring calls by itself, but it helps Google and AI tools trust you. I check it too.</li>
             <li>No ranking promises. Nobody can honestly make those.</li>
             <li>All I ask is honest feedback.</li>
           </ul>
@@ -154,7 +161,7 @@
       <section id="svc-thanks" class="thanks" hidden aria-live="polite">
         <div class="card">
           <div class="done-head"><span class="tick" aria-hidden="true">✓</span><h2>Got it. Your X-Ray is on the way.</h2></div>
-          <p data-service-message>I'll look at your Google profile and the top 3 near you, and email your X-Ray within 1 business day. I read each one myself before it goes out.</p>
+          <p data-service-message>I'll look at your Google profile, your website and your social media, and email your X-Ray within 1 business day. I read each one myself before it goes out.</p>
           <p class="note">It goes to <b data-show-email></b>. Not there by tomorrow? Check spam, or call or text me at <a data-phone-link href="tel:+19414018288">(941) 401-8288</a>.</p>
         </div>
         <div class="offer next-step">
