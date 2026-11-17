@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Missed Call Money Leak Calculator | Biggify</title>
-<meta name="description" content="Free calculator for contractors. Answer 3 questions and see what the calls you miss could be worth in a week, a month and a year. The math is shown." />
+<title>Missed Call Cost Calculator for Contractors | Biggify</title>
+<meta name="description" content="Free missed call calculator for contractors and trades. Answer 3 questions to see what the calls you miss could be worth a week, a month and a year." />
 <link rel="canonical" href="https://www.gobiggify.com/tools/missed-calls" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Biggify" />
@@ -17,14 +17,26 @@
 <link rel="icon" type="image/png" href="/favicon.png" />
 <link rel="preload" href="/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="/tools/tools.css" />
+<style>
+.explain{max-width:780px;margin:34px auto 0}
+.thanks:not([hidden]) ~ .explain{display:none}
+.explain h2{font-size:clamp(24px,3.6vw,30px);letter-spacing:-.02em;line-height:1.15;margin:0 0 12px}
+.explain h3{font-size:20px;letter-spacing:-.01em;margin:24px 0 8px}
+.explain p,.explain li{font-size:17px;color:var(--ink-soft)}
+.explain p{margin:0 0 12px}
+.explain ol,.explain ul{padding-left:22px;margin:0 0 14px}
+.explain li{margin:6px 0}
+.explain b{color:var(--ink)}
+.explain a{color:var(--brand);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+</style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
 {"@type":"Organization","@id":"https://www.gobiggify.com/#org","name":"Biggify","legalName":"Biggify LLC","url":"https://www.gobiggify.com/","logo":{"@type":"ImageObject","url":"https://www.gobiggify.com/LOGO.png"},"telephone":"+1-941-401-8288","address":{"@type":"PostalAddress","addressLocality":"Port Charlotte","addressRegion":"FL","addressCountry":"US"},"founder":{"@id":"https://www.gobiggify.com/#wyatt"}},
 {"@type":"Person","@id":"https://www.gobiggify.com/#wyatt","name":"Wyatt Brunderman","jobTitle":"Founder","description":"Founder of Biggify in Port Charlotte, FL. Runs Google profiles, reviews and phones for trade businesses.","worksFor":{"@id":"https://www.gobiggify.com/#org"}},
 {"@type":"WebSite","@id":"https://www.gobiggify.com/#website","url":"https://www.gobiggify.com/","name":"Biggify","publisher":{"@id":"https://www.gobiggify.com/#org"},"inLanguage":"en-US"},
-{"@type":"WebPage","@id":"https://www.gobiggify.com/tools/missed-calls#page","name":"What are your missed calls costing you?","description":"Free calculator for contractors. Answer 3 questions and see what the calls you miss could be worth in a week, a month and a year. The math is shown.","url":"https://www.gobiggify.com/tools/missed-calls","author":{"@id":"https://www.gobiggify.com/#wyatt"},"publisher":{"@id":"https://www.gobiggify.com/#org"},"inLanguage":"en-US","isPartOf":{"@id":"https://www.gobiggify.com/#website"},"breadcrumb":{"@id":"https://www.gobiggify.com/tools/missed-calls#breadcrumb"}},
+{"@type":"WebPage","@id":"https://www.gobiggify.com/tools/missed-calls#page","name":"What are your missed calls costing you?","description":"Free missed call calculator for contractors and trades. Answer 3 questions to see what the calls you miss could be worth a week, a month and a year.","url":"https://www.gobiggify.com/tools/missed-calls","author":{"@id":"https://www.gobiggify.com/#wyatt"},"publisher":{"@id":"https://www.gobiggify.com/#org"},"inLanguage":"en-US","isPartOf":{"@id":"https://www.gobiggify.com/#website"},"breadcrumb":{"@id":"https://www.gobiggify.com/tools/missed-calls#breadcrumb"}},
 {"@type":"BreadcrumbList","@id":"https://www.gobiggify.com/tools/missed-calls#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Biggify","item":"https://www.gobiggify.com/"},{"@type":"ListItem","position":2,"name":"Free tools","item":"https://www.gobiggify.com/tools"},{"@type":"ListItem","position":3,"name":"Missed Call Money Leak Calculator","item":"https://www.gobiggify.com/tools/missed-calls"}]},
-{"@type":"WebApplication","@id":"https://www.gobiggify.com/tools/missed-calls#app","name":"What are your missed calls costing you?","description":"Free calculator for contractors. Answer 3 questions and see what the calls you miss could be worth in a week, a month and a year. The math is shown.","url":"https://www.gobiggify.com/tools/missed-calls","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in your web browser)","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"creator":{"@id":"https://www.gobiggify.com/#org"}}
+{"@type":"WebApplication","@id":"https://www.gobiggify.com/tools/missed-calls#app","name":"What are your missed calls costing you?","description":"Free missed call calculator for contractors and trades. Answer 3 questions to see what the calls you miss could be worth a week, a month and a year.","url":"https://www.gobiggify.com/tools/missed-calls","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in your web browser)","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"creator":{"@id":"https://www.gobiggify.com/#org"}}
 ]}
 </script>
   <script defer src="/_vercel/insights/script.js"></script>
@@ -49,7 +61,7 @@
     <div class="wrap">
       <span class="callout">For service businesses anywhere in the US</span>
       <h1>What are your <span class="grad">missed calls</span> costing you?</h1>
-      <p class="lead">Answer 3 quick questions. You'll see the dollar number right away, with the math.</p>
+      <p class="lead">A free calculator for plumbers, electricians, roofers and every trade. Answer 3 quick questions. You'll see what your missed calls could be worth in a week, a month and a year, with the math.</p>
     </div>
   </section>
 
@@ -165,6 +177,20 @@
           <div class="form-error" id="trial-error" role="alert"></div>
         </div>
       </div>
+      <section class="card explain" aria-labelledby="how-math">
+        <h2 id="how-math">How does the missed call calculator work?</h2>
+        <p>It multiplies your own 3 numbers. Nothing else goes in.</p>
+        <ol>
+          <li><b>Missed calls a week × (how many book out of 10 ÷ 10)</b> = the jobs you could be missing each week.</li>
+          <li><b>Those jobs × your average job</b> = what a week of missed calls could be worth.</li>
+          <li><b>A week × 52</b> = a year. <b>The year ÷ 12</b> = a month.</li>
+        </ol>
+        <p><b>Example with the sample numbers in the boxes:</b> 5 missed calls a week, 5 out of 10 book, and a $400 job. 5 × 0.5 = 2.5 jobs a week. 2.5 × $400 = $1,000 a week. $1,000 × 52 = $52,000 a year. Your own numbers will give you your own answer.</p>
+        <h3>Is the number exact?</h3>
+        <p>No. It's an estimate. Some people do call back, so the real number may be lower. To make it real, write down every missed call for one week: the day, the time, and whether you got the job.</p>
+        <h3>Why do missed calls cost so much?</h3>
+        <p>A lot of callers who hit voicemail don't wait. They call the next business on the list. I explain what to do about it in <a href="/guides/missed-calls-competitors">Every missed call is a job your competitor answers</a>. Thinking about help with the phones? Run your own numbers in <a href="/guides/ai-receptionist">Is an AI receptionist worth it?</a></p>
+      </section>
       <aside class="card next-steps" id="next-steps" aria-labelledby="next-steps-title">
         <span class="eyebrow">What to do now</span>
         <h2 id="next-steps-title">Your next steps</h2>

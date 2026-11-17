@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Free 30-Day AI Receptionist Trial | Biggify</title>
-<meta name="description" content="Try my AI receptionist free for 30 days. Your phone rings first; it only answers the calls you miss. No card. It switches off on day 31 unless you tell me in writing to keep it." />
+<title>AI Receptionist Free Trial: 30 Days, No Card | Biggify</title>
+<meta name="description" content="Try my AI receptionist free for 30 days. Your phone rings first; it only answers calls you miss. No card. Off on day 31 unless you say yes in writing." />
 <link rel="canonical" href="https://www.gobiggify.com/tools/trial" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Biggify" />
@@ -17,12 +17,24 @@
 <link rel="icon" type="image/png" href="/favicon.png" />
 <link rel="preload" href="/fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="/tools/tools.css" />
+<style>
+.explain{max-width:780px;margin:34px auto 0}
+.thanks:not([hidden]) ~ .explain{display:none}
+.explain h2{font-size:clamp(24px,3.6vw,30px);letter-spacing:-.02em;line-height:1.15;margin:0 0 12px}
+.explain h3{font-size:20px;letter-spacing:-.01em;margin:24px 0 8px}
+.explain p,.explain li{font-size:17px;color:var(--ink-soft)}
+.explain p{margin:0 0 12px}
+.explain ol,.explain ul{padding-left:22px;margin:0 0 14px}
+.explain li{margin:6px 0}
+.explain b{color:var(--ink)}
+.explain a{color:var(--brand);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+</style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
 {"@type":"Organization","@id":"https://www.gobiggify.com/#org","name":"Biggify","legalName":"Biggify LLC","url":"https://www.gobiggify.com/","logo":{"@type":"ImageObject","url":"https://www.gobiggify.com/LOGO.png"},"telephone":"+1-941-401-8288","address":{"@type":"PostalAddress","addressLocality":"Port Charlotte","addressRegion":"FL","addressCountry":"US"},"founder":{"@id":"https://www.gobiggify.com/#wyatt"}},
 {"@type":"Person","@id":"https://www.gobiggify.com/#wyatt","name":"Wyatt Brunderman","jobTitle":"Founder","description":"Founder of Biggify in Port Charlotte, FL. Runs Google profiles, reviews and phones for trade businesses.","worksFor":{"@id":"https://www.gobiggify.com/#org"}},
 {"@type":"WebSite","@id":"https://www.gobiggify.com/#website","url":"https://www.gobiggify.com/","name":"Biggify","publisher":{"@id":"https://www.gobiggify.com/#org"},"inLanguage":"en-US"},
-{"@type":"WebPage","@id":"https://www.gobiggify.com/tools/trial#page","name":"Try my AI receptionist free for 30 days","description":"Try my AI receptionist free for 30 days. Your phone rings first; it only answers the calls you miss. No card. It switches off on day 31 unless you tell me in writing to keep it.","url":"https://www.gobiggify.com/tools/trial","author":{"@id":"https://www.gobiggify.com/#wyatt"},"publisher":{"@id":"https://www.gobiggify.com/#org"},"inLanguage":"en-US","isPartOf":{"@id":"https://www.gobiggify.com/#website"},"breadcrumb":{"@id":"https://www.gobiggify.com/tools/trial#breadcrumb"}},
+{"@type":"WebPage","@id":"https://www.gobiggify.com/tools/trial#page","name":"Try my AI receptionist free for 30 days","description":"Try my AI receptionist free for 30 days. Your phone rings first; it only answers calls you miss. No card. Off on day 31 unless you say yes in writing.","url":"https://www.gobiggify.com/tools/trial","author":{"@id":"https://www.gobiggify.com/#wyatt"},"publisher":{"@id":"https://www.gobiggify.com/#org"},"inLanguage":"en-US","isPartOf":{"@id":"https://www.gobiggify.com/#website"},"breadcrumb":{"@id":"https://www.gobiggify.com/tools/trial#breadcrumb"}},
 {"@type":"BreadcrumbList","@id":"https://www.gobiggify.com/tools/trial#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Biggify","item":"https://www.gobiggify.com/"},{"@type":"ListItem","position":2,"name":"Free tools","item":"https://www.gobiggify.com/tools"},{"@type":"ListItem","position":3,"name":"Free 30-Day AI Receptionist Trial","item":"https://www.gobiggify.com/tools/trial"}]}
 ]}
 </script>
@@ -51,16 +63,14 @@
 
 <main id="main">
   <section class="hero">
-    <div class="wrap" data-default-only>
-      <span class="callout">For service businesses anywhere in the US</span>
+    <!-- One h1 for both versions (owner's video links): only the callout and the lead change. -->
+    <div class="wrap">
+      <span class="callout" data-default-only>For service businesses anywhere in the US</span>
+      <span class="callout" data-video-only>From my video: <span data-video-title></span></span>
       <h1>Try my <span class="grad">AI receptionist</span> free for 30 days</h1>
-      <p class="lead">It answers the calls you miss. It takes the caller's name and what they need, and texts it to you right away. No card. It turns off by itself on day 31.</p>
-    </div>
-    <div class="wrap" data-video-only>
-      <span class="callout">From my video: <span data-video-title></span></span>
-      <h1>Try my <span class="grad">AI receptionist</span> free for 30 days</h1>
-      <p class="lead">Thanks for watching! Here is my deal for you. Use it free for 30 days. No card. If you keep it, you get <b data-video-offer></b>.</p>
-      <p class="lead" style="margin-top:12px">It answers the calls you miss. It texts you who called and what they need.</p>
+      <p class="lead" data-default-only>An AI receptionist for trade businesses that answers the calls you miss. It takes the caller's name and what they need, and texts it to you right away. No card. It turns off by itself on day 31.</p>
+      <div data-video-only><p class="lead">Thanks for watching! Here is my deal for you. Use it free for 30 days. No card. If you keep it, you get <b data-video-offer></b>.</p>
+      <p class="lead" style="margin-top:12px">It answers the calls you miss. It texts you who called and what they need.</p></div>
     </div>
   </section>
 
@@ -185,6 +195,17 @@
             <li>Only if you tell me yes in writing. If you don't, it just switches off.</li>
           </ul>
         </div>
+      </section>
+      <section class="card explain" aria-labelledby="trial-questions">
+        <h2 id="trial-questions">How does the free trial work?</h2>
+        <h3>How do my calls get to it?</h3>
+        <p>I call you to set it up. It takes about 20 minutes on the phone. Together we turn on "forward when busy or no answer" on your business line, then make a test call. Your phone still rings first. Only the calls you miss go to the AI.</p>
+        <h3>Will callers know it's an AI?</h3>
+        <p>Yes. It says it's an AI assistant. Then it takes the caller's name, number and what they need, and texts that to you.</p>
+        <h3>What happens on day 31?</h3>
+        <p>It switches off by itself. It only stays on if you tell me yes in writing. There's no card, so there's nothing to cancel. I check in with you on day 3, day 14 and day 27, with real numbers from its call log.</p>
+        <h3>Is it worth it for me?</h3>
+        <p>Do the math on your own calls first in <a href="/guides/ai-receptionist">Is an AI receptionist worth it?</a></p>
       </section>
       <aside class="card next-steps" id="next-steps" aria-labelledby="next-steps-title">
         <span class="eyebrow">What to do now</span>
