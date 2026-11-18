@@ -8,7 +8,9 @@
 // and left out of the hub, the sitemap and every related-links list.
 //
 // Runs on its own (`npm run videos`) and before every build (`prebuild`). tests/video-pages.test.ts fails if the output is stale.
-// Throws (so the build fails loudly) on: a placeholder like [X] or [DATA: ...], a broken internal link, a link to a draft page,
+// Throws (so the build fails loudly) on: a page above grade 5 (owner 2026-11-18: 3rd-grade reading level for all marketing; the
+// builder also prints every page above grade 4 or with a sentence over 15 words), a placeholder like [X] or [DATA: ...], a broken
+// internal link, a link to a draft page,
 // a missing title/description, or two pages with the same title.
 
 import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync, statSync } from "node:fs";
@@ -207,6 +209,108 @@ function readPages(dir, kind) {
 }
 
 const PLACEHOLDER = /\[(?:[A-Z][A-Z0-9 :.,'_\/-]*|DATA[^\]]*|SOURCE[^\]]*|PROSPECT[^\]]*)\]/;
+
+// ---------- reading level (owner's hard rule 2026-11-18: ALL marketing at a 3rd-grade reading level) ----------
+// The same Flesch-Kincaid math as Hubert (biggify-platform lib/content/reading-level.ts + plain-language.ts) and Biggify Studio's
+// teleprompter check; keep them in step. Aim for grade 3. Names (Biggify, Port Charlotte, Wyatt) don't count.
+//   a page above grade READING_MAX_GRADE + 1 (5)           -> the build FAILS (every page passed this on 2026-11-18)
+//   a page above READING_MAX_GRADE (4)                     -> printed "fix" list
+//   a sentence over READING_MAX_SENTENCE_WORDS (15) words  -> printed "fix" list for now. Hubert treats it as a problem, but on
+//     2026-11-18 every page still had some (many in the front-matter description/summary). Set READING_LONG_SENTENCES_FAIL to
+//     true once they are fixed, and the build fails on them too.
+export const READING_MAX_GRADE = 4;
+export const READING_MAX_SENTENCE_WORDS = 15;
+export const READING_LONG_SENTENCES_FAIL = false;
+const READING_NAMES = ["Wyatt Brunderman", "Port Charlotte", "Biggify", "Wyatt"];
+const ABBREVIATIONS = ["mr", "mrs", "ms", "dr", "st", "jr", "sr", "vs", "etc", "e.g", "i.e", "inc", "llc", "co", "no", "approx", "ft", "sq"];
+
+export function splitSentences(text) {
+  const clean = text.replace(/\s+/g, " ").trim();
+  if (!clean) return [];
+  const out = [];
+  let current = "";
+  for (let i = 0; i < clean.length; i++) {
+    const ch = clean[i];
+    current += ch;
+    if (ch !== "." && ch !== "!" && ch !== "?") continue;
+    while (i + 1 < clean.length && /[.!?"'”’)\]]/.test(clean[i + 1])) current += clean[++i];
+    const next = clean[i + 1];
+    if (next !== undefined && next !== " ") continue;
+    if (ch === ".") {
+      const lastWord = current.trim().split(" ").pop() ?? "";
+      const bare = lastWord.replace(/[."'”’)\]]+$/g, "").toLowerCase();
+      if (ABBREVIATIONS.includes(bare)) continue;
+      if (/^[A-Z]$/.test(lastWord.replace(/\.$/, ""))) continue;
+    }
+    const after = clean.slice(i + 2, i + 3);
+    if (after && !/[A-Z0-9"'“‘$(]/.test(after)) continue;
+    out.push(current.trim());
+    current = "";
+  }
+  if (current.trim()) out.push(current.trim());
+  return out;
+}
+
+export function syllables(word) {
+  let w = word.toLowerCase().replace(/[^a-z]/g, "");
+  if (!w) return /\d/.test(word) ? Math.max(1, Math.min(3, word.replace(/\D/g, "").length)) : 0;
+  if (w.length <= 3) return 1;
+  w = w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, "").replace(/^y/, "");
+  const groups = w.match(/[aeiouy]{1,2}/g);
+  return Math.max(1, groups ? groups.length : 1);
+}
+
+/** Flesch-Kincaid grade = 0.39 x words/sentence + 11.8 x syllables/word - 15.59 (never below 0). */
+export function readingLevel(text) {
+  const sents = splitSentences(text);
+  const list = sents.length ? sents : text.trim() ? [text.trim()] : [];
+  let words = 0, syl = 0;
+  const hard = new Set(), longSentences = [];
+  for (const sent of list) {
+    const ws = sent.split(/\s+/).filter((x) => /[a-z0-9]/i.test(x));
+    words += ws.length;
+    if (ws.length > READING_MAX_SENTENCE_WORDS) longSentences.push({ words: ws.length, start: ws.slice(0, 6).join(" ") });
+    for (const w of ws) {
+      const n = syllables(w);
+      syl += n;
+      if (n >= 3) hard.add(w.replace(/[^\w'-]/g, "").toLowerCase());
+    }
+  }
+  if (!words) return { grade: 0, words: 0, sentences: 0, hardWords: [], longSentences: [] };
+  const grade = Math.max(0, 0.39 * (words / list.length) + 11.8 * (syl / words) - 15.59);
+  return { grade: Math.round(grade * 10) / 10, words, sentences: list.length, hardWords: [...hard].slice(0, 8), longSentences };
+}
+
+/** Everything a reader reads on one page (front matter copy + body), as plain sentences: markdown marks, links, anchors and
+ * names dropped; headings, list items and block lines end as sentences. */
+export function pageReadingText(p) {
+  const lines = [p.description, p.summary, p.card, p.resource?.text, ...(p.next || []), ...(p.faq || []).flat()].filter(Boolean);
+  for (const raw of String(p.body || "").split("\n")) {
+    let t = raw.trim();
+    if (!t || t === ":::" || t === "---" || /^:::video\b/.test(t) || t.startsWith("<")) continue;
+    t = t.replace(/^:::\w+\s*/, "").replace(/^#{1,6}\s+/, "").replace(/\s*\{#[a-z0-9-]+\}\s*$/, "").replace(/^>[!+]?\s?/, "").replace(/^(- |\d+\. )/, "");
+    if (t) lines.push(t);
+  }
+  let text = lines
+    .map((l) => plain(l).replace(/https?:\/\/\S+|www\.\S+|\S+@\S+\.\S+/g, "it").replace(/[*_`|]/g, " ").replace(/\s+/g, " ").trim())
+    .filter((l) => /[a-z0-9]/i.test(l))
+    .map((l) => (/[.!?]["'”’)\]]*$/.test(l) ? l : `${l.replace(/[:;,\s-]+$/, "")}.`))
+    .join(" ");
+  for (const n of READING_NAMES) text = text.replace(new RegExp(`\\b${n}\\b`, "g"), "it");
+  return text;
+}
+
+/** Reading level of every page, hardest first, with what is wrong. */
+export function readingReport(pages) {
+  return pages
+    .map((p) => {
+      const r = readingLevel(pageReadingText(p));
+      const tooHard = r.grade > READING_MAX_GRADE + 1 || (READING_LONG_SENTENCES_FAIL && r.longSentences.length > 0);
+      const warn = !tooHard && (r.grade > READING_MAX_GRADE || r.longSentences.length > 0);
+      return { file: p.file, path: p.path, grade: r.grade, words: r.words, longSentences: r.longSentences, hardWords: r.hardWords, tooHard, warn };
+    })
+    .sort((a, b) => b.grade - a.grade);
+}
 
 function head({ title, description, path, ogType = "article", noindex, jsonld }) {
   return `<!DOCTYPE html>
@@ -507,12 +611,29 @@ ${FOOTER}`;
   files.set(join(PUBLIC, "videos", "index.html"), hub);
 
 
+  const reading = readingReport(pages);
+  for (const r of reading.filter((x) => x.tooHard)) {
+    errors.push(`${r.file}: reads at grade ${r.grade}${r.longSentences.length ? ` with ${r.longSentences.length} sentence(s) over ${READING_MAX_SENTENCE_WORDS} words` : ""}; must be 3rd-grade reading level, never above grade ${READING_MAX_GRADE + 1} (owner rule 2026-11-18)`);
+  }
+
   if (errors.length) throw new Error("Video pages:\n  " + errors.join("\n  "));
   if (write) for (const [f, c] of files) { mkdirSync(dirname(f), { recursive: true }); writeFileSync(f, c); }
-  return { files, pages, live, drafts: pages.filter(isDraft), guides };
+  return { files, pages, live, drafts: pages.filter(isDraft), guides, reading };
+}
+
+/** The printed reading-level list (every run of the builder). */
+export function readingSummary(reading) {
+  const hard = reading.filter((r) => r.tooHard), warn = reading.filter((r) => r.warn);
+  const out = [`Reading level (3rd-grade rule: aim 3; fix anything above grade ${READING_MAX_GRADE} or with a sentence over ${READING_MAX_SENTENCE_WORDS} words; above grade ${READING_MAX_GRADE + 1} fails the build): ${reading.length - hard.length - warn.length} ok, ${warn.length} to fix, ${hard.length} too hard`];
+  for (const r of [...hard, ...warn]) {
+    const long = r.longSentences.length ? `, ${r.longSentences.length} long sentence${r.longSentences.length > 1 ? "s" : ""} (e.g. ${r.longSentences[0].words} words: "${r.longSentences[0].start}...")` : "";
+    out.push(`  ${r.tooHard ? "TOO HARD" : "fix     "} grade ${String(r.grade).padStart(4)}  ${r.path}${long}${r.hardWords.length ? `; hard words: ${r.hardWords.slice(0, 5).join(", ")}` : ""}`);
+  }
+  return out.join("\n");
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const r = build();
   console.log(`Video pages: ${r.live.length} live, ${r.drafts.length} draft, ${r.guides.length} checklists, ${r.files.size} files written.`);
+  console.log(readingSummary(r.reading));
 }

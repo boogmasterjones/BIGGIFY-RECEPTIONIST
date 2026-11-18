@@ -153,6 +153,39 @@ describe('the video slot (public/videos/videos.js)', () => {
   });
 });
 
+describe('reading level (owner 2026-11-18: all marketing at a 3rd-grade reading level)', () => {
+  it('uses the same Flesch-Kincaid math as Hubert and the Studio', () => {
+    expect(gen.readingLevel('You miss a call. They call the next guy. He gets the job.').grade).toBeLessThanOrEqual(3);
+    const hard = gen.readingLevel('Comprehensive reputation management dramatically increases organizational visibility across municipalities.');
+    expect(hard.grade).toBeGreaterThan(8);
+    expect(hard.hardWords).toContain('comprehensive');
+    expect(gen.syllables('customer')).toBe(3);
+    expect(gen.readingLevel(Array.from({ length: 18 }, () => 'go').join(' ') + '.').longSentences[0].words).toBe(18);
+  });
+
+  it('measures headings, lists and front-matter copy, without names, links or markdown', () => {
+    const text = gen.pageReadingText({
+      description: 'Call Biggify in Port Charlotte.',
+      summary: 'See [the guide](/guides/x).',
+      body: '## Who I am {#me}\n\n- **One thing**\n:::video some-video\n> **Tip** Keep it short',
+    });
+    expect(text).toBe('Call it in it. See the guide. Who I am. One thing. Tip Keep it short.');
+  });
+
+  it('reports every page; none is above grade 5 (that fails the build)', () => {
+    expect(result.reading.length).toBe(result.pages.length);
+    for (const r of result.reading) expect(r.grade, r.path).toBeLessThanOrEqual(gen.READING_MAX_GRADE + 1);
+    expect(result.reading.filter((r) => r.tooHard)).toEqual([]);
+    expect(gen.readingSummary(result.reading)).toMatch(/^Reading level/);
+  });
+
+  it('fails the build for a page above grade 5', () => {
+    const hard = { ...result.pages[0], body: 'Comprehensive reputation management dramatically increases organizational visibility across municipalities.' };
+    const [r] = gen.readingReport([hard]);
+    expect(r.tooHard).toBe(true);
+  });
+});
+
 describe('the site serves /videos to everyone', () => {
   it('keeps /videos out of the login check and rewrites the folders to their pages', () => {
     expect(readFileSync(join(DASH, 'proxy.ts'), 'utf8')).toMatch(/\|videos\|/);
