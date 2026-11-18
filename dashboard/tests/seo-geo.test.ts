@@ -85,7 +85,7 @@ describe('every guide and tool page', () => {
       expect(person, p.path).toMatchObject({ '@id': `${SITE}/#wyatt`, name: 'Wyatt Brunderman', jobTitle: 'Founder', worksFor: { '@id': `${SITE}/#org` } });
       expect(org, p.path).toMatchObject({ '@id': `${SITE}/#org`, name: 'Biggify', url: `${SITE}/`, address: { addressLocality: 'Port Charlotte', addressRegion: 'FL' } });
       // sameAs only with real profile links (none confirmed yet); never a placeholder.
-      for (const u of (org.sameAs as string[] | undefined) ?? []) expect(u).toMatch(/^https:\/\/(www\.)?(facebook|instagram|youtube|linkedin|google)\.com\/.+/);
+      for (const u of (org.sameAs as string[] | undefined) ?? []) expect(u).toMatch(/^https:\/\/(www\.)?(facebook|instagram|youtube|linkedin|google|yelp)\.com\/.+/);
     }
   });
 

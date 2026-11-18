@@ -412,6 +412,11 @@ a[href^="tel:"]{white-space:nowrap}
 .foot-brand p{max-width:340px;margin:14px 0 14px;color:var(--on-dark-muted)}
 .foot-phone{display:inline-flex!important;align-items:center;gap:9px;font-family:var(--display);font-stretch:70%;font-weight:900;font-size:30px;letter-spacing:.01em;color:#fff}
 .foot-phone svg{width:22px;height:22px;color:var(--brand-hi)}
+.foot-social{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.foot-social a{display:inline-flex!important;align-items:center;gap:6px;min-height:40px;padding:8px 14px;border:1px solid rgba(255,255,255,.18);border-radius:999px;font-weight:700;font-size:14px;color:#fff;text-decoration:none;transition:background .2s,border-color .2s}
+.foot-social a:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.35)}
+.foot-social .foot-yelp{background:#d32323;border-color:#d32323}
+.foot-social .foot-yelp:hover{background:#b81d1d;border-color:#b81d1d}
 .foot-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px 16px}
 @media(min-width:560px){.foot-cols{grid-template-columns:repeat(3,1fr)}}
 .foot-cols a{display:block;padding:11px 0;font-size:15px;color:var(--on-dark-soft)}

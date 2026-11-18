@@ -19,7 +19,7 @@ export const ORGANIZATION = {
   address: { '@type': 'PostalAddress', addressLocality: 'Port Charlotte', addressRegion: 'FL', addressCountry: 'US' },
   founder: { '@id': PERSON_ID },
   // Biggify's own Facebook page (found 2026-11-16 in "Pages you manage"). Biggify has no Google Business Profile yet.
-  sameAs: ['https://www.facebook.com/profile.php?id=61596442231096'],
+  sameAs: ['https://www.facebook.com/profile.php?id=61596442231096', 'https://www.instagram.com/gobiggify/', 'https://www.yelp.com/biz/fyMw080KhnER2sEkdSMJGQ'],
 } as const;
 
 export const PERSON = {

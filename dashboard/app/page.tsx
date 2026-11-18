@@ -664,6 +664,11 @@ export default function LandingPage() {
               <a className="logo" href="#top" aria-label="Back to the top"><img src="/logo-light.webp" alt="Biggify" width={239} height={132} loading="lazy" /></a>
               <p>Marketing &amp; AI receptionist for home service businesses. Get found, get chosen, never miss the call.</p>
               <a className="foot-phone" href={RECEPTIONIST_TEL}><I id="phone" />{RECEPTIONIST_DISPLAY}</a>
+              <div className="foot-social" aria-label="Biggify on social media">
+                <a href="https://www.facebook.com/profile.php?id=61596442231096" target="_blank" rel="noopener">Facebook</a>
+                <a href="https://www.instagram.com/gobiggify/" target="_blank" rel="noopener">Instagram</a>
+                <a className="foot-yelp" href="https://www.yelp.com/writeareview/biz/fyMw080KhnER2sEkdSMJGQ" target="_blank" rel="noopener"><span aria-hidden="true">★</span> Review us on Yelp!</a>
+              </div>
             </div>
             <div className="foot-cols">
               <div>
