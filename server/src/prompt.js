@@ -1,10 +1,20 @@
 import { config } from './config.js';
+import { recordingOn, withRecordingNotice } from './recording.js';
 
 // The spoken opening line for a given business. Uses the business's custom
 // greeting if set, else the plain answering-service default with the business
 // name. (Owner wording, 2026-10-27: very human, not clever, just an answering
 // service that is honest a person normally answers.)
-export function greetingFor(business) {
+// When the call is recorded (recording.js recordingOn), the greeting always says so: Florida needs every party's
+// consent, so the caller is told in the greeting itself (owner 2026-11-18). `opts.recorded` overrides the check
+// (the old Twilio route never records, so it passes false).
+export function greetingFor(business, opts = {}) {
+  const recorded = opts.recorded ?? recordingOn(business);
+  const g = baseGreeting(business);
+  return recorded ? withRecordingNotice(g) : g;
+}
+
+function baseGreeting(business) {
   const b = business || {};
   const name = b.name || config.business.name;
   return (
@@ -61,7 +71,7 @@ BUSINESS FACTS (the only facts you may ever state; owner 2026-11-06: answer basi
 - Area served: ${b.serviceArea || 'not listed'}
 - Hours: ${b.hours === '24/7' ? 'they take calls 24/7' : b.hours || 'not listed'}
 
-This greeting ALREADY played to the caller, word for word: "${g}". Never greet again, never re-introduce yourself, never restate the business name or that the team is busy.
+This greeting ALREADY played to the caller, word for word: "${g}". Never greet again, never re-introduce yourself, never restate the business name or that the team is busy.${recordingOn(business) ? ' The call is recorded (the greeting said so). If they ask, say yes, it is recorded so the team gets their details right; never bring it up otherwise.' : ''}
 
 HOW TO SOUND: very human, plain and calm. Short sentences, one or two per reply. Contractions. Everyday words like "okay", "no problem", "got it", "perfect". Never say "certainly", "absolutely", "I'd be happy to", "how may I assist you" or anything that sounds like a script. No jokes, no compliments, no small talk, no cleverness. Everything you write is read aloud exactly as typed, so: no markdown, no lists, no emoji, no brackets, no ellipses.
 

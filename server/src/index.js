@@ -19,6 +19,7 @@ import { startOutreachScheduler, runOutreachSweep } from './outreach.js';
 import { syncCreateAppointment, syncUpdateAppointment, syncDeleteAppointment } from './calendar-sync.js';
 import { createPaymentLink, handleWebhook } from './stripe.js';
 import { telnyxAnswer, telnyxRingFirst } from './telnyx.js';
+import { registerRecordingRoutes, startRecordingSweep } from './recording.js';
 import { registerPracticeRoutes, takePracticeSession, finishPracticeSession } from './practice/index.js';
 import { TurnGate } from './practice/turns.js';
 import { OWED_TOKEN } from './practice/session.js';
@@ -160,7 +161,7 @@ app.post('/incoming-call', async (req, res) => {
     // greeting/voice match the tenant this number belongs to.
     const business = await resolveBusiness(req.body.To);
     const wsUrl = (config.publicUrl.replace(/^http/, 'ws') || 'ws://localhost:' + config.port) + '/ws';
-    const greeting = escapeXml(greetingFor(business));
+    const greeting = escapeXml(greetingFor(business, { recorded: false })); // the Twilio route never records
     const voice = business.voice || config.voice;
     const provider = business.ttsProvider || config.ttsProvider || ttsProviderFor(voice);
     const ttsAttr = provider ? ` ttsProvider="${escapeXml(provider)}"` : '';
@@ -240,6 +241,7 @@ app.post('/incoming-call-telnyx/after-dial', async (req, res) => {
 
 // --- Cold-call practice line (Wyatt's own training line; see docs/COLD_CALL_PRACTICE.md) ---
 registerPracticeRoutes(app);
+registerRecordingRoutes(app); // POST /recording-status-telnyx (recording.js)
 
 // --- Branded SMS survey form ---
 app.get('/survey/:id', (req, res) => {
@@ -621,4 +623,5 @@ server.listen(config.port, () => {
   if (!config.publicUrl) console.log('  ⚠ PUBLIC_URL not set — set it to your ngrok/deploy URL for Twilio + survey links.');
   // Quote follow-ups + review requests (opt-in per business; no-op unless DB is live).
   startOutreachScheduler();
+  startRecordingSweep();
 });

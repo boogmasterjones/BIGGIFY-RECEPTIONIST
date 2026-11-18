@@ -1,5 +1,6 @@
 import { config } from './config.js';
 import { greetingFor } from './prompt.js';
+import { recordingOn, recordingStartMarkup } from './recording.js';
 
 // Telnyx answer markup (TeXML) that connects a call to our ConversationRelay socket.
 // Telnyx voices are named "Telnyx.<model>.<name>"; a business row may still carry an
@@ -50,10 +51,14 @@ export function telnyxAnswer(business, publicUrl, voiceOverride = '', dialedNumb
   if (dialedNumber) qs.set('to', dialedNumber);
   if (callerNumber) qs.set('from', callerNumber);
   const wsUrl = qs.toString() ? `${base}?${qs}` : base;
+  // Recording starts here, so only the receptionist's part is recorded, and only when the greeting says so
+  // (greetingFor and this block use the same recordingOn check).
+  const record = recordingOn(business) ? recordingStartMarkup(publicUrl, dialedNumber, callerNumber) : '';
   // Only clear speech may cut the receptionist off (a cough or road noise must not).
   return (
     `<?xml version="1.0" encoding="UTF-8"?>` +
     `<Response>` +
+    record +
     `<Connect>` +
     `<ConversationRelay url="${escapeXml(wsUrl)}"` +
     ` welcomeGreeting="${escapeXml(greetingFor(business))}"` +

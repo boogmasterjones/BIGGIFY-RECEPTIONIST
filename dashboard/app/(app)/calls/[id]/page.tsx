@@ -52,6 +52,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   if (!call) notFound();
 
   const c = call as any;
+  // The recording (private bucket, RLS: members of this business only) plays from a short-lived signed link.
+  let audioUrl: string | null = null;
+  if (c.recording_path) {
+    const { data: signed } = await supabase.storage.from('call-recordings').createSignedUrl(c.recording_path, 3600);
+    audioUrl = signed?.signedUrl ?? null;
+  }
   const chip = outcomeChip(c.outcome);
   const turns: { role: string; text: string }[] = Array.isArray(c.transcript) ? c.transcript : [];
   const dur = duration(c.started_at, c.ended_at);
@@ -88,6 +94,18 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           {chip.label}
         </span>
       </div>
+
+      {audioUrl && (
+        <div className="mb-4 rounded-2xl bg-white border border-[#ece3ca] p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <span className="text-sm font-bold">🎧 Call recording</span>
+            <a href={audioUrl} download className="text-xs font-semibold text-[#CF0000] hover:underline">
+              Download
+            </a>
+          </div>
+          <audio controls preload="metadata" src={audioUrl} className="w-full" />
+        </div>
+      )}
 
       <div className="rounded-2xl bg-white border border-[#ece3ca] p-5 sm:p-6">
         {turns.length === 0 ? (

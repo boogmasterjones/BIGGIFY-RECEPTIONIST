@@ -65,7 +65,7 @@ export default async function Page() {
   const supabase = await createClient();
   const { data } = await supabase
     .from('calls')
-    .select('id, from_number, outcome, started_at, ended_at, transcript, contact:contacts(name)')
+    .select('id, from_number, outcome, started_at, ended_at, transcript, recording_path, contact:contacts(name)')
     .eq('business_id', business.id)
     .order('started_at', { ascending: false })
     .limit(200);
@@ -75,7 +75,7 @@ export default async function Page() {
     <div>
       <div className="mb-4">
         <h1 className="text-2xl font-extrabold tracking-tight">Calls</h1>
-        <p className="text-neutral-500 text-sm">Every call your receptionist answered — with the full transcript.</p>
+        <p className="text-neutral-500 text-sm">Every call your receptionist answered — with the full transcript and a recording you can play back.</p>
       </div>
 
       {calls.length > 0 && (
@@ -83,7 +83,8 @@ export default async function Page() {
           <span className="text-base leading-none">🗑️</span>
           <span>
             <b className="text-neutral-700">Auto-cleanup:</b> a call is kept until <b className="text-neutral-700">30 days after the caller&apos;s
-            most recent completed job</b> — or 30 days after the call if they have no completed job — then it&apos;s deleted automatically.
+            most recent completed job</b> — or 30 days after the call if they have no completed job — then it&apos;s deleted automatically,
+            recording included.
           </span>
         </div>
       )}
@@ -106,6 +107,11 @@ export default async function Page() {
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-[15px] truncate">{c.contact?.name || fmtPhone(c.from_number)}</span>
                     {c.contact?.name && <span className="text-xs text-neutral-400 truncate">{fmtPhone(c.from_number)}</span>}
+                    {c.recording_path && (
+                      <span className="text-xs shrink-0" title="Recording available" aria-label="Recording available">
+                        🎧
+                      </span>
+                    )}
                   </div>
                   <div className="text-xs text-neutral-400 truncate mt-0.5">
                     {preview ? `“${preview}”` : hasTranscript ? 'Transcript available' : 'No transcript'}
