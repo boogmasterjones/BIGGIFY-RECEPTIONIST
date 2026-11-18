@@ -83,7 +83,7 @@ In plain words I get. If I can't tell what I'm paying for, that's a red flag.
 
 What happens if it doesn't work? Get it in writing.
 
-Mine is simple: **300% ROI in 3 months, or I work for free until you get it.** Or prepay 4 months: if I don't get you 300% ROI by then, you get all your money back, and I work for free until you do.
+Mine is simple: **300% ROI in 3 months, or I work for free until you get it.** Or prepay 6 months: if I don't get you 300% ROI by then, you get all your money back, and I work for free until you do.
 
 ## I hold myself to the same rules {#me}
 
