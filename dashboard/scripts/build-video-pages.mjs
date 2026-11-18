@@ -268,7 +268,7 @@ const FOOTER = `<footer>
 </html>
 `;
 
-export const ORGANIZATION = { "@type": "Organization", "@id": `${SITE}/#org`, name: "Biggify", legalName: "Biggify LLC", url: `${SITE}/`, logo: { "@type": "ImageObject", url: `${SITE}/LOGO.png` }, telephone: "+1-941-401-8288", address: { "@type": "PostalAddress", addressLocality: "Port Charlotte", addressRegion: "FL", addressCountry: "US" }, founder: { "@id": `${SITE}/#wyatt` }, sameAs: ["https://www.facebook.com/profile.php?id=61596442231096"] };
+export const ORGANIZATION = { "@type": "Organization", "@id": `${SITE}/#org`, name: "Biggify", legalName: "Biggify LLC", url: `${SITE}/`, logo: { "@type": "ImageObject", url: `${SITE}/LOGO.png` }, telephone: "+1-941-401-8288", address: { "@type": "PostalAddress", addressLocality: "Port Charlotte", addressRegion: "FL", addressCountry: "US" }, founder: { "@id": `${SITE}/#wyatt` }, sameAs: ["https://www.facebook.com/profile.php?id=61596442231096", "https://www.instagram.com/gobiggify/", "https://www.yelp.com/biz/fyMw080KhnER2sEkdSMJGQ"] };
 export const PERSON = { "@type": "Person", "@id": `${SITE}/#wyatt`, name: "Wyatt Brunderman", jobTitle: "Founder", description: "Founder of Biggify in Port Charlotte, FL. Runs Google profiles, reviews and phones for trade businesses.", worksFor: { "@id": `${SITE}/#org` } };
 export const WEBSITE = { "@type": "WebSite", "@id": `${SITE}/#website`, url: `${SITE}/`, name: "Biggify", publisher: { "@id": `${SITE}/#org` }, inLanguage: "en-US" };
 
@@ -354,7 +354,7 @@ export function build({ write = true, config } = {}) {
     const crumbList = p.kind === "video" ? [["Biggify", "/"], ["Videos", "/videos"], [p.crumb || p.chip, p.path]] : [["Biggify", "/"], ["Guides", "/guides"], [p.crumb || p.chip, p.path]];
     const minutes = Math.max(2, Math.round((wordCount(body.html) + wordCount(faqHtml)) / 200));
 
-    const dfy = p.dfy || "We build websites and run Google profiles, review requests and social posts for local trades, with an AI receptionist for the calls you miss. My promise is simple: 300% ROI in 3 months or you don't pay.";
+    const dfy = p.dfy || "We build websites and run Google profiles, review requests and social posts for local trades, with an AI receptionist for the calls you miss. My promise is simple: 300% ROI in 3 months, or I work for free until you get it.";
     const html = `${head({
       title: pageTitle(p.seoTitle || p.title, p.file),
       description: p.description,

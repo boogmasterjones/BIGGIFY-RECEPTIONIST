@@ -22,7 +22,7 @@
     ["What should I ask a marketing agency before I sign?", "My five: Who owns my stuff? Can you show real results? What happens if I leave? Will you tell me what you did each month in plain words? Do you stand behind your work?"],
     ["Should my marketing company own my website or Google profile?", "No. Your website, domain, Google profile and phone number should be in your name. The test I use: \"If I leave, does all of it come with me?\""],
     ["Can a marketing company guarantee #1 on Google?", "No one can promise that. Google picks, not them. Ask for real calls, real reviews and real jobs instead."],
-    ["What's Biggify's guarantee?", "300% ROI in 3 months or you don't pay."]
+    ["What's Biggify's guarantee?", "300% ROI in 3 months, or I work for free until you get it."]
   ]
 }
 ---
@@ -83,7 +83,7 @@ In plain words I get. If I can't tell what I'm paying for, that's a red flag.
 
 What happens if it doesn't work? Get it in writing.
 
-Mine is simple: **300% ROI in 3 months or you don't pay.**
+Mine is simple: **300% ROI in 3 months, or I work for free until you get it.** Or prepay 4 months: if I don't get you 300% ROI by then, you get all your money back, and I work for free until you do.
 
 ## I hold myself to the same rules {#me}
 

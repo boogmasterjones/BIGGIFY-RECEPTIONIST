@@ -3,7 +3,7 @@
   "title": "How many extra jobs does marketing need to bring you? Here's my math",
   "seoTitle": "How many jobs does marketing need to bring you?",
   "description": "The simple break-even math I use for marketing: what it costs, what a job leaves you after costs, and how many jobs it takes to pay for itself.",
-  "summary": "I don't ask if marketing is cheap. I ask how many jobs it brings back. The math: take what marketing costs a month and divide it by what one job leaves you after costs. Say it's $1,000 a month and a job leaves you $500. Then two jobs pay for it, and every job after that is money in your pocket. Breaking even isn't enough for me, so my promise is 300% ROI in 3 months or you don't pay.",
+  "summary": "I don't ask if marketing is cheap. I ask how many jobs it brings back. The math: take what marketing costs a month and divide it by what one job leaves you after costs. Say it's $1,000 a month and a job leaves you $500. Then two jobs pay for it, and every job after that is money in your pocket. Breaking even isn't enough for me, so my promise is 300% ROI in 3 months, or I work for free until you get it.",
   "chip": "Marketing math",
   "crumb": "The jobs math",
   "topic": "marketer",
@@ -51,4 +51,4 @@ Cheap marketing that brings no jobs costs more than good marketing that brings t
 
 ## Breaking even isn't enough for me {#promise}
 
-So my promise is simple. **300% ROI in 3 months or you don't pay.**
+So my promise is simple. **300% ROI in 3 months, or I work for free until you get it.**

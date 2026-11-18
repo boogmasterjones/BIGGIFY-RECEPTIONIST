@@ -86,7 +86,7 @@ Ask them: "What did you do for me last month?"
 - It's in writing.
 :::
 
-Mine is simple: **300% ROI in 3 months or you don't pay.**
+Mine is simple: **300% ROI in 3 months, or I work for free until you get it.** Or prepay 4 months: if I don't get you 300% ROI by then, you get all your money back, and I work for free until you do.
 
 >! **Red flag** "There are no promises in marketing" and nothing else.
 
