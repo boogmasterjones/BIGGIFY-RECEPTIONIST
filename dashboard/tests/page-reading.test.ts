@@ -16,7 +16,6 @@ const pagesIn = (dir: string) =>
 // Long guides not rewritten yet (2026-11-18). Take a page off this list once it passes; the test fails if a listed page
 // already passes, so the list only ever shrinks.
 const NOT_YET = new Set<string>([
-  'guides/marketing-is-simple/index.html',
   'guides/who-owns-your-stuff/index.html',
 ].map((p) => join(p)));
 
