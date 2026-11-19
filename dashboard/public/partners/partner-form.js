@@ -13,6 +13,7 @@
     email: "Enter your email.",
     phone: "Enter a 10-digit phone number.",
     payoutKind: "Pick how you want to be paid.",
+    kindOther: "Tell me what kind of business.",
     checkForm: "Please check the form.",
     tooMany: "Too many tries. Please wait a few minutes, or call or text me at " + PHONE + ".",
     notOpen: "Sign-ups are not open yet. Please call or text me at " + PHONE + ".",
@@ -21,7 +22,8 @@
     thanks: "Thanks! I got your sign-up. I will call you soon. Once you are all set, I will send you your own code. Wyatt",
     sending: "Sending…",
   };
-  var FIELDS = ["name", "business", "email", "phone", "city", "kind", "payoutKind", "message"];
+  var FIELDS = ["name", "business", "email", "phone", "city", "kind", "kindOther", "payoutKind", "message"];
+  var KIND_OTHER_MAX = 60;
   var KINDS = ["supply_house", "bookkeeper", "insurance", "school", "sign_shop", "equipment", "banker", "payroll", "web_designer", "realtor", "client", "other"];
 
   /** First problem in the typed values, as [field, message], or null. */
@@ -30,15 +32,22 @@
     for (var i = 0; i < req.length; i++) if (!v[req[i]]) return [req[i], req[i] === "email" ? MESSAGES.email : req[i] === "phone" ? MESSAGES.phone : MESSAGES.required];
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.email)) return ["email", MESSAGES.email];
     if (v.phone.replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "").length !== 10) return ["phone", MESSAGES.phone];
+    if (v.kind === "other" && !v.kindOther) return ["kindOther", MESSAGES.kindOther];
     if (v.payoutKind !== "cash" && v.payoutKind !== "percent") return ["payoutKind", MESSAGES.payoutKind];
     return null;
   }
 
-  /** The request body (PARTNER_API.md section 1). Blank optional fields are left out; the amount is never sent. */
+  /** The request body (PARTNER_API.md section 1). Blank optional fields are left out; the amount is never sent.
+      Hubert has no field for an "Other" kind's words yet (owner 2026-11-18): they go first in message as "Business type: ...". */
   function buildBody(v, extra) {
     var body = { name: v.name, email: v.email, payoutKind: v.payoutKind, website: v.website || "", elapsedMs: extra.elapsedMs, page: extra.page, utm: extra.utm || {} };
-    ["business", "phone", "city", "message"].forEach(function (k) { if (v[k]) body[k] = v[k]; });
+    ["business", "phone", "city"].forEach(function (k) { if (v[k]) body[k] = v[k]; });
     if (v.kind && KINDS.indexOf(v.kind) !== -1) body.kind = v.kind;
+    var lines = [];
+    var other = v.kind === "other" ? String(v.kindOther || "").slice(0, KIND_OTHER_MAX) : "";
+    if (other) lines.push("Business type: " + other);
+    if (v.message) lines.push(v.message);
+    if (lines.length) body.message = lines.join("\n").slice(0, 1000);
     return body;
   }
 
@@ -64,6 +73,17 @@
   var btnText = btn.textContent;
   var thanks = document.getElementById("partner-thanks");
   var sending = false;
+
+  // The "Other" box shows (and is needed) only when Other is picked.
+  var kindSel = form.elements.kind;
+  var otherBox = form.querySelector('.field[data-name="kindOther"]');
+  function syncOther() {
+    var on = kindSel.value === "other";
+    otherBox.hidden = !on;
+    form.elements.kindOther.required = on;
+    if (!on) { otherBox.removeAttribute("data-error"); form.elements.kindOther.removeAttribute("aria-invalid"); }
+  }
+  if (kindSel && otherBox) { kindSel.addEventListener("change", syncOther); syncOther(); }
 
   function values() {
     var v = {};

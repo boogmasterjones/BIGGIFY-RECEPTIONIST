@@ -114,13 +114,13 @@ describe('partners page facts', () => {
 
 describe('partners form', () => {
   it('has a label for every field, the honeypot hidden, and an error box next to each field', () => {
-    for (const id of ['name', 'business', 'email', 'phone', 'city', 'kind', 'message', 'website']) {
+    for (const id of ['name', 'business', 'email', 'phone', 'city', 'kind', 'kindOther', 'message', 'website']) {
       expect(HTML, id).toMatch(new RegExp(`<label for="${id}">`));
       expect(HTML, id).toMatch(new RegExp(`id="${id}"`));
     }
     expect(HTML).toContain('<div class="hp" aria-hidden="true"><label for="website">Leave this empty</label>');
-    for (const name of ['name', 'business', 'email', 'phone', 'city', 'kind', 'payoutKind', 'message'])
-      expect(HTML, name).toMatch(new RegExp(`<div class="field" data-name="${name}">[\\s\\S]*?<p class="error"></p>`));
+    for (const name of ['name', 'business', 'email', 'phone', 'city', 'kind', 'kindOther', 'payoutKind', 'message'])
+      expect(HTML, name).toMatch(new RegExp(`<div class="field" data-name="${name}"(?: hidden)?>[\\s\\S]*?<p class="error"></p>`));
     expect(HTML).toContain('<legend>How do you want to be paid?</legend>');
     expect(HTML).toMatch(/name="payoutKind" value="cash"/);
     expect(HTML).toMatch(/name="payoutKind" value="percent"/);
@@ -128,7 +128,12 @@ describe('partners form', () => {
 
   it('only offers the kinds Hubert knows', () => {
     const kinds = [...HTML.matchAll(/<option value="([^"]*)">/g)].map((m) => m[1]).filter(Boolean);
-    expect(kinds).toEqual(['supply_house', 'bookkeeper', 'insurance', 'sign_shop', 'banker', 'client', 'other']);
+    expect(kinds).toEqual(['supply_house', 'bookkeeper', 'insurance', 'sign_shop', 'banker', 'realtor', 'web_designer', 'payroll', 'equipment', 'school', 'client', 'other']);
+    expect(HTML).toContain('<option value="other">Other</option>');
+  });
+
+  it('has a hidden "What kind of business?" box for Other, up to 60 letters', () => {
+    expect(HTML).toMatch(/<div class="field" data-name="kindOther" hidden>\s*<label for="kindOther">What kind of business\?<\/label>\s*<input id="kindOther" name="kindOther" type="text" maxlength="60" \/>/);
   });
 
   it('posts to the partner URL from /tools/config.js', () => {
@@ -145,7 +150,7 @@ describe('partners form', () => {
     describe: (status: number, json: unknown) => { ok: boolean; field?: string; message: string };
     MESSAGES: Record<string, string>;
   };
-  const good = { name: 'Pat Lee', business: 'Coast Supply', email: 'pat@coastsupply.com', phone: '(941) 555-0199', city: 'Port Charlotte', kind: 'supply_house', payoutKind: 'cash', message: '', website: '' };
+  const good = { name: 'Pat Lee', business: 'Coast Supply', email: 'pat@coastsupply.com', phone: '(941) 555-0199', city: 'Port Charlotte', kind: 'supply_house', kindOther: '', payoutKind: 'cash', message: '', website: '' };
 
   it('checks the fields before sending', () => {
     expect(P.check(good)).toBeNull();
@@ -154,6 +159,9 @@ describe('partners form', () => {
     expect(P.check({ ...good, phone: '555-0199' })?.[0]).toBe('phone');
     expect(P.check({ ...good, phone: '+1 941 555 0199' })).toBeNull();
     expect(P.check({ ...good, payoutKind: '' })).toEqual(['payoutKind', 'Pick how you want to be paid.']);
+    expect(P.check({ ...good, kind: 'other', kindOther: '' })).toEqual(['kindOther', 'Tell me what kind of business.']);
+    expect(P.check({ ...good, kind: 'other', kindOther: 'Pest supply' })).toBeNull();
+    expect(P.check({ ...good, kind: 'realtor', kindOther: '' })).toBeNull();
   });
 
   it('sends the contract fields, never an amount, and leaves blank ones out', () => {
@@ -163,6 +171,19 @@ describe('partners form', () => {
       business: 'Coast Supply', phone: '(941) 555-0199', city: 'Port Charlotte', kind: 'supply_house',
     });
     expect(P.buildBody({ ...good, kind: 'made_up' }, { elapsedMs: 1, page: '/partners', utm: {} })).not.toHaveProperty('kind');
+    for (const kind of ['realtor', 'web_designer', 'payroll', 'equipment', 'school']) expect(P.buildBody({ ...good, kind }, { elapsedMs: 1, page: '/partners', utm: {} }).kind).toBe(kind);
+  });
+
+  it('sends Other as kind "other" with "Business type: ..." as the first line of message', () => {
+    const extra = { elapsedMs: 1, page: '/partners', utm: {} };
+    const both = P.buildBody({ ...good, kind: 'other', kindOther: 'Pest supply', message: 'We see 50 owners a week.' }, extra);
+    expect(both.kind).toBe('other');
+    expect(both.message).toBe('Business type: Pest supply\nWe see 50 owners a week.');
+    expect(P.buildBody({ ...good, kind: 'other', kindOther: 'Pest supply' }, extra).message).toBe('Business type: Pest supply');
+    expect(P.buildBody({ ...good, kind: 'other', kindOther: 'x'.repeat(80) }, extra).message).toBe(`Business type: ${'x'.repeat(60)}`);
+    // Words typed in the Other box are dropped if they then pick a real kind.
+    expect(P.buildBody({ ...good, kind: 'realtor', kindOther: 'Pest supply', message: 'Hi.' }, extra).message).toBe('Hi.');
+    expect(P.buildBody({ ...good, kind: 'realtor', kindOther: 'Pest supply' }, extra)).not.toHaveProperty('message');
   });
 
   it("shows Hubert's own words for every answer, and plain words when it can't be reached", () => {
