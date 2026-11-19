@@ -1,7 +1,6 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-// @ts-expect-error plain .mjs helper shared with the CLI (node scripts/page-reading.mjs <file>)
 import { blockText, longSentences, pageDescriptions, pageGrade, pageProblems, textGrade } from '../scripts/page-reading.mjs';
 
 // Owner's rule 2026-11-18: ALL marketing at a 3rd-grade reading level. Grade 4 or under, never above, and no sentence over
