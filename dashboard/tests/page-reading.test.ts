@@ -27,7 +27,8 @@ describe('guide and tool pages read at a 3rd-grade level (grade 4 or under, no s
     expect(longSentences('By providing your phone number and checking this box, you agree to receive SMS customer care messages from us.')).toEqual([]);
     expect(textGrade('You miss a call. They call the next guy. He gets the job.')).toBeLessThanOrEqual(3);
     expect(textGrade('Comprehensive reputation management dramatically increases organizational visibility.')).toBeGreaterThan(8);
-    expect(textGrade('Google reviews. Google reviews.')).toBe(textGrade('It it. It it.'));
+    expect(textGrade('Google Facebook. Port Charlotte Instagram.')).toBe(textGrade('It it. It it.'));
+    expect(textGrade('Warranty insurance reviews.')).toBeGreaterThan(textGrade('It it it.'));
   });
 
   it('flags a page that reads above grade 4, or a description that does', () => {

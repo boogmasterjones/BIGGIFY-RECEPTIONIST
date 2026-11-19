@@ -7,26 +7,20 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { READING_MAX_GRADE, READING_MAX_SENTENCE_WORDS, readingLevel, splitSentences } from "./build-video-pages.mjs";
 
-// Names count as one short word, like the video builder: they can't be made simpler.
-const NAMES = ["Wyatt Brunderman", "Port Charlotte", "Biggify", "Wyatt"];
-// Topic words, measured like names (owner's agent, 2026-11-18): the subject of these pages that has no plainer word.
-// They are only exempt when measuring the grade; they still count as words for sentence length. Global, for all pages:
-//   Google            (the company; every page is about Google)
-//   Business Profile  (Google's product name)
-//   warranty / warranties   (the topic of the home warranty guide and packet)
-//   insurance / insured     (the real thing contractors must carry; no plainer word)
-//   certificate       (only inside the fixed term "certificate holder" / "certificate of insurance", the insurers' own words)
-//   review / reviews  (Google reviews; the topic of four guides)
-//   Instagram, Facebook (names of apps)
-// Per page, on top of those (the page's own subject):
-//   home warranty guide + packet ("warranty" in the path): "warranty company/companies", "homeowner(s)",
-//     "contractor(s)", "general liability", "application(s)" (the networks' own word for the sign-up you apply with)
-//   Google Business Profile playbook: "category", "categories" (Google's own name for the setting the chapter is about)
-export const TOPIC_WORDS_BY_PAGE = {
-  warranty: ["warranty companies", "warranty company", "homeowners", "homeowner's", "homeowner", "contractors", "contractor", "general liability", "applications", "application"],
-  "google-playbook": ["categories", "category"],
-};
-export const TOPIC_WORDS = ["Business Profile", "certificate holder", "Google", "warranties", "warranty", "insurance", "insured", "reviews", "review", "Instagram", "Facebook"];
+// Proper names count as one short word when measuring the grade, like the video builder (they can't be made simpler).
+// ONLY proper names (owner's agent, 2026-11-18): people, places, and company or product names. Ordinary words (warranty,
+// insurance, review, contractor and so on) are never skipped. They still count as words for sentence length.
+const NAMES = [
+  // people, Biggify, Google's and Meta's products
+  "Wyatt Brunderman", "Wyatt", "Biggify", "Google Business Profile", "Business Profile", "Google", "Facebook", "Instagram",
+  // places
+  "Port Charlotte", "Florida", "California", "Pennsylvania", "Illinois", "Maryland", "Massachusetts", "Washington",
+  "Sarasota", "Venice", "Tulsa", "Mesa", "Gilbert", "Chandler", "Edison",
+  // other companies and products named on the pages
+  "American Home Shield", "First American", "Old Republic", "Fidelity National", "Housecall Pro", "ServiceTitan", "ServiceM8",
+  "Microsoft", "GoDaddy", "Namecheap", "Cloudflare", "Squarespace", "HomeAdvisor", "Thumbtack", "Nextdoor", "Trustpilot",
+  "CallRail", "RingCentral",
+];
 // The SMS opt-in wording is carrier compliance text, not marketing copy; it stays word for word.
 const SKIP = [/^By providing your phone number/];
 const BREAK = "\u0000";
@@ -74,10 +68,10 @@ export function longSentences(text) {
     .filter((x) => x.words > READING_MAX_SENTENCE_WORDS);
 }
 
-/** Reading grade of plain text, with names, links and topic words measured as one short word. */
+/** Reading grade of plain text, with proper names and links measured as one short word. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function textGrade(text, path = "") {
-  const extra = Object.entries(TOPIC_WORDS_BY_PAGE).filter(([k]) => path.includes(k)).flatMap(([, v]) => v);
-  const t = swap(swap(swap(text.replace(/https?:\/\/\S+|www\.\S+|\S+@\S+\.\S+/g, "it"), NAMES), extra), TOPIC_WORDS);
+  const t = swap(text.replace(/https?:\/\/\S+|www\.\S+|\S+@\S+\.\S+/g, "it"), NAMES);
   return readingLevel(t).grade;
 }
 
