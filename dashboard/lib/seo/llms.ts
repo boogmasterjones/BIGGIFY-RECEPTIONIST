@@ -34,6 +34,7 @@ export function buildLlmsTxt(): string {
     '',
     `- [Biggify home](${SITE}/): what Biggify does for trade businesses and the plans.`,
     `- [How it works](${SITE}/how-it-works): how Biggify sets up and runs a client's marketing.`,
+    `- [Biggify Partners](${SITE}/partners): businesses that know trade owners get paid for each one they send who signs on.`,
     '',
   ].join('\n');
 }

@@ -683,6 +683,7 @@ export default function LandingPage() {
                 <a href="#work">Our Work</a>
                 <a href="#plans">Plans</a>
                 <a href="/how-it-works">How it works</a>
+                <a href="/partners">Partners</a>
                 <a href="#faq">FAQ</a>
                 <a href="/login">Sign in</a>
               </div>

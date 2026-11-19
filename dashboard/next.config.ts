@@ -55,6 +55,8 @@ const nextConfig: NextConfig = {
         // The free video pages, built from content/video-pages by scripts/build-video-pages.mjs (npm run videos; also prebuild).
         { source: "/videos", destination: "/videos/index.html" },
         { source: "/videos/:slug", destination: "/videos/:slug/index.html" },
+        // The Biggify Partners sign-up page (owner 2026-11-18), a plain page in public/partners.
+        { source: "/partners", destination: "/partners/index.html" },
       ],
       fallback: [],
     };
