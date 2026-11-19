@@ -67,7 +67,7 @@ export function pageLongBlocks(html) {
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   for (const f of process.argv.slice(2)) {
     const found = pageLongBlocks(readFileSync(f, "utf8"));
-    if (!process.env.QUIET) for (const b of found) console.log("@@ " + b.block.trim() + "\n   >> " + b.long.map((x) => `[${x.words}] ${x.s}`).join(" | "));
+    if (!process.env.QUIET) for (const b of found) console.log((/</.test(b.block) ? "@@ " + b.block.trim() + "\n" : "") + "   >> " + b.long.map((x) => `[${x.words}] ${x.s}`).join(" | "));
     console.log(`## ${f}: ${found.length} block(s) with a sentence over ${READING_MAX_SENTENCE_WORDS} words`);
   }
 }

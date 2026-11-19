@@ -21,10 +21,8 @@ const NOT_YET = new Set<string>([
   'guides/home-warranty-jobs/index.html',
   'guides/how-much-on-the-phone/index.html',
   'guides/marketing-is-simple/index.html',
-  'guides/reviews-disappeared/index.html',
   'guides/reviews-that-stick/index.html',
   'guides/spam-competitors/index.html',
-  'guides/still-no-calls/index.html',
   'guides/who-owns-your-stuff/index.html',
 ].map((p) => join(p)));
 
