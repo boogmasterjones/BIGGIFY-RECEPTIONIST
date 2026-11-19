@@ -13,12 +13,6 @@ const pagesIn = (dir: string) =>
   [join(dir, 'index.html'), ...readdirSync(join(PUBLIC, dir), { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => join(dir, d.name, 'index.html'))]
     .filter((p) => existsSync(join(PUBLIC, p)));
 
-// Long guides not rewritten yet (2026-11-18). Take a page off this list once it passes; the test fails if a listed page
-// already passes, so the list only ever shrinks.
-const NOT_YET = new Set<string>([
-  'guides/who-owns-your-stuff/index.html',
-].map((p) => join(p)));
-
 describe('guide and tool pages read at a 3rd-grade level (no sentence over 15 words)', () => {
   const pages = [...pagesIn('guides'), ...pagesIn('tools')];
 
@@ -36,8 +30,7 @@ describe('guide and tool pages read at a 3rd-grade level (no sentence over 15 wo
   for (const p of pages) {
     it(p, () => {
       const long = pageLongBlocks(readFileSync(join(PUBLIC, p), 'utf8')).flatMap((b: { long: { s: string; words: number }[] }) => b.long.map((x) => `[${x.words}] ${x.s}`));
-      if (NOT_YET.has(p)) expect(long.length, `${p} passes now: take it off NOT_YET`).toBeGreaterThan(0);
-      else expect(long, p).toEqual([]);
+      expect(long, p).toEqual([]);
     });
   }
 });
