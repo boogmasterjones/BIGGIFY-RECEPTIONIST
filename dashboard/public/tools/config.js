@@ -7,6 +7,8 @@
   var config = {
     // Where every form posts. Change it here only. While testing locally, Hubert's LEAD_MAGNET_ALLOWED_ORIGINS must list this site's origin.
     HUBERT_INTAKE_URL: "https://biggify-dashboard.netlify.app/api/public/lead-magnet",
+    // Where the /partners sign-up form posts (Hubert docs/affiliates/PARTNER_API.md). Answers 503 until Hubert's partners migration is applied.
+    HUBERT_PARTNER_URL: "https://biggify-dashboard.netlify.app/api/public/partner-apply",
     // The demo receptionist line (#4). OFF while (941) 646-3030 is Wyatt's cold-call practice line. To switch it on, see
     // tools/demo-line/README.md: set this to true, and nothing else on the site needs to change.
     DEMO_LINE_ON: false,

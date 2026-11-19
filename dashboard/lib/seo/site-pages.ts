@@ -11,7 +11,8 @@ export { SITE } from './site';
 /** App pages that are public and worth indexing (the rest of the app sits behind the login). */
 export const APP_PAGES = ['/', '/how-it-works', '/privacy', '/terms'] as const;
 
-export const SECTIONS = ['guides', 'tools', 'videos'] as const;
+// partners: the one Biggify Partners sign-up page (public/partners/index.html, a hub with no pages under it).
+export const SECTIONS = ['guides', 'tools', 'videos', 'partners'] as const;
 export type Section = (typeof SECTIONS)[number];
 
 export type StaticPage = {
@@ -31,6 +32,7 @@ const DIRS = {
   guides: join(/*turbopackIgnore: true*/ process.cwd(), 'public', 'guides'),
   tools: join(/*turbopackIgnore: true*/ process.cwd(), 'public', 'tools'),
   videos: join(/*turbopackIgnore: true*/ process.cwd(), 'public', 'videos'),
+  partners: join(/*turbopackIgnore: true*/ process.cwd(), 'public', 'partners'),
 } as const;
 
 const decode = (s: string) =>
