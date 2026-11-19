@@ -17,7 +17,6 @@ const pagesIn = (dir: string) =>
 // already passes, so the list only ever shrinks.
 const NOT_YET = new Set<string>([
   'guides/crm-for-trades/index.html',
-  'guides/fake-review-attack/index.html',
   'guides/home-warranty-jobs/index.html',
   'guides/how-much-on-the-phone/index.html',
   'guides/marketing-is-simple/index.html',
