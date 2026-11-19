@@ -18,7 +18,6 @@ const pagesIn = (dir: string) =>
 const NOT_YET = new Set<string>([
   'guides/crm-for-trades/index.html',
   'guides/home-warranty-jobs/index.html',
-  'guides/how-much-on-the-phone/index.html',
   'guides/marketing-is-simple/index.html',
   'guides/who-owns-your-stuff/index.html',
 ].map((p) => join(p)));
