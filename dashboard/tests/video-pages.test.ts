@@ -180,9 +180,19 @@ describe('reading level (owner 2026-11-18: all marketing at a 3rd-grade reading 
   });
 
   it('fails the build for a page above grade 5', () => {
-    const hard = { ...result.pages[0], body: 'Comprehensive reputation management dramatically increases organizational visibility across municipalities.' };
+    const hard = { ...result.pages[0], description: '', summary: '', card: '', resource: undefined, next: [], faq: [], body: 'Comprehensive reputation management dramatically increases organizational visibility across municipalities.' };
     const [r] = gen.readingReport([hard]);
     expect(r.tooHard).toBe(true);
+  });
+
+  it('fails the build for any sentence over 15 words, and every page is at grade 4 or under with none (rewritten 2026-11-18)', () => {
+    expect(gen.READING_LONG_SENTENCES_FAIL).toBe(true);
+    const long = { ...result.pages[0], body: Array.from({ length: 16 }, () => 'go').join(' ') + '.' };
+    expect(gen.readingReport([long])[0].tooHard).toBe(true);
+    for (const r of result.reading) {
+      expect(r.longSentences, r.path).toEqual([]);
+      expect(r.grade, r.path).toBeLessThanOrEqual(gen.READING_MAX_GRADE);
+    }
   });
 });
 

@@ -2,8 +2,8 @@
 {
   "title": "Why my clients get a business line instead of giving out a personal cell",
   "seoTitle": "Personal cell vs a business line for your trade business",
-  "description": "\"Just call my cell\" costs trade owners jobs. Here's why my clients get one business line for calls and texts, and a test you can do tonight.",
-  "summary": "A personal cell can't be handed to anyone, it rings out when you're on a job, and a lot of callers won't leave a message. So my clients get one business line for calls and texts. It rings the owner first. If he can't pick up, my receptionist does, and the texts reach the right people.",
+  "description": "\"Just call my cell\" costs trade owners jobs. Here's why my clients get one business line for calls and texts. Plus a test for tonight.",
+  "summary": "A personal cell can't be handed to anyone. It rings out when you're on a job. And a lot of callers won't leave a message. So my clients get one business line for calls and texts. It rings the owner first. If he can't pick up, my receptionist does, and the texts reach the right people.",
   "chip": "Business phone line",
   "crumb": "Personal cell vs business line",
   "topic": "calls",
@@ -11,7 +11,7 @@
   "scripts": ["personal-cell-short"],
   "video": "personal-cell-short",
   "cardTitle": "Still giving customers your personal cell?",
-  "card": "Why my clients get one business line for calls and texts, and the 1-minute test that shows what your callers hear.",
+  "card": "Why my clients get one business line for calls and texts. And the 1-minute test that shows what your callers hear.",
   "resource": { "href": "/guides/ai-receptionist", "label": "Get the free guide and calculator", "text": "**Free: my AI receptionist guide and calculator.** See what the calls that ring out could be costing you." },
   "next": [
     "**Call your cell from another phone and let it ring out.** Listen to the whole thing. That's what your customers hear.",
@@ -20,8 +20,8 @@
   ],
   "related": ["/guides/phone-test", "/videos/calls-100", "/guides/missed-calls-competitors"],
   "faq": [
-    ["Why not just forward my business line to my cell?", "Then you're back to one phone in one pocket. If you're on a job, it still rings out. My clients' lines ring the owner first, then the receptionist answers the calls he can't get."],
-    ["What happens to texts on a business line?", "On my clients' lines, texts reach the right people through my system, not just one person's phone."]
+    ["Why not just forward my business line to my cell?", "Then you're back to one phone in one pocket. If you're on a job, it still rings out. My clients' lines ring the owner first. Then the receptionist answers the calls he can't get."],
+    ["What happens to texts on a business line?", "On my clients' lines, texts reach the right people through my system. Not just one person's phone."]
   ]
 }
 ---

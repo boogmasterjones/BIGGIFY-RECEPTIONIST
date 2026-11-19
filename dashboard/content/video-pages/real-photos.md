@@ -1,8 +1,8 @@
 ---
 {
   "title": "Why I use real job photos, never stock photos or AI pictures",
-  "description": "Stock photos make a trade shop look like everyone else, and AI pictures promise work you didn't do. The real photos I use, and the 3 to take.",
-  "summary": "Stock photos make you look like everyone else, and customers can tell. AI pictures are worse: they show work you didn't do, and then the real job has to live up to it. So I only use real photos from real jobs for my trade businesses. Phone photos are fine. On the next job, take three before you leave: the truck, the crew, and the finished work.",
+  "description": "Stock photos make a trade shop look like everyone else. AI pictures promise work you didn't do. The real photos I use, and the 3 to take.",
+  "summary": "Stock photos make you look like everyone else, and customers can tell. AI pictures are worse. They show work you didn't do. Then the real job has to live up to it. So I only use real photos from real jobs for my trade businesses. Phone photos are fine. On the next job, take three before you leave. The truck, the crew, and the finished work.",
   "chip": "Real photos",
   "crumb": "Real photos only",
   "topic": "websites",
@@ -10,10 +10,10 @@
   "scripts": ["best-choice-short-real-photos", "one-job-five-short-no-ai"],
   "video": "best-choice-short-real-photos",
   "cardTitle": "Real job photos, never stock or AI",
-  "card": "Why stock photos and AI pictures cost you trust, and the 3 real photos to take on your next job.",
+  "card": "Why stock photos and AI pictures cost you trust. And the 3 real photos to take on your next job.",
   "resource": { "href": "/tools/website-playbook", "label": "Get the free website playbook", "text": "**Free: the Complete Website Playbook.** It has a whole part on photos: what to shoot and where each one goes." },
   "next": [
-    "**On your next job, take three photos** before you leave: the truck, the crew, the finished work.",
+    "**On your next job, take three photos** before you leave. The truck, the crew, the finished work.",
     "**Swap one stock photo** on your site for a real one this week.",
     "**Check your Google profile photos.** Are they real jobs, and are they recent?"
   ],

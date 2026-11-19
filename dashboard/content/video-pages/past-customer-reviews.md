@@ -2,7 +2,7 @@
 {
   "title": "How my clients get dozens of review asks out in week one",
   "description": "Every past job is a Google review you never asked for. How my clients text past customers in small weekly batches, and the text they send.",
-  "summary": "My clients don't wait for new jobs to get reviews. They go back to past customers who gave their number for the job. A few dozen get one kind text in week one, from the business number, then a small batch each week after that. Never the whole list in one day, and anyone who texts STOP is never texted again.",
+  "summary": "My clients don't wait for new jobs to get reviews. They go back to past customers who gave their number for the job. A few dozen get one kind text in week one, from the business number. Then a small batch goes each week after that. Never the whole list in one day. Anyone who texts STOP is never texted again.",
   "chip": "Past customers",
   "crumb": "Reviews from past customers",
   "topic": "reviews",
@@ -42,7 +42,7 @@ Here's an example. Say you have 300 past jobs.
 
 Never the whole list in one day. Google's rules name "unusual volumes or patterns" of reviews as a warning sign. Nothing for months, then 30 in a weekend, is exactly that.
 
-> **Steady beats a burst** A few new reviews every week looks like a real, busy business. That's also what helps you most. From what I've seen, after about 30 reviews it's how many new ones come in each week that counts.
+> **Steady beats a burst** A few new reviews each week look real and busy. That's also what helps you most. Here's what I've seen. After about 30 reviews, what counts is how many new ones come in each week.
 
 ## The text {#text}
 

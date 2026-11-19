@@ -2,8 +2,8 @@
 {
   "title": "How I check who really owns a business's website, in 60 seconds",
   "seoTitle": "Who really owns your website? The 60-second check",
-  "description": "Your website might not be yours. The free 60-second domain check I use, step by step, and the other 3 keys every trade business should own.",
-  "summary": "Your website might not be in your name, even if you paid for it. Here's the check I use: look up your web address at lookup.icann.org, write down the registrar (the company where your domain lives), then try to log in there yourself. If you can't log in, you don't own it yet. The domain is one of 4 keys every business should own: the domain, the website, the Google profile and the phone number.",
+  "description": "Your website might not be yours. The free 60-second domain check I use, step by step. And the other 3 keys every trade business should own.",
+  "summary": "Your website might not be in your name, even if you paid for it. Here's the check I use. Look up your web address at lookup.icann.org. Write down the registrar. That's the company where your domain lives. Then try to log in there yourself. If you can't log in, you don't own it yet. The domain is one of 4 keys every business should own. The domain, the website, the Google profile and the phone number.",
   "chip": "Website ownership",
   "crumb": "Who owns your website",
   "topic": "marketer",
@@ -12,7 +12,7 @@
   "video": "website-ownership-short",
   "cardTitle": "Who really owns your website? The 60-second check",
   "card": "Look up your domain, find the registrar, try to log in. Plus the other 3 keys every business should own.",
-  "resource": { "href": "/guides/who-owns-your-stuff", "label": "Get the free ownership guide", "text": "**Free: the ownership check guide.** All 4 keys and more, with the menus to click and the red flags to look for." },
+  "resource": { "href": "/guides/who-owns-your-stuff", "label": "Get the free ownership guide", "text": "**Free: the ownership check guide.** All 4 keys and more. The menus to click and the red flags to look for." },
   "next": [
     "**Look up your web address** at lookup.icann.org.",
     "**Write down the registrar and the date it runs out.**",
@@ -60,4 +60,4 @@ Do the same test for each one: can you log in yourself, today?
 
 ## My rule {#rule}
 
-My clients own their own stuff. That's a rule I hold myself to. If a client ever leaves, I hand over the site and move their number to them.
+My clients own their own stuff. That's a rule I hold myself to. If a client ever leaves, I hand over the site. And I move their number to them.

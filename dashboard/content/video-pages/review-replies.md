@@ -2,20 +2,20 @@
 {
   "title": "How my review replies are set up so a bad review never gets worse",
   "seoTitle": "How I set up review replies so a bad review never gets worse",
-  "description": "How I set up Google review replies for my trade businesses: first person as the business, what needs my OK first, and what's never allowed in a reply.",
-  "summary": "A reply isn't really for the person who left the review. It's for every new customer who reads it later. So my clients' replies are written as the business, in first person. Four and five stars get a warm thank-you. Anything under four stars comes to me first, and nothing goes out until I say OK. Promises, refund talk, blame and legal words are never allowed.",
+  "description": "How I set up Google review replies for my trade businesses. First person, as the business. What needs my OK first. What's never allowed.",
+  "summary": "A reply isn't really for the person who left the review. It's for every new customer who reads it later. So my clients' replies are written as the business, in first person. Four and five stars get a warm thank-you. Anything under four stars comes to me first. Nothing goes out until I say OK. Promises, refund talk, blame and legal words are never allowed.",
   "chip": "Review replies",
   "crumb": "Review replies",
   "topic": "reviews",
   "order": 5,
   "scripts": ["review-replies-short-setup"],
   "video": "review-replies-short-setup",
-  "card": "Who the reply is really for, what needs my OK first, and the 4 things never allowed in a reply.",
+  "card": "Who the reply is really for. What needs my OK first. And the 4 things never allowed in a reply.",
   "resource": { "href": "/guides/reviews-that-stick", "label": "Read the free reviews guide", "text": "**Free: my reviews guide.** More reviews, with replies that help, and Google's rules." },
   "next": [
     "**Open your Google profile** and look for any review with no reply.",
     "**Reply to the good ones today,** as the business, by name, about the job.",
-    "**For anything under 4 stars,** write a draft, sleep on it, and check it against the never-list below."
+    "**For anything under 4 stars,** write a draft and sleep on it. Check it against the never-list below."
   ],
   "related": ["/videos/reviews-most", "/guides/fake-review-attack", "/guides/reviews-that-stick"],
   "faq": [
@@ -57,6 +57,6 @@ Those four can turn one bad review into a fight everyone can read. Talk about th
 
 ## An honest note {#honest}
 
-My clients do good work. I've never had to reply to a one-star for them yet. But it's set up for the day one comes, so nobody has to think about it at 9 at night.
+My clients do good work. I've never had to reply to a one-star for them yet. But it's set up for the day one comes. So nobody has to think about it at 9 at night.
 
 > **Good vs bad** Bad: "Thank you for your feedback. We value all our customers." That sounds like a robot. Good: "Thanks, Sarah! Glad the new water heater is working. Call us any time." That sounds like the shop.

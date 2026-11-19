@@ -3,7 +3,7 @@
   "title": "164 Google reviews and still invisible: what I found on the profile",
   "seoTitle": "164 Google reviews and still invisible: what I found",
   "description": "A client had 164 Google reviews and still didn't show up for their main search. The two profile problems I found, and how to check yours in 2 minutes.",
-  "summary": "A client of mine had 164 Google reviews and still didn't show up for their main search when I checked. More reviews weren't the fix. On the profile, the website button went to a booking page instead of their own site, and the hours showed closed every night and on Sundays. When reviews aren't the problem, I check the profile first.",
+  "summary": "A client of mine had 164 Google reviews. When I checked, they still didn't show up for their main search. More reviews weren't the fix. On the profile, the website button went to a booking page, not their own site. And the hours showed closed every night and on Sundays. When reviews aren't the problem, I check the profile first.",
   "chip": "Google profile",
   "crumb": "164 reviews, still invisible",
   "topic": "google",
@@ -11,7 +11,7 @@
   "scripts": ["reviews-needed-short-164"],
   "video": "reviews-needed-short-164",
   "card": "Plenty of reviews, no calls? The two profile problems I found on a client's listing, and the 2-minute check.",
-  "resource": { "href": "/tools/xray", "label": "Get my free X-Ray", "text": "**Free: a Google Profile X-Ray.** I look at the rest of your profile next to the top three near you and email you the three fixes that matter most." },
+  "resource": { "href": "/tools/xray", "label": "Get my free X-Ray", "text": "**Free: a Google Profile X-Ray.** I look at the rest of your profile next to the top three near you. Then I email you the three fixes that matter most." },
   "next": [
     "**Tap the website button** on your own Google profile. Does it open your own site?",
     "**Look at your hours** the way a customer sees them, at night and on Sunday.",
@@ -19,7 +19,7 @@
   ],
   "related": ["/videos/reviews-needed", "/videos/phone-stopped", "/videos/google-changes", "/guides/still-no-calls"],
   "faq": [
-    ["Why does my business not show up on Google even with lots of reviews?", "Reviews are only one part. On one client's profile I found the website button going to a booking page and hours showing closed every night and Sunday. Check the whole profile, not just the review count."],
+    ["Why does my business not show up on Google even with lots of reviews?", "Reviews are only one part. On one client's profile, the website button went to a booking page. The hours showed closed every night and Sunday. Check the whole profile, not just the review count."],
     ["Do my hours matter?", "When you show closed, Google shows you less at those times. Show the hours you really pick up."]
   ]
 }

@@ -1,8 +1,8 @@
 ---
 {
   "title": "Look up your own business name: the 4 things I look for",
-  "description": "The test I do on every new client: look up the business name like a stranger would, and check 4 things. How to do it on your own shop in 5 minutes.",
-  "summary": "On every new client, I look up their business name on my phone in a private tab, so I see what a stranger sees. Then I check four things: how many reviews and how new, real photos, a website that works, and a phone that gets picked up. Miss one, and a referral can slip away.",
+  "description": "The test I do on every new client. I look up the name like a stranger would and check 4 things. Do it on your own shop in 5 minutes.",
+  "summary": "On every new client, I look up their business name on my phone. I use a private tab, so I see what a stranger sees. Then I check four things. How many reviews, and how new? Real photos? A website that works? A phone that gets picked up? Miss one, and a referral can slip away.",
   "chip": "The name test",
   "crumb": "The name test",
   "topic": "reviews",
@@ -10,7 +10,7 @@
   "scripts": ["word-of-mouth-short-name-test"],
   "video": "word-of-mouth-short-name-test",
   "card": "Look yourself up like a stranger would. The 4 things I check, and what to fix first.",
-  "resource": { "href": "/tools/xray", "label": "Get my free X-Ray", "text": "**Free: a Google Profile X-Ray.** I do this check for you, put you next to the top three near you, and email you the three fixes that matter most." },
+  "resource": { "href": "/tools/xray", "label": "Get my free X-Ray", "text": "**Free: a Google Profile X-Ray.** I do this check for you, next to the top three near you. Then I email you the three fixes that matter most." },
   "next": [
     "**Open a private tab** on your phone and search your business name.",
     "**Tick off the 4 checks below.**",
@@ -18,7 +18,7 @@
   ],
   "related": ["/videos/word-of-mouth", "/videos/phone-stopped", "/guides/phone-test", "/guides/still-no-calls"],
   "faq": [
-    ["Why use a private tab?", "Your own phone knows you. A private tab shows you closer to what a stranger sees, without your own history and sign-in."]
+    ["Why use a private tab?", "Your own phone knows you. A private tab shows you closer to what a stranger sees. It leaves out your own history and sign-in."]
   ]
 }
 ---
@@ -36,7 +36,7 @@ I do this on every new client. On camera, I show it with my own name, Biggify.
 :::check The name test
 - **Reviews:** how many, and is the newest one recent?
 - **Photos:** are they real photos of real jobs?
-- **Website:** does the website button open your own site, and does it work on a phone?
+- **Website:** does the website button open your own site? Does it work on a phone?
 - **Phone:** call the number. Does someone (or something) pick up?
 :::
 

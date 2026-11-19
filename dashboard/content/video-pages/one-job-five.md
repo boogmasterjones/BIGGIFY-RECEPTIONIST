@@ -1,8 +1,8 @@
 ---
 {
   "title": "How I turn one finished job into 5 pieces of marketing",
-  "description": "Three photos from one job become a blog post, a Google post, a Facebook story, an Instagram post and more. The photos I ask for and where each one goes.",
-  "summary": "I ask my trade shops for three photos on every job: before, after, and the work up close. They send them to me through one link. That one job then goes five places: a blog post on the website, a Google post and new profile photos, a short story on Facebook, a photo-first post on Instagram, and anywhere else the owner posts, like Nextdoor. Each place gets its own words. Real photos only, never AI.",
+  "description": "One job, three photos. They become a blog post, a Google post, Facebook and Instagram posts and more. The photos I ask for and where each goes.",
+  "summary": "I ask my trade shops for three photos on every job. Before, after, and the work up close. They send them to me through one link. That one job then goes five places. A blog post on the website. A Google post and new profile photos. A short story on Facebook. A photo-first post on Instagram. And anywhere else the owner posts, like Nextdoor. Each place gets its own words. Real photos only, never AI.",
   "chip": "Photos and posts",
   "crumb": "One job, five posts",
   "topic": "websites",
@@ -10,7 +10,7 @@
   "scripts": ["one-job-five-long", "one-job-five-short-five-places", "one-job-five-short-3-photos"],
   "video": "one-job-five-long",
   "cardTitle": "How I turn one finished job into 5 pieces of marketing",
-  "card": "Three photos from one job become a blog post, a Google post, Facebook, Instagram and more. Here's the recipe.",
+  "card": "One job, three photos. They become a blog post, a Google post, Facebook and Instagram posts and more. Here's the recipe.",
   "resource": { "href": "/tools/google-posts", "label": "Get 4 free Google posts", "text": "**Free: I'll write four Google posts for your shop.** You add the photos. My [social media playbook](/tools/social-playbook) is free too." },
   "next": [
     "**On your next job, take three photos:** before, after, and the work up close.",
@@ -20,7 +20,7 @@
   "related": ["/videos/real-photos", "/videos/google-likes-me", "/tools/social-playbook", "/guides/social-media-real-job"],
   "faq": [
     ["What photos should a contractor take on every job?", "I ask for three: before, after, and the work up close. Sharp, not blurry, with the whole job in the shot."],
-    ["Do Facebook and Instagram get trade businesses calls?", "Sometimes. But that's not why I post there. They help Google and AI like you more, and when someone checks you out, they see real, recent work."],
+    ["Do Facebook and Instagram get trade businesses calls?", "Sometimes. But that's not why I post there. They help Google and AI like you more. And when someone checks you out, they see real, recent work."],
     ["Should I post the same words everywhere?", "No. I give each place words that fit it. Same job, new words."]
   ]
 }

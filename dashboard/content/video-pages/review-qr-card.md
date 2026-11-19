@@ -1,8 +1,8 @@
 ---
 {
   "title": "The QR card my trade clients hand out to get Google reviews",
-  "description": "A little card with a QR code gets more Google reviews than a text alone. What goes on it, how my clients hand it out, and how to make one free.",
-  "summary": "My trade clients hand every customer a small card with a QR code at the end of the job. The customer scans it with their own phone and it opens straight to the review box. It gets a lot more people to leave a review than a text alone, because the card sits on the counter until they have a minute. It costs a few cents.",
+  "description": "A little card with a QR code gets more Google reviews than a text alone. What goes on it and how my clients hand it out. Make one free.",
+  "summary": "At the end of each job, my trade clients hand the customer a small card. It has a QR code. The customer scans it with their own phone. It opens straight to the review box. It gets a lot more reviews than a text alone. Why? The card sits on the counter until they have a minute. It costs a few cents.",
   "chip": "QR review card",
   "crumb": "The QR review card",
   "topic": "reviews",
@@ -10,7 +10,7 @@
   "scripts": ["reviews-most-short-qr-card"],
   "video": "reviews-most-short-qr-card",
   "cardTitle": "The card that gets reviews before the truck leaves",
-  "card": "A QR code that opens the review box, handed over at the end of every job. What's on it and how to hand it out.",
+  "card": "A QR code that opens the review box. Hand it over at the end of every job. What's on it and how to hand it out.",
   "resource": { "href": "/tools/review-kit", "label": "Make my free QR card", "text": "**Free: make your own QR review card.** Put in your business name and review link, then print it." },
   "next": [
     "**Make your card** with the free kit. It takes about 2 minutes.",
@@ -57,7 +57,7 @@ My free kit makes the card for you. Here's what's on it:
 
 - **Your business name,** at the top.
 - **A short ask:** "How did we do?"
-- **One line on how:** an honest review really helps, point your phone camera at the code, it takes about a minute.
+- **One line on how:** An honest review really helps. Point your phone camera at the code. It takes about a minute.
 - **The QR code,** big enough to scan from arm's length.
 - **A thank-you** for choosing a local business.
 

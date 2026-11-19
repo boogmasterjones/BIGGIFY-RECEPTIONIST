@@ -2,8 +2,8 @@
 {
   "title": "\"I'd like to invest in your business.\" What I do with these calls",
   "seoTitle": "\"I'd like to invest in your business\" calls: what I do",
-  "description": "Trade owners get \"I'd like to invest in your business\" calls. My rule: no sales numbers, bank info or tax papers on a first call, and how I check them.",
-  "summary": "\"I'd like to invest in your business\" sounds great. But to me, it's usually a sales call, not a check. My rule: on a first call, I don't give out my sales, bank info or tax papers. I ask for the full company name, look them up myself and call back on a number I find. If it's real, it will still be real tomorrow.",
+  "description": "Trade owners get \"I'd like to invest in your business\" calls. My rule: no sales numbers, bank info or tax papers on a first call. Here's how I check.",
+  "summary": "\"I'd like to invest in your business\" sounds great. But to me, it's usually a sales call, not a check. My rule: on a first call, I don't give out my sales. Or my bank info or tax papers. I ask for the full company name. I look them up myself. Then I call back on a number I find. If it's real, it will still be real tomorrow.",
   "chip": "\"Investor\" calls",
   "crumb": "\"Investor\" calls",
   "topic": "scam-calls",
@@ -14,13 +14,13 @@
   "card": "Usually a sales call, not a check. What I never share on a first call, and how I check who's calling.",
   "resource": { "href": "/guides/scam-calls", "label": "See the full list of calls", "text": "**Free: the calls aimed at trade owners,** and what I do with each one." },
   "next": [
-    "**Write the rule on a sticky note by the phone:** no sales, bank info or tax papers on a first call.",
+    "**Put the rule on a sticky note by the phone.** No sales, bank info or tax papers on a first call.",
     "**Next time, ask for the full company name** and say you'll call back.",
-    "**Look them up yourself** and call a number you found, not the one they gave you."
+    "**Look them up yourself.** Call a number you found, not the one they gave you."
   ],
   "related": ["/guides/scam-calls", "/videos/seo-calls", "/videos/google-pay-to-fix", "/guides/questions-before-you-sign"],
   "faq": [
-    ["Are \"invest in your business\" calls a scam?", "I can't say who every caller is. To me, it's usually a sales call, not a check. Either way, I don't share sales numbers, bank info or tax papers on a first call, and I call back on a number I found myself."]
+    ["Are \"invest in your business\" calls a scam?", "I can't say who every caller is. To me, it's usually a sales call, not a check. Either way, I don't share sales, bank info or tax papers on a first call. And I call back on a number I found myself."]
   ]
 }
 ---
@@ -50,6 +50,6 @@ Not to anyone, on a call I didn't make.
 3. **Look them up yourself.** Search the name. Find their real website.
 4. **Call back on a number you found,** not the one they gave you.
 
-That last step is the same advice [Google gives](https://support.google.com/business/answer/6212928) for any call that seems off: reach the company using a number or website you trust, not the one in the message.
+That last step is the same advice [Google gives](https://support.google.com/business/answer/6212928) for any call that seems off. Reach the company with a number or website you trust. Not the one in the message.
 
-> **Real tomorrow too** If it's real, it will still be real tomorrow. Anyone who says you have to decide on this call is a reason to hang up.
+> **Real tomorrow too** If it's real, it will still be real tomorrow. Do they say you have to decide on this call? That's a reason to hang up.

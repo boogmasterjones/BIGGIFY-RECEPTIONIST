@@ -262,13 +262,13 @@ export default function HowItWorksPage() {
         <div className="wrap">
           <span className="eyebrow light">How It Works</span>
           <h1>From "never heard of you" to <span className="grad">booked on your calendar.</span></h1>
-          <p>Here's every step of how Biggify gets your business found, chosen, and answered — what we handle, and the short list of what's on you.</p>
+          <p>Here's every step of how Biggify gets your business found, chosen and answered. What we handle, and the short list of what's on you.</p>
         </div>
       </section>
 
       <div className="wrap">
         <div className="journey">
-          <a href="#found"><span className="n">Step 1</span><b>Get found</b><small>Google Business Profile + local SEO put you on the map when they search.</small></a>
+          <a href="#found"><span className="n">Step 1</span><b>Get found</b><small>Your Google profile and local SEO put you on the map.</small></a>
           <a href="#chosen"><span className="n">Step 2</span><b>Get chosen</b><small>A website and social presence that make you the obvious call.</small></a>
           <a href="#booked"><span className="n">Step 3</span><b>Get booked</b><small>The AI receptionist answers every call and books the job.</small></a>
           <a href="#tracked"><span className="n">Step 4</span><b>See it working</b><small>Reports and a dashboard that show calls turning into money.</small></a>
@@ -290,12 +290,12 @@ export default function HowItWorksPage() {
             <div className="card">
               <h3>What we do</h3>
               <ul className="checks">
-                <li><b>Optimize your Google Business Profile</b> — the right categories, every service listed, hours, service areas, photos, and a description written for how people actually search.</li>
-                <li><b>Post to it every week</b> — 4 posts a month on Growth, 10 a month on Super Growth. Google rewards active profiles; most contractors' have been dead for a year.</li>
-                <li><b>Build pages for the towns you serve</b> — your home town on Growth, 3–5 towns on Super Growth — so you rank for "tile installer Venice," not just your business name.</li>
-                <li><b>Publish new content on a schedule</b> — 1–2 pages a month on Growth, 4–6 on Super Growth, covering your core services and expanding to the full service line and long-tail searches.</li>
-                <li><b>Build your citations and links</b> — the directory listings and references Google checks before it trusts you with a top spot. Foundational on Growth, actively expanded on Super Growth.</li>
-                <li><b>Grow your reviews</b> — a request system that asks every customer automatically on Growth, or a fully managed review campaign on Super Growth.</li>
+                <li><b>Fill in your Google profile</b> — the right categories and every service listed. Hours, service areas and photos. A description written the way people really search.</li>
+                <li><b>Post to it every week</b> — 4 a month on Growth, 10 on Super Growth. Google likes busy profiles. Most contractors' have been dead for a year.</li>
+                <li><b>Build pages for your towns</b> — your home town on Growth, 3–5 towns on Super Growth. So you show up for "tile installer Venice." Not just for your name.</li>
+                <li><b>Add new pages on a schedule</b> — 1–2 a month on Growth, 4–6 on Super Growth. First your main services. Then every service you do, and the smaller searches.</li>
+                <li><b>Build your listings and links</b> — Google checks these before it trusts you. The basics on Growth. More added all the time on Super Growth.</li>
+                <li><b>Grow your reviews</b> — on Growth, every customer gets asked on its own. On Super Growth, we run the whole review push for you.</li>
               </ul>
             </div>
             <div className="card you">
@@ -318,7 +318,7 @@ export default function HowItWorksPage() {
             <div className="num">2</div>
             <div>
               <h2>Get chosen over the other two</h2>
-              <p>They found you. Now they're comparing — you and two competitors, three tabs open, thirty seconds each. An outdated site with no reviews and no photos of your work loses that comparison every time. Step two is winning it.</p>
+              <p>They found you. Now they're comparing — you and two competitors, three tabs open, thirty seconds each. An old site with no reviews and no job photos loses every time. Step two is winning it.</p>
               <div className="svc"><span>Website</span><span>Social Media</span></div>
             </div>
           </div>
@@ -326,11 +326,11 @@ export default function HowItWorksPage() {
             <div className="card">
               <h3>What we do</h3>
               <ul className="checks">
-                <li><b>Build your website like a salesperson</b> — fast, mobile-first, with your phone number one tap away on every screen. <a className="link" href="/#work">See the before &amp; afters.</a></li>
-                <li><b>Put the trust signals up front</b> — reviews, license and insurance, years in business, and real photos of your work, right where people look before they call.</li>
-                <li><b>Wire the site to your receptionist</b> — chat and call buttons connect straight to Biggify, so a visitor at 9 PM still gets booked instead of bouncing.</li>
-                <li><b>Keep your social alive</b> — 4 posts a month on Growth, 10 on Super Growth, across Facebook, Instagram, and your Google profile. Your job photos become before-and-after posts; your new reviews become content.</li>
-                <li><b>Keep the site current</b> — new service pages, updated photos, fresh reviews — so it never turns back into a brochure.</li>
+                <li><b>Build your website like a salesperson</b> — fast and built for phones. Your number is one tap away on every screen. <a className="link" href="/#work">See the before &amp; afters.</a></li>
+                <li><b>Put the proof up front</b> — reviews, license and insurance, years in business, real job photos. Right where people look before they call.</li>
+                <li><b>Wire the site to your receptionist</b> — chat and call buttons go straight to Biggify. A visitor at 9 PM still gets booked. They don't leave.</li>
+                <li><b>Keep your social alive</b> — 4 posts a month on Growth, 10 on Super Growth. On Facebook, Instagram and your Google profile. Your job photos become before-and-after posts. Your new reviews become posts too.</li>
+                <li><b>Keep the site fresh</b> — new service pages, new photos, new reviews. It never turns back into a brochure.</li>
               </ul>
             </div>
             <div className="card you">
@@ -361,7 +361,7 @@ export default function HowItWorksPage() {
             <div className="num">3</div>
             <div>
               <h2>Get booked — even when you can't pick up</h2>
-              <p>Everything above exists to make the phone ring. This step makes sure the ring turns into a job. You're on a ladder, under a sink, or it's Sunday night — the call still gets answered, and the appointment still lands on your calendar.</p>
+              <p>Everything above exists to make the phone ring. This step makes sure the ring turns into a job. You're on a ladder, under a sink, or it's Sunday night. The call still gets answered. The job still lands on your calendar.</p>
               <div className="svc"><span>AI Receptionist</span></div>
             </div>
           </div>
@@ -370,9 +370,9 @@ export default function HowItWorksPage() {
               <h3>What happens on a call</h3>
               <ul className="checks">
                 <li><b>It answers, every time.</b> Calls you can't get to ring through to Biggify instead of voicemail. It picks up immediately, in a natural voice, using your business name, services, and hours.</li>
-                <li><b>It handles the conversation.</b> It answers questions about what you offer and where you work, figures out what the caller needs, and checks your real calendar for open times — no hold music.</li>
-                <li><b>It books the job.</b> If a time works, it puts the appointment on your calendar right then, while the customer is still on the phone.</li>
-                <li><b>It texts the customer.</b> Right after, they get a short text asking for the address, the issue, and anything else you'd normally ask — so the details are waiting for you.</li>
+                <li><b>It handles the conversation.</b> It answers questions about what you do and where you work. It finds out what the caller needs. It checks your real calendar for open times. No hold music.</li>
+                <li><b>It books the job.</b> If a time works, it puts the job on your calendar right then. The customer is still on the phone.</li>
+                <li><b>It texts the customer.</b> Right after, they get a short text. It asks for the address, the issue, and anything else you'd ask. The details are waiting for you.</li>
                 <li><b>It alerts you instantly.</b> Text and email the moment a job comes in, with everything attached.</li>
                 <li><b>It logs everything.</b> Every call, booking, and conversation lands in your dashboard so nothing falls through the cracks.</li>
               </ul>
@@ -381,7 +381,7 @@ export default function HowItWorksPage() {
               <h3>What you do</h3>
               <ul className="checks">
                 <li><b>Forward the calls you can't take.</b> Keep your number. Forward after hours, when you're busy, or all the time — your call.</li>
-                <li><b>Keep your info current.</b> Change your hours or add a service in the dashboard and the receptionist speaks from the new info immediately.</li>
+                <li><b>Keep your info current.</b> Change your hours or add a service in the dashboard. The receptionist uses the new info right away.</li>
                 <li><b>Check your alerts.</b> That's the whole "monitoring" job.</li>
               </ul>
               <div className="tiny">Want to hear it? <a href="tel:+19414018288" className="call-btn" style={{ color: '#fff', textDecoration: 'underline' }}>Call (941) 401-8288</a> — it'll answer.</div>
@@ -397,7 +397,7 @@ export default function HowItWorksPage() {
             <div className="num">4</div>
             <div>
               <h2>See it working — in dollars, not "impressions"</h2>
-              <p>Most marketing reports are a wall of charts that never answer the only question that matters: did this make me money? Ours are built backward from that question.</p>
+              <p>Most marketing reports are a wall of charts. They never answer the one question that matters. Did this make me money? Ours are built backward from that question.</p>
               <div className="svc"><span>Reporting</span><span>Your dashboard</span></div>
             </div>
           </div>
@@ -405,15 +405,15 @@ export default function HowItWorksPage() {
             <div className="card">
               <h3>What we do</h3>
               <ul className="checks">
-                <li><b>Your own dashboard</b> — every call, contact, job, and appointment in one place, branded to your business. Calls the receptionist took, jobs it booked, what came in overnight.</li>
-                <li><b>Monthly summary (Growth)</b> — where you rank, what got posted, how your reviews grew, and how many calls came in.</li>
-                <li><b>Attribution loop (Super Growth)</b> — calls → booked → closed. Which calls came from where, which ones turned into appointments, and which ones turned into paid jobs. Marketing spend on one side, revenue on the other.</li>
+                <li><b>Your own dashboard</b> — every call, contact, job and booking in one place. It has your business name on it. Calls the receptionist took, jobs it booked, what came in overnight.</li>
+                <li><b>Monthly recap (Growth)</b> — where you rank and what got posted. How your reviews grew. How many calls came in.</li>
+                <li><b>Attribution loop (Super Growth)</b> — calls → booked → closed. Where each call came from. Which ones turned into bookings. Which ones turned into paid jobs. Marketing spend on one side, revenue on the other.</li>
               </ul>
             </div>
             <div className="card you">
               <h3>What you do</h3>
               <ul className="checks">
-                <li><b>Mark jobs done in the dashboard.</b> That's what closes the loop from "booked" to "paid" — a tap when you finish the job.</li>
+                <li><b>Mark jobs done in the dashboard.</b> That's what takes a job from "booked" to "paid." One tap when you finish the job.</li>
                 <li><b>Read the report.</b> Five minutes a month. If a number's going the wrong way, we'll already be on it.</li>
               </ul>
             </div>
@@ -427,7 +427,7 @@ export default function HowItWorksPage() {
           <div className="section-head">
             <span className="eyebrow light">AI Receptionist · Savings calculator</span>
             <h2 style={{ color: '#fff' }}>What are missed calls costing you right now?</h2>
-            <p>This one's just about Step 3. Move the sliders to match your business — it's a rough estimate, not a promise, but it gives you a real ballpark for what's slipping past voicemail.</p>
+            <p>This one's just about Step 3. Move the sliders to match your business. It's a rough guess, not a promise. But it shows about how much slips past voicemail.</p>
           </div>
 
           <div className="calc-card">
@@ -455,9 +455,9 @@ export default function HowItWorksPage() {
             <div className="calc-result">
               <div className="label">Estimated potential revenue per year</div>
               <div className="range" id="resultRange">$8,000 – $22,000</div>
-              <div className="sub">Based on the calls you'd otherwise miss, that most of those callers won't call you back, and that Biggify recovers most — not all — of that lost business.</div>
+              <div className="sub">Based on the calls you'd miss. Most of those callers won't call you back. Biggify wins back most of that work, not all.</div>
             </div>
-            <div className="calc-caveat">⚠️ This is <em>potential</em> revenue, not guaranteed income. To actually capture all of it, you'd need to supply all of that demand — and most contractors can only take on so many jobs a month. Think of this as the ceiling, not a promise.</div>
+            <div className="calc-caveat">⚠️ This is <em>potential</em> revenue, not guaranteed income. To get all of it, you'd have to take every one of those jobs. Most contractors can only take so many a month. Think of this as the ceiling, not a promise.</div>
           </div>
         </div>
       </section>
@@ -465,7 +465,7 @@ export default function HowItWorksPage() {
       <section className="cta-final" id="contact">
         <div className="wrap">
           <h2>Ready to plug the leaks?</h2>
-          <p>Book a free 15-minute call and we'll tell you honestly which step you're losing the most jobs at — or call our receptionist right now and hear Step 3 for yourself.</p>
+          <p>Book a free 15-minute call. We'll tell you straight which step loses you the most jobs. Or call our receptionist right now and hear Step 3 yourself.</p>
           <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <a className="btn btn-primary call-btn" href="tel:+19414018288" style={{ background: '#fff', color: 'var(--brand)' }}>📞 Call our receptionist</a>
             <a className="btn btn-ghost" href="/#contact">Get a Free Quote</a>

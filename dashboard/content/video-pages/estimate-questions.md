@@ -2,8 +2,8 @@
 {
   "title": "The 2 questions I tell my trade businesses to ask at every estimate",
   "seoTitle": "The 2 questions to ask at every estimate",
-  "description": "Two questions before you leave an estimate can win you the job: \"When are you hoping to get this done?\" and \"Who else needs to see this?\" Here's why.",
-  "summary": "Before leaving an estimate, I tell my trade businesses to ask two questions. \"When are you hoping to get this done?\" gives you a date to check in, and it's not pushy because they told you to. \"Who else needs to see this?\" finds the wife, husband or landlord who often makes a job get stuck, so you can offer to answer their questions too.",
+  "description": "Two questions at an estimate can win you the job. \"When are you hoping to get this done?\" And \"Who else needs to see this?\" Here's why.",
+  "summary": "Before leaving an estimate, I tell my trade businesses to ask two questions. \"When are you hoping to get this done?\" gives you a date to check in. It's not pushy, because they told you to. \"Who else needs to see this?\" finds the wife, husband or landlord. They are often why a job gets stuck. So you can offer to answer their questions too.",
   "chip": "Estimate questions",
   "crumb": "The 2 estimate questions",
   "topic": "estimates",
@@ -20,7 +20,7 @@
   ],
   "related": ["/videos/estimates-ghosted", "/videos/close-out-text", "/guides/quote-follow-up", "/guides/how-much-on-the-phone"],
   "faq": [
-    ["What should I ask a customer at an estimate?", "Two questions: \"When are you hoping to get this done?\" and \"Who else needs to see this?\""]
+    ["What should I ask a customer at an estimate?", "Two questions. \"When are you hoping to get this done?\" And \"Who else needs to see this?\""]
   ]
 }
 ---

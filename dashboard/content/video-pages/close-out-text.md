@@ -1,8 +1,8 @@
 ---
 {
   "title": "The 5-word text that brings back ghosted estimates",
-  "description": "\"Should I close this out?\" When to send the 5-word text, why it works, and what to say when they write back. One of the texts I give my trade businesses.",
-  "summary": "When an estimate goes quiet after you've sent it and checked in, wait about a week and send five words: \"Should I close this out?\" It works because it's easy to answer and nobody likes to lose an option. A lot of the time they write back, \"No, wait. Let's book it.\" If they picked someone else, they tell you, and you stop.",
+  "description": "\"Should I close this out?\" When to send the 5-word text and why it works. And what to say when they write back.",
+  "summary": "Say an estimate goes quiet after you've sent it and checked in. Wait about a week. Then send five words: \"Should I close this out?\" It works because it's easy to answer and nobody likes to lose an option. A lot of the time they write back, \"No, wait. Let's book it.\" If they picked someone else, they tell you, and you stop.",
   "chip": "The close-out text",
   "crumb": "The 5-word text",
   "topic": "estimates",

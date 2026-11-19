@@ -1,16 +1,16 @@
 ---
 {
   "title": "How I make sure my trade businesses never miss a call",
-  "description": "A missed call is often a lost job. Here's how my clients' calls work: the owner's phone rings first, then my AI receptionist answers and texts him.",
-  "summary": "When a trade owner misses a call, a lot of people don't leave a message. They call the next shop. So my clients get a line that rings the owner first. If he can't pick up, my AI receptionist answers, gets the caller's name, number and what they need, and texts it all to him.",
+  "description": "A missed call is often a lost job. Here's how my clients' calls work. The owner's phone rings first. Then my AI receptionist answers and texts him.",
+  "summary": "When a trade owner misses a call, a lot of people don't leave a message. They call the next shop. So my clients get a line that rings the owner first. If he can't pick up, my AI receptionist answers. It gets the caller's name, number and what they need. Then it texts it all to him.",
   "chip": "Missed calls",
   "crumb": "Never miss a call",
   "topic": "calls",
   "order": 1,
   "scripts": ["calls-100-long", "calls-100-short-demo", "calls-100-short-trial"],
   "video": "calls-100-long",
-  "card": "The owner's phone rings first. If he can't get it, my AI receptionist answers and texts him who called and what they need.",
-  "resource": { "href": "/guides/ai-receptionist", "label": "Get the free guide and calculator", "text": "**Free: the AI receptionist guide, with a calculator.** Put in the calls you miss each week and see what they could cost you in a year." },
+  "card": "The owner's phone rings first. If he can't get it, my AI receptionist answers. It texts him who called and what they need.",
+  "resource": { "href": "/guides/ai-receptionist", "label": "Get the free guide and calculator", "text": "**Free: the AI receptionist guide, with a calculator.** Put in the calls you miss each week. See what they could cost you in a year." },
   "next": [
     "**Call your own business line from another phone.** Let it ring out. That's what a customer hears when you're on a roof.",
     "**Count your missed calls for one week.** Your phone's call list shows them.",
@@ -19,7 +19,7 @@
   "related": ["/videos/personal-cell", "/videos/form-test", "/guides/missed-calls-competitors", "/tools/demo-line"],
   "faq": [
     ["Does the AI receptionist answer every call?", "No. The owner's phone rings first. The receptionist only answers the calls he can't pick up."],
-    ["What does the owner get after a missed call?", "A text with who called, their number and what they need, so he can call back fast."],
+    ["What does the owner get after a missed call?", "A text with who called, their number and what they need. Then he can call back fast."],
     ["Can I hear it before I try it?", "Yes. Call the demo line at [gobiggify.com/tools/demo-line](/tools/demo-line) and ask for a quote, like a customer would."]
   ]
 }
@@ -55,7 +55,7 @@ The customer gets an answer. The owner gets the text. Nobody calls the next guy.
 
 ## Hear it for yourself {#demo}
 
-I have a demo line you can call. It skips the "owner's phone" part and goes straight to the AI, so you can hear what your customers would hear.
+I have a demo line you can call. It skips the "owner's phone" part and goes straight to the AI. You can hear what your customers would hear.
 
 Call it and ask for a quote, like a customer would. Say your water heater is leaking. Give a name and number when it asks.
 

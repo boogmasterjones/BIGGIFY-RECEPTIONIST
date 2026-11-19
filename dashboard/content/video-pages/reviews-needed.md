@@ -2,8 +2,8 @@
 {
   "title": "How many Google reviews do you really need? I checked for my clients",
   "seoTitle": "How many Google reviews do you really need?",
-  "description": "My number for when the phone starts ringing, how I find the review bar in any town, and three of my clients where the answer was different.",
-  "summary": "From what I've seen with my own clients, around 30 Google reviews is when the phone starts to ring. After that, the total matters less than how many new ones come in each week. But every town has its own bar. I find it by searching the trade and the town, then counting the reviews on the shops that show up first.",
+  "description": "My number for when the phone starts ringing. How I find the review bar in any town. And three of my clients where the answer was different.",
+  "summary": "From what I've seen, the phone starts to ring around 30 Google reviews. After that, the total matters less than how many new ones come in each week. But every town has its own bar. I find it by searching the trade and the town. Then I count the reviews on the shops that show up first.",
   "chip": "How many reviews",
   "crumb": "How many reviews you need",
   "topic": "reviews",
@@ -11,8 +11,8 @@
   "scripts": ["reviews-needed-long", "reviews-needed-short-30"],
   "video": "reviews-needed-long",
   "cardTitle": "How many Google reviews do you really need?",
-  "card": "My number (about 30), how to find the bar in your town, and three clients where the answer was different.",
-  "resource": { "href": "/tools/xray", "label": "Get my free X-Ray", "text": "**Free: a Google Profile X-Ray.** I put your reviews next to the top three shops near you and email you the three fixes that matter most." },
+  "card": "My number is about 30. How to find the bar in your town. And three clients where the answer was different.",
+  "resource": { "href": "/tools/xray", "label": "Get my free X-Ray", "text": "**Free: a Google Profile X-Ray.** I put your reviews next to the top three shops near you. Then I email you the three fixes that matter most." },
   "next": [
     "**Search your trade and your town** on your phone, like a customer would.",
     "**Count the reviews on the top three.** That's your bar.",
@@ -20,9 +20,9 @@
   ],
   "related": ["/videos/reviews-164", "/videos/big-shop-reviews", "/videos/reviews-most", "/videos/past-customer-reviews"],
   "faq": [
-    ["How many Google reviews do I need?", "From what I've seen with my own clients, around 30 is when the phone starts to ring. After that, it's about how many new ones you get each week. That's my experience, not a Google rule, and your town can move the bar."],
+    ["How many Google reviews do I need?", "From what I've seen with my clients, the phone starts to ring around 30. After that, it's about how many new ones you get each week. That's my experience, not a Google rule, and your town can move the bar."],
     ["How do I find the bar in my town?", "Search what a customer would type, your trade and your town. Count the reviews on the shops that show up first."],
-    ["Will more reviews always fix a quiet phone?", "No. One of my clients had 164 reviews and still didn't show up for their main search. The profile was the problem, so I looked there first."]
+    ["Will more reviews always fix a quiet phone?", "No. One of my clients had 164 reviews. They still didn't show up for their main search. The profile was the problem, so I looked there first."]
   ]
 }
 ---
@@ -77,4 +77,4 @@ More reviews would not fix that. When reviews aren't the problem, I fix the prof
 - **Find your bar.** Search your trade and town. Count the top three.
 - **Aim for about 30,** then keep a steady pace each week.
 - **If you're way behind a giant,** pick a smaller fight: one job, one town.
-- **If you have plenty of reviews and still no calls,** check the profile, not the review count.
+- **Plenty of reviews and still no calls?** Check the profile, not the review count.

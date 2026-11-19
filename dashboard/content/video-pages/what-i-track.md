@@ -3,7 +3,7 @@
   "title": "I don't track where you show on the map. Here's what I track instead",
   "seoTitle": "Forget your map spot: what I track instead",
   "description": "Your spot on Google Maps changes with where you stand, so I don't chase it. I track calls and website clicks from Google. How to find yours.",
-  "summary": "I don't track where my clients show on the map, because that spot changes with where you're standing. Move a mile and you can get a new list. Instead I track calls and website clicks that come from the Google profile. If they go from 20 a month to 30, that's real work coming in. You can see your own numbers on your Google profile.",
+  "summary": "I don't track where my clients show on the map. That spot changes with where you're standing. Move a mile and you can get a new list. Instead I track calls and website clicks that come from the Google profile. If they go from 20 a month to 30, that's real work coming in. You can see your own numbers on your Google profile.",
   "chip": "What I track",
   "crumb": "What I track",
   "topic": "google",
@@ -12,9 +12,9 @@
   "video": "google-likes-me-short-what-i-track",
   "cardTitle": "I don't care where you show on the map",
   "card": "Map spots change with where you stand. I track calls and website clicks from Google instead. Here's where to find yours.",
-  "resource": { "href": "/tools/xray", "label": "Get my free X-Ray", "text": "**Free: a Google Profile X-Ray.** I look at the rest of your profile next to the top three near you and email you the three fixes that matter most." },
+  "resource": { "href": "/tools/xray", "label": "Get my free X-Ray", "text": "**Free: a Google Profile X-Ray.** I look at the rest of your profile next to the top three near you. Then I email you the three fixes that matter most." },
   "next": [
-    "**Open your Google profile** while signed in, and find the part that shows calls and website clicks.",
+    "**Open your Google profile** while signed in. Find the part that shows calls and website clicks.",
     "**Write down last month's numbers.**",
     "**Check again next month.** That's your real score."
   ],
@@ -32,7 +32,7 @@ Lots of owners check where they show on the map. Some marketing reports are buil
 
 I don't care where you show on the map. Here's why. Your spot changes with where you stand. Move a mile, and you can get a new list.
 
-So a screenshot of "you're number 3" only tells you what one person saw, in one spot, at one time. It's not where your customers are standing.
+Say you get a screenshot of "you're number 3." It only shows what one person saw, in one spot, at one time. It's not where your customers are standing.
 
 ## What I track instead {#track}
 

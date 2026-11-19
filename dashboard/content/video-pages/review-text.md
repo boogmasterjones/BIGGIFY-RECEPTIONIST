@@ -1,8 +1,8 @@
 ---
 {
   "title": "The exact text I send to get Google reviews",
-  "description": "The word-for-word review text I use for my trade businesses, the two follow-ups, and the 3 things that make people actually tap the link.",
-  "summary": "My review ask is one short text, sent right after the job, from the business's own number, with a link that opens the review box in one tap. It names the customer, names the business, says thanks and asks for a quick review. If they don't leave one, I send two kind follow-ups a week apart, then stop.",
+  "description": "The word-for-word review text I use for my trade businesses. The two follow-ups. And the 3 things that make people tap the link.",
+  "summary": "My review ask is one short text, sent right after the job. It comes from the business's own number. Its link opens the review box in one tap. It names the customer, names the business, says thanks and asks for a quick review. If they don't leave one, I send two kind follow-ups a week apart, then stop.",
   "chip": "Review texts",
   "crumb": "The review text",
   "topic": "reviews",
@@ -10,7 +10,7 @@
   "scripts": ["reviews-most-short-exact-text"],
   "video": "reviews-most-short-exact-text",
   "card": "Word for word, plus the two follow-ups and the 3 things that make it work. Copy it.",
-  "resource": { "href": "/tools/review-kit", "label": "Get 20 more texts and a QR card", "text": "**Free: 20 more texts like this one, plus a QR card,** made for your business in about 2 minutes." },
+  "resource": { "href": "/tools/review-kit", "label": "Get 20 more texts and a QR card", "text": "**Free: 20 more texts like this one, plus a QR card.** Made for your business in about 2 minutes." },
   "next": [
     "**Copy the first text** into your phone's notes with your business name in it.",
     "**Find your review link** and paste it under the text.",
@@ -18,7 +18,7 @@
   ],
   "related": ["/videos/reviews-most", "/videos/review-qr-card", "/videos/past-customer-reviews", "/tools/review-kit"],
   "faq": [
-    ["Why say \"texting from our new business line\"?", "If the number is new to them, it tells them who you are, so they don't think it's spam."],
+    ["Why say \"texting from our new business line\"?", "If the number is new to them, it tells them who you are. So they don't think it's spam."],
     ["When should I send it?", "Right after the job, while they're still happy with the work. The same day, not next week."]
   ]
 }
@@ -40,7 +40,7 @@ Then paste your review link on the next line. That's the whole thing.
 2. **It comes from the business number.** They know who it is. It doesn't look like a stranger or a scam.
 3. **The link opens the review box in one tap.** Not a search. Not your profile. The box where they type.
 
-Miss any one of those and fewer people do it. A text sent a week later, from a number they don't know, with a link to a Google search? Most people won't bother.
+Miss any one of those and fewer people do it. Say the text goes a week later, from a number they don't know. And the link goes to a Google search. Most people won't bother.
 
 ## If they don't leave one {#follow-ups}
 

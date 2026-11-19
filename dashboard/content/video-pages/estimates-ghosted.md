@@ -1,8 +1,8 @@
 ---
 {
   "title": "How I turn more estimates into booked jobs",
-  "description": "The questions and texts I give my trade businesses to win back estimates that went quiet: 2 questions at the door, same-day estimates, and the 5-word text.",
-  "summary": "Most estimates that go quiet aren't a no. People just get busy. So I give my trade businesses five steps: ask two questions before leaving (\"When are you hoping to get this done?\" and \"Who else needs to see this?\"), send the estimate the same day, text the next day with one easy question, check in on the date they gave, and if they still go quiet, send five words: \"Should I close this out?\"",
+  "description": "How my trade businesses win back estimates that went quiet. Two questions at the door, same-day estimates, and the 5-word text.",
+  "summary": "Most estimates that go quiet aren't a no. People just get busy. So I give my trade businesses five steps. Ask two questions before leaving. \"When are you hoping to get this done?\" And \"Who else needs to see this?\" Send the estimate the same day. Text the next day with one easy question. Check in on the date they gave. If they still go quiet, send five words: \"Should I close this out?\"",
   "chip": "Estimates",
   "crumb": "Winning more estimates",
   "topic": "estimates",
@@ -10,7 +10,7 @@
   "scripts": ["estimates-ghosted-long", "estimates-ghosted-short-same-day"],
   "video": "estimates-ghosted-long",
   "cardTitle": "How I turn more estimates into booked jobs",
-  "card": "Two questions at the door, the estimate the same day, and three texts, word for word. Then stop.",
+  "card": "Two questions at the door. The estimate the same day. Then three texts, word for word. Then stop.",
   "resource": { "href": "/guides/quote-follow-up", "label": "Get the free follow-up guide", "text": "**Free: my quote follow-up guide.** All the texts, ready to copy, plus what to say when they write back." },
   "next": [
     "**At your next estimate, ask the two questions** before you leave.",
@@ -19,7 +19,7 @@
   ],
   "related": ["/videos/close-out-text", "/videos/estimate-questions", "/guides/quote-follow-up", "/guides/how-much-on-the-phone"],
   "faq": [
-    ["How long should I wait to follow up on an estimate?", "I tell my trade businesses: send it the same day, text the next day with one easy question, check in on the date they gave you, and if they still go quiet, wait about a week and send \"Should I close this out?\""],
+    ["How long should I wait to follow up on an estimate?", "I tell my trade businesses to send it the same day. Text the next day with one easy question. Check in on the date they gave you. If they still go quiet, wait about a week. Then send \"Should I close this out?\""],
     ["Is it pushy to follow up on an estimate?", "Not when they gave you the date. \"You said you hoped to start around now\" is just doing what they asked."],
     ["What if they picked someone else?", "They usually tell you when you ask \"Should I close this out?\" Then you stop."]
   ]

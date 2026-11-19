@@ -2,8 +2,8 @@
 {
   "title": "How I make a small contractor look like the best choice in town (without lying)",
   "seoTitle": "How I make a small contractor look like the best choice",
-  "description": "What I put on every client's website so a small trade shop looks like the best choice: real photos, true claims, and a first screen built to get the call.",
-  "summary": "Customers can't see your work before they call. They see your website. So on my clients' sites I use real photos (never stock, never AI), say every true claim loud (licensed, insured, years, five stars when it's really five stars), build a first screen with the job, the town, a big call button and a real photo, and add one thing that's only theirs. Nothing made up.",
+  "description": "How I make a small trade shop look like the best choice. Real photos, true claims, and a first screen that gets the call. Nothing made up.",
+  "summary": "Customers can't see your work before they call. They see your website. So on my clients' sites I use real photos. Never stock, never AI. I say every true claim loud. Licensed, insured, years, and five stars when it's really five stars. The first screen has the job and the town. It has a big call button and a real photo. And I add one thing that's only theirs. Nothing made up.",
   "chip": "Websites",
   "crumb": "Look like the best choice",
   "topic": "websites",
@@ -11,16 +11,16 @@
   "scripts": ["best-choice-long", "best-choice-short-proof-button", "best-choice-short-true-claims"],
   "video": "best-choice-long",
   "cardTitle": "How I make a small contractor look like the best choice",
-  "card": "Real photos, true claims said loud, a first screen built to get the call, and one thing only theirs. Nothing made up.",
+  "card": "Real photos and true claims said loud. A first screen built to get the call. One thing only theirs. Nothing made up.",
   "resource": { "href": "/tools/website-playbook", "label": "Get the free website playbook", "text": "**Free: the Complete Website Playbook.** It walks through the whole page, top to bottom, step by step." },
   "next": [
     "**Do the 5-second test tonight.** Hand your site (on your phone) to someone who doesn't know your shop.",
-    "**Check the first screen:** the job, the town, a call button, a real photo, a true fact.",
+    "**Check the first screen.** Look for the job and the town. Then a call button, a real photo and a true fact.",
     "**Take three real photos** on your next job."
   ],
   "related": ["/videos/real-photos", "/videos/form-test", "/videos/website-or-google", "/tools/website-playbook"],
   "faq": [
-    ["What should be on the first screen of a contractor's website?", "On my clients' sites: the job and the town, a big call button, a real photo, and a true fact or two by the button, like licensed and insured or the star rating."],
+    ["What should be on the first screen of a contractor's website?", "On my clients' sites, it's the job and the town. Then a big call button and a real photo. By the button goes a true fact or two. Like licensed and insured, or the star rating."],
     ["Where should the quote form go?", "Up high, right after the real job photos. Not at the bottom of the page. Then the reviews, word for word."],
     ["Can I say I'm the best in town?", "Not unless you can prove it. I never put made-up awards or \"number one in town\" on a client's site. True claims, said loud, work better."]
   ]
@@ -43,7 +43,7 @@ I never use AI pictures on a client's site. If the owner wants his face up there
 
 Licensed. Insured. Years in business. Five stars, when it's really five stars.
 
-I never take a true claim off a client's site. If they earned it, people should see it. A customer can't see your work before they call, so the proof goes where they look first.
+I never take a true claim off a client's site. If they earned it, people should see it. A customer can't see your work before they call. So the proof goes where they look first.
 
 But if they can't prove it, it doesn't go on. No made-up awards. No "number one in town".
 
@@ -54,7 +54,7 @@ But if they can't prove it, it doesn't go on. No made-up awards. No "number one 
 
 People decide fast on a phone. So the proof sits right where they decide. Here's the order I use, top to bottom:
 
-1. **The first screen:** the job, the town, a big call button and a real photo. Right by the button, a true fact or two, like licensed and insured, or the star rating.
+1. **The first screen:** the job, the town, a big call button and a real photo. Right by the button goes a true fact or two. Like licensed and insured, or the star rating.
 2. **Real job photos.**
 3. **The quote form,** up high, not at the bottom.
 4. **The reviews,** word for word.

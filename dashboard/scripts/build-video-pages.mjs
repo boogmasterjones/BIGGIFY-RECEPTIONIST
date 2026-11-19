@@ -215,12 +215,11 @@ const PLACEHOLDER = /\[(?:[A-Z][A-Z0-9 :.,'_\/-]*|DATA[^\]]*|SOURCE[^\]]*|PROSPE
 // teleprompter check; keep them in step. Aim for grade 3. Names (Biggify, Port Charlotte, Wyatt) don't count.
 //   a page above grade READING_MAX_GRADE + 1 (5)           -> the build FAILS (every page passed this on 2026-11-18)
 //   a page above READING_MAX_GRADE (4)                     -> printed "fix" list
-//   a sentence over READING_MAX_SENTENCE_WORDS (15) words  -> printed "fix" list for now. Hubert treats it as a problem, but on
-//     2026-11-18 every page still had some (many in the front-matter description/summary). Set READING_LONG_SENTENCES_FAIL to
-//     true once they are fixed, and the build fails on them too.
+//   a sentence over READING_MAX_SENTENCE_WORDS (15) words  -> the build FAILS (READING_LONG_SENTENCES_FAIL). Every page and
+//     checklist was rewritten to pass on 2026-11-18, front matter (description, summary, card, next, FAQ) included.
 export const READING_MAX_GRADE = 4;
 export const READING_MAX_SENTENCE_WORDS = 15;
-export const READING_LONG_SENTENCES_FAIL = false;
+export const READING_LONG_SENTENCES_FAIL = true;
 const READING_NAMES = ["Wyatt Brunderman", "Port Charlotte", "Biggify", "Wyatt"];
 const ABBREVIATIONS = ["mr", "mrs", "ms", "dr", "st", "jr", "sr", "vs", "etc", "e.g", "i.e", "inc", "llc", "co", "no", "approx", "ft", "sq"];
 

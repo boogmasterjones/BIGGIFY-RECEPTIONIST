@@ -2,8 +2,8 @@
 {
   "title": "How I change my clients' Google profiles without getting them suspended",
   "seoTitle": "How I change Google profiles without getting suspended",
-  "description": "My 6 rules for changing a Google Business Profile safely: one big change a week, the real name, the phone swap, real hours, no fake address, one profile.",
-  "summary": "I change my clients' Google profiles all the time, and none of them has been suspended. My rules: change one big thing (name, address, main phone, main category or website), then wait about a week. Use the real name only. Swap a phone by adding the new one as main and keeping the old as an extra. Show real hours. Never use a fake address. Keep one profile per shop.",
+  "description": "My 6 rules for changing a Google profile safely. One big change a week. The real name. The phone swap. Real hours. No fake address. One profile.",
+  "summary": "I change my clients' Google profiles all the time. None of them has been suspended. My rules: change one big thing, then wait about a week. The big things are the name, address, main phone, main category and website. Use the real name only. To swap a phone, add the new one as main. Keep the old one as an extra. Show real hours. Never use a fake address. Keep one profile per shop.",
   "chip": "Google profile changes",
   "crumb": "Changing a profile safely",
   "topic": "google",
@@ -11,19 +11,19 @@
   "scripts": ["google-changes-long", "google-changes-short-same-week"],
   "video": "google-changes-long",
   "cardTitle": "How I change Google profiles without getting suspended",
-  "card": "My 6 rules: one big change a week, the real name, the safe phone swap, real hours, no fake address, one profile.",
+  "card": "My 6 rules. One big change a week. The real name. The safe phone swap. Real hours. No fake address. One profile.",
   "resource": { "href": "/guides/google-profile-changes", "label": "Read the free guide", "text": "**Free: my Google profile changes guide.** All my rules written down, with a list to check before you hit save." },
   "next": [
-    "**Make a list of the changes you want.** Mark the big ones: name, address, main phone, main category, website.",
+    "**Make a list of the changes you want.** Mark the big ones. Name. Address. Main phone. Main category. Website.",
     "**Do one big one this week.** Photos, posts and services can go any time.",
-    "**Wait about a week** before the next big one, and don't keep poking an edit that's waiting."
+    "**Wait about a week** before the next big one. Don't keep poking an edit that's waiting."
   ],
   "related": ["/videos/google-phone-swap", "/videos/google-pay-to-fix", "/videos/fake-address", "/videos/second-listing", "/tools/xray"],
   "faq": [
-    ["How long does Google take to check an edit to my profile?", "Google says most edits are checked in a few minutes, but some can take up to 30 days."],
-    ["Which Google profile changes can I make any time?", "Photos, posts and service lists. I change those any time. The big ones (name, address, main phone, main category and website) I change one at a time, about a week apart."],
-    ["What do I do if my Google profile is suspended?", "Google says don't make a new profile. Fix the problem, then use Google's appeal form and send proof, like a business license or a utility bill. Google says you can only send an appeal once, so get it right."],
-    ["Does Google call businesses asking for money?", "Google says it never asks for payment info over the phone. My own rule of thumb: if \"Google\" calls or texts me, I assume it's not Google."]
+    ["How long does Google take to check an edit to my profile?", "Google says most edits are checked in a few minutes. But some can take up to 30 days."],
+    ["Which Google profile changes can I make any time?", "Photos, posts and service lists. I change those any time. The big ones I change one at a time, about a week apart. That's the name, address, main phone, main category and website."],
+    ["What do I do if my Google profile is suspended?", "Google says don't make a new profile. Fix the problem. Then use Google's appeal form. Send proof, like a business license or a utility bill. Google says you can only send an appeal once, so get it right."],
+    ["Does Google call businesses asking for money?", "Google says it never asks for payment info over the phone. My own rule of thumb? If \"Google\" calls or texts me, I assume it's not Google."]
   ]
 }
 ---
@@ -44,11 +44,11 @@ And when I change a lot at once, Google often flags it. So I go slow.
 
 My rule: I change one big thing, then I wait about a week. The big ones are:
 
-- the **name**
-- the **address**
-- the **main phone**
-- the **main category**
-- the **website**
+- The **name**
+- The **address**
+- The **main phone**
+- The **main category**
+- The **website**
 
 Here's an example. Week one is the phone. Week two is the category. Photos, posts and service lists? Those I change any time.
 

@@ -2,27 +2,27 @@
 {
   "title": "How I get my trade businesses the most Google reviews possible",
   "seoTitle": "How I get my trade businesses the most Google reviews",
-  "description": "My whole Google review system for trade businesses: when I ask, the texts word for word, the QR card, past customers, replies, and what I never do.",
-  "summary": "I ask every customer, right after the job, by text from the business's own number, with a link that opens the review box in one tap. I hand them a QR code card too. If they don't leave one, I follow up twice, a week apart, then stop. I go back to past customers a few at a time, and I reply to every review as the business.",
+  "description": "My whole Google review system for trade businesses. When I ask. The texts, word for word. The QR card, past customers, replies, and what I never do.",
+  "summary": "I ask every customer right after the job. I text from the business's own number. The link opens the review box in one tap. I hand them a QR code card too. If they don't leave one, I follow up twice, a week apart, then stop. I go back to past customers a few at a time. And I reply to every review as the business.",
   "chip": "Google reviews",
   "crumb": "Getting the most reviews",
   "topic": "reviews",
   "order": 1,
   "scripts": ["reviews-most-long"],
   "video": "reviews-most-long",
-  "card": "My whole review system: when to ask, the 3 texts word for word, the QR card, past customers and replies.",
+  "card": "My whole review system. When to ask. The 3 texts, word for word. The QR card, past customers and replies.",
   "resource": { "href": "/tools/review-kit", "label": "Make my free QR card", "text": "**Free: the Review Booster Kit.** Put in your business name and review link. It makes your QR card and 20 ready-to-send texts." },
   "next": [
-    "**Get your review link** (the one that opens the review box) and save it in your phone.",
+    "**Get your review link.** It's the one that opens the review box. Save it in your phone.",
     "**Make a QR card** with the free kit and print a stack for the truck.",
     "**Text your last 5 customers** with the first text below."
   ],
   "related": ["/videos/review-text", "/videos/review-qr-card", "/videos/past-customer-reviews", "/videos/review-replies", "/videos/reviews-needed", "/guides/reviews-that-stick#past-customers"],
   "faq": [
     ["How many times should I ask for a review?", "I ask once right after the job, then follow up twice, about a week apart. Then I stop. If someone texts STOP, they never get another text."],
-    ["Should I only ask happy customers?", "No. I ask every customer, on every job. Picking only the happy ones isn't fair to people reading the reviews, and it's against Google's rules."],
+    ["Should I only ask happy customers?", "No. I ask every customer, on every job. Picking only the happy ones isn't fair to people reading the reviews. And it's against Google's rules."],
     ["Can I give a discount for a review?", "I never pay for reviews and I never give a gift for one."],
-    ["How many reviews do I need?", "From what I've seen with my own clients, around 30 is when the phone starts to ring. After that it's about how many new ones come in each week. That's my experience, not a Google rule."]
+    ["How many reviews do I need?", "From what I've seen with my clients, the phone starts to ring around 30. After that it's about how many new ones come in each week. That's my experience, not a Google rule."]
   ]
 }
 ---
@@ -77,7 +77,7 @@ Then I stop. Phone carriers want you to stop, and nobody likes a pest. If someon
 
 Every job you did before is a review you never asked for.
 
-But don't text them all in one day. Start with a few dozen, then a small batch each week. My free guide shows who to text first, how many a week and what to say.
+But don't text them all in one day. Start with a few dozen, then a small batch each week. My free guide shows who to text first. It shows how many a week and what to say.
 
 ## Step 5: Reply to every review {#reply}
 

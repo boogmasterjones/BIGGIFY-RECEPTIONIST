@@ -149,7 +149,7 @@ export default function LandingPage() {
             <div className="hero-copy">
               <p className="eyebrow light">For service businesses anywhere in the US</p>
               <h1><span className="l">Get found.</span> <span className="l">Get chosen.</span> <span className="l grad">Never miss the call.</span></h1>
-              <p className="lead">Biggify builds your website, runs your Google Business Profile and social media, and answers your phone 24/7 with an AI receptionist — so your business stops leaking jobs at every step.</p>
+              <p className="lead">Biggify builds your website. We run your Google profile and social media. And an AI receptionist answers your phone 24/7. So you stop losing jobs at every step.</p>
               <div className="hero-cta">
                 <a className="btn btn-primary btn-lg btn-sweep" href="#contact">Get a free quote<I id="arrow" /></a>
                 <a className="btn btn-ghost btn-lg call-btn" href={RECEPTIONIST_TEL}><I id="phone" /><span className="label">Call our receptionist</span></a>
@@ -277,13 +277,13 @@ export default function LandingPage() {
               <div className="card fx rv">
                 <div className="stage"><span>Leak</span><b>1</b></div>
                 <h3>They never find you</h3>
-                <p>When someone searches for your trade in your town, the businesses on the map get the call. If your Google profile is thin or your website isn&apos;t ranking, you&apos;re invisible at the exact moment they&apos;re ready to buy.</p>
+                <p>People search for your trade in your town. The shops on the map get the call. Is your Google profile thin? Is your website hard to find? Then they can&apos;t see you when they&apos;re ready to buy.</p>
                 <div className="fix"><span>Fixed by</span><a href="#gbp">Google Business Profile</a><a href="#websites">Website</a></div>
               </div>
               <div className="card fx rv">
                 <div className="stage"><span>Leak</span><b>2</b></div>
                 <h3>They find you, but don&apos;t pick you</h3>
-                <p>An outdated site, no reviews, no photos of your work — and they hit the back button and call the next name. You lost the job without ever knowing they looked.</p>
+                <p>An old site, no reviews, no photos of your work. They hit the back button and call the next name. You lost the job and never knew they looked.</p>
                 <div className="fix"><span>Fixed by</span><a href="#websites">Website</a><a href="#social">Social Media</a></div>
               </div>
               <div className="card fx rv">
@@ -305,10 +305,10 @@ export default function LandingPage() {
               <p>Take the whole stack, or start with the one piece that&apos;s leaking the most.</p>
             </div>
             <div className="svc-grid">
-              <a className="svc card fx rv" href="#websites"><span className="ico" aria-hidden="true"><I id="web" /></span><h3>Website Design</h3><p>A fast, mobile-first site built to turn visitors into phone calls — with your reviews, your work, and click-to-call everywhere.</p><span className="more">See our work<I id="arrow" /></span></a>
+              <a className="svc card fx rv" href="#websites"><span className="ico" aria-hidden="true"><I id="web" /></span><h3>Website Design</h3><p>A fast site built for phones that turns visitors into calls. Your reviews, your work, and call buttons everywhere.</p><span className="more">See our work<I id="arrow" /></span></a>
               <a className="svc card fx rv" href="#gbp"><span className="ico" aria-hidden="true"><I id="pin" /></span><h3>Google Business Profile</h3><p>Own the map pack in the towns you serve. Optimized profile, active posting, citations, and a steady stream of reviews.</p><span className="more">Learn more<I id="arrow" /></span></a>
-              <a className="svc card fx rv" href="#social"><span className="ico" aria-hidden="true"><I id="social" /></span><h3>Social Media</h3><p>Consistent posting that turns your everyday job photos into proof — so you stay top of mind without touching it.</p><span className="more">Learn more<I id="arrow" /></span></a>
-              <a className="svc card fx hot rv" href="#receptionist"><span className="ico" aria-hidden="true"><I id="headset" /></span><h3>AI Receptionist</h3><p>Answers every call 24/7 in a natural voice, books the appointment onto your calendar, and texts the customer for details.</p><span className="more">Hear it work<I id="arrow" /></span></a>
+              <a className="svc card fx rv" href="#social"><span className="ico" aria-hidden="true"><I id="social" /></span><h3>Social Media</h3><p>Steady posts that turn your job photos into proof. People keep you in mind, and you don&apos;t lift a finger.</p><span className="more">Learn more<I id="arrow" /></span></a>
+              <a className="svc card fx hot rv" href="#receptionist"><span className="ico" aria-hidden="true"><I id="headset" /></span><h3>AI Receptionist</h3><p>Answers every call 24/7 in a natural voice. Books the job on your calendar. Texts the customer for details.</p><span className="more">Hear it work<I id="arrow" /></span></a>
             </div>
           </div>
         </section>
@@ -320,13 +320,13 @@ export default function LandingPage() {
               <div className="rv">
                 <span className="eyebrow">Website Design</span>
                 <h2>A website that&apos;s built to <span className="serif-accent blk">get the phone to ring</span></h2>
-                <p className="lead">Most contractor websites are online brochures nobody reads. We build yours like a salesperson: it loads fast, speaks to the towns you serve, shows your work, and makes calling you the obvious next step.</p>
+                <p className="lead">Most contractor websites are online brochures nobody reads. We build yours like a salesperson. It loads fast and names the towns you serve. It shows your work. And it makes calling you the easy next step.</p>
                 <ul className="checks">
-                  <li><b>Mobile-first and fast</b> — most of your customers are searching from their phone, on the couch, mid-emergency.</li>
+                  <li><b>Fast, and built for phones</b> — most of your customers search on their phone. On the couch, or in the middle of a leak.</li>
                   <li><b>Click-to-call everywhere</b> — your number is one tap away from every screen.</li>
-                  <li><b>Pages for the towns you work</b> — so you show up for &quot;water heater repair Sarasota,&quot; not just your business name.</li>
+                  <li><b>Pages for the towns you work</b> — so you show up for &quot;water heater repair Sarasota.&quot; Not just for your name.</li>
                   <li><b>Reviews, licenses, and real photos up front</b> — the trust signals people check before they call.</li>
-                  <li><b>Wired to your receptionist</b> — chat and call buttons connect straight to Biggify, so the site doesn&apos;t just look good, it books.</li>
+                  <li><b>Wired to your receptionist</b> — chat and call buttons go straight to Biggify. So the site doesn&apos;t just look good. It books.</li>
                 </ul>
                 <div className="actions">
                   <a className="btn btn-primary" href="#contact">Get a free quote</a>
@@ -350,8 +350,8 @@ export default function LandingPage() {
                 <div className="card-label">What&apos;s included</div>
                 <ul className="checks">
                   <li><b>Profile optimization</b> — categories, services, hours, service areas, photos, and description dialed in.</li>
-                  <li><b>Regular posts</b> — 4 Google posts a month on the Authority Plan, 10 a month on the Domination System, so Google sees an active business.</li>
-                  <li><b>Service-area targeting</b> — from your home town on the Authority Plan to 3–5 towns on the Domination System.</li>
+                  <li><b>Regular posts</b> — 4 a month on the Authority Plan, 10 on the Domination System. Google sees a busy shop.</li>
+                  <li><b>The towns you serve</b> — your home town on the Authority Plan. 3–5 towns on the Domination System.</li>
                   <li><b>Keyword coverage</b> — your core services, expanding to your full service line and long-tail searches.</li>
                   <li><b>Citations &amp; links</b> — foundational listings, then active link-building as you scale.</li>
                   <li><b>Reviews</b> — a request system that runs itself, or a fully managed review campaign.</li>
@@ -361,8 +361,8 @@ export default function LandingPage() {
               <div className="rv">
                 <span className="eyebrow">Google Business Profile</span>
                 <h2>Own the map <span className="serif-accent blk">in the towns you serve</span></h2>
-                <p className="lead">When someone searches &quot;AC repair near me,&quot; the three businesses in the map pack get the calls. Getting there — and staying there — takes consistent work most owners don&apos;t have time for. We do it every week.</p>
-                <p>Your profile gets optimized and kept active with posts and photos. Your reviews grow on a schedule instead of by luck. And your listing gets backed up by the citations and content Google wants to see before it trusts you with the top spot.</p>
+                <p className="lead">Someone searches &quot;AC repair near me.&quot; The top three shops on the map get the calls. Getting there and staying there takes steady work. Most owners don&apos;t have time for it. We do it every week.</p>
+                <p>Your profile gets filled in and kept busy with posts and photos. Your reviews grow on a schedule, not by luck. And your listing gets the backup Google wants to see. Google checks other listings and pages before it trusts you with the top spot.</p>
                 <div className="actions">
                   <a className="btn btn-primary" href="#contact">Get a free quote</a>
                   <a className="btn btn-outline" href="/tools/xray">Free profile X-Ray</a>
@@ -380,10 +380,10 @@ export default function LandingPage() {
               <div className="rv">
                 <span className="eyebrow">Social Media</span>
                 <h2>Stay top of mind between jobs — <span className="serif-accent blk">without posting a thing</span></h2>
-                <p className="lead">Nobody hires a roofer off a viral post. But when a neighbor asks for a recommendation, the business they&apos;ve been seeing all month is the one that gets the name-drop. That&apos;s what consistent social does.</p>
+                <p className="lead">Nobody hires a roofer off a viral post. But say a neighbor asks who to call. The shop they&apos;ve seen all month is the one that gets named. That&apos;s what steady posts do.</p>
                 <ul className="checks">
-                  <li><b>Your job photos become posts</b> — send us the before-and-afters from the truck and we turn them into proof.</li>
-                  <li><b>Consistent cadence</b> — 4 posts a month on the Authority Plan, 10 on the Domination System, across Facebook, Instagram, and your Google profile — so you never go dark.</li>
+                  <li><b>Your job photos become posts</b> — send us the before-and-afters from the truck. We turn them into proof.</li>
+                  <li><b>Steady posts</b> — 4 a month on the Authority Plan, 10 on the Domination System. On Facebook, Instagram and your Google profile. You never go dark.</li>
                   <li><b>Local voice</b> — posts that sound like a business people know, not a marketing agency.</li>
                   <li><b>Reviews get reused</b> — every new five-star review becomes content that works twice.</li>
                 </ul>
@@ -396,7 +396,7 @@ export default function LandingPage() {
               <div className="post fx rv" data-tilt aria-label="How a post is laid out">
                 <div className="post-head"><span className="post-av" aria-hidden="true">YB</span><div><b>Your business name</b><span>Your town · Example post layout</span></div></div>
                 <div className="post-shots" aria-hidden="true"><div className="ps ps-before"><span>Your before photo</span></div><div className="ps ps-after"><span>Your after photo</span></div></div>
-                <p>What the job was, where it was, and how it turned out — in your words, from the photos you text us.</p>
+                <p>What the job was, where it was, and how it turned out. In your words, from the photos you text us.</p>
                 <div className="post-foot" aria-hidden="true"><span>Like</span><span>Comment</span><span>Share</span></div>
               </div>
             </div>
@@ -419,7 +419,7 @@ export default function LandingPage() {
               <div className="rv">
                 <span className="eyebrow">AI Receptionist</span>
                 <h2>Every call answered. Every job booked. <span className="serif-accent blk">Even at 9 PM on a Sunday.</span></h2>
-                <p className="lead">Marketing brings the calls. The receptionist makes sure none of them slip away. It picks up instantly in a natural voice, answers questions about your services, books the appointment onto your real calendar, and texts the customer for the details — while you keep working.</p>
+                <p className="lead">Marketing brings the calls. The receptionist makes sure none of them slip away. It picks up right away in a natural voice. It answers questions about your services. It books the job on your real calendar. Then it texts the customer for the details. And you keep working.</p>
                 <ul className="checks">
                   <li><b>Answers 24/7</b> — no voicemail, no hold music, no &quot;we&apos;ll call you back.&quot;</li>
                   <li><b>Books straight to your calendar</b> while the customer is still on the line.</li>
@@ -459,11 +459,11 @@ export default function LandingPage() {
               <div>
                 <span className="who">A tile contractor in Southwest Florida</span>
                 <div className="proof-stat"><b>$16k</b><span>added in first 3 months</span></div>
-                <p>A tile contractor in Southwest Florida came on as a founding client. Biggify rebuilt the website and took over the marketing. Three months in, the work it brought in added up to sixteen thousand dollars.</p>
+                <p>A tile contractor in Southwest Florida became a founding client. Biggify rebuilt his website. We took over the marketing. Three months in, the work it brought in added up to sixteen thousand dollars.</p>
                 <div className="actions"><a className="btn btn-primary" href="#contact">Get a free quote</a></div>
               </div>
             </div>
-            <p className="proof-more rv">More case studies are on the way as our founding clients pass their first 90 days.</p>
+            <p className="proof-more rv">More case studies are on the way. Our founding clients are passing their first 90 days.</p>
           </div>
         </section>
 
@@ -473,14 +473,14 @@ export default function LandingPage() {
             <div className="section-head rv">
               <span className="eyebrow">How we work with you</span>
               <h2>What actually changes, <span className="serif-accent blk">month by month</span></h2>
-              <p>This is not a logo and a brochure. It is every place a customer meets your business, fixed in order, and then kept working while you work.</p>
+              <p>This is not a logo and a brochure. It is every place a customer meets your business. We fix them in order. Then we keep them working while you work.</p>
             </div>
             <div className="how-grid">
               <ol className="timeline">
-                <li><span className="when">Week 1</span><h3>We find the leaks</h3><p>A free look at how you show up online: your Google listing, your site, your reviews, what happens when someone calls. You get a straight list of what is costing you jobs, <b>whether or not you hire us</b>.</p></li>
+                <li><span className="when">Week 1</span><h3>We find the leaks</h3><p>A free look at how you show up online. Your Google listing, your site, your reviews, and what happens when someone calls. You get a straight list of what costs you jobs. <b>You get it whether or not you hire us</b>.</p></li>
                 <li><span className="when">Month 1</span><h3>The front door gets fixed</h3><p>Your website goes live, built to get the phone to ring. Your Google Business Profile is set up properly. Review requests start going out on their own. If you take the receptionist, <b>every call gets answered from day one</b>.</p></li>
-                <li><span className="when">Months 2–3</span><h3>The town starts to notice</h3><p>Posts go out every week on Google, Facebook and Instagram, made from your real job photos. Pages go up for the towns you serve. Reviews climb. <b>You do none of the posting.</b></p></li>
-                <li><span className="when">Month 3 and on</span><h3>It compounds, and you can see it</h3><p>More towns, more pages, more reviews, and a report that shows calls → booked → closed, so you know what the marketing is actually worth. <b>One tile contractor&apos;s first three months: $16k added.</b></p></li>
+                <li><span className="when">Months 2–3</span><h3>The town starts to notice</h3><p>Posts go out every week on Google, Facebook and Instagram. They&apos;re made from your real job photos. Pages go up for the towns you serve. Reviews climb. <b>You do none of the posting.</b></p></li>
+                <li><span className="when">Month 3 and on</span><h3>It compounds, and you can see it</h3><p>More towns, more pages, more reviews. Plus a report that shows calls → booked → closed. So you know what the marketing is really worth. <b>One tile contractor&apos;s first three months: $16k added.</b></p></li>
               </ol>
               <div className="value card rv">
                 <span className="eyebrow">What gets added</span>
@@ -508,13 +508,13 @@ export default function LandingPage() {
               <div>
                 <span className="eyebrow">Who we work with</span>
                 <h3>Serious businesses that want to grow</h3>
-                <p>We put real work into every client, so we only take on shops that are ready to grow and ready to work with us on it. Here is the bar.</p>
-                <p className="or"><b>Just want a website?</b> We also build one-off sites for businesses that are not ready for a marketing plan yet. Same build quality, no monthly commitment. <a className="link" href="#contact">Ask for a website quote</a>.</p>
+                <p>We put real work into every client. So we only take shops ready to grow and ready to work with us. Here is the bar.</p>
+                <p className="or"><b>Just want a website?</b> We also build one-off sites. They&apos;re for shops not ready for a marketing plan yet. Same build quality, no monthly commitment. <a className="link" href="#contact">Ask for a website quote</a>.</p>
               </div>
               <ul className="crit">
-                <li><span className="k">$</span><span><b>Average job of $1,500 or more</b>One extra booked job has to be worth real money to you, or the plan does not pay.</span></li>
-                <li><span className="k">2+</span><span><b>Established in your market, two years or more</b>You already do good work and have the reviews and photos to prove it. We make sure more people see it.</span></li>
-                <li><span className="k">GO</span><span><b>Excited to make changes and work together</b>Send the job photos, approve the posts, forward the calls. Marketing works when the owner is in on it.</span></li>
+                <li><span className="k">$</span><span><b>Average job of $1,500 or more</b>One more booked job must pay you real money. If not, the plan does not pay.</span></li>
+                <li><span className="k">2+</span><span><b>In your market two years or more</b>You already do good work. You have the reviews and photos to prove it. We make sure more people see it.</span></li>
+                <li><span className="k">GO</span><span><b>Ready to make changes and work together</b>Send the job photos. Approve the posts. Forward the calls. Marketing works when the owner is in on it.</span></li>
               </ul>
             </div>
           </div>
@@ -623,14 +623,14 @@ export default function LandingPage() {
               <p>Something else? <a className="link" href="#contact">Book a free 15-minute call</a> or email <a className="link" href="mailto:gobiggify@gmail.com">gobiggify@gmail.com</a>.</p>
             </div>
             <div className="faq rv">
-              <details open><summary>Do I have to take everything, or can I start with one service?</summary><p>Start wherever your biggest leak is. Plenty of businesses begin with just the receptionist, or just the Authority Plan, and add on later. The plans are built so the pieces work on their own and work better together.</p></details>
-              <details><summary>Do I have to change my phone number?</summary><p>No. You keep your existing number. You simply forward calls you can&apos;t answer to Biggify, so the calls you&apos;d otherwise miss get caught — while you still take every call you can.</p></details>
-              <details><summary>Will the receptionist sound like a robot?</summary><p>No. Biggify uses a natural, professional AI voice that greets callers, answers common questions, and books the job like a great front-desk receptionist would. Call <a className="link" href={RECEPTIONIST_TEL}>{RECEPTIONIST_DISPLAY}</a> right now and hear it, or try it on your own calls with the <a className="link" href="/tools/trial">free 30-day trial</a>.</p></details>
-              <details><summary>Do I own my website and domain?</summary><p>Yes. Your domain stays in your name and the site is yours. We build it, host it, and keep it updated while you&apos;re with us — but it&apos;s your business&apos;s asset, not ours.</p></details>
-              <details><summary>How does the text survey work?</summary><p>After a call, the customer receives a short text with a few quick questions so you have the address, the issue, and their preferred time before you follow up. Customers can reply STOP at any time to opt out.</p></details>
-              <details><summary>What do the reports actually show me?</summary><p>On the Authority Plan you get a monthly summary of your rankings, profile activity, and reviews. On the Domination System you get the full attribution loop — which calls came from where, which ones got booked, and which ones closed — so you can see marketing turn into money.</p></details>
-              <details><summary>How fast can I get set up?</summary><p>The receptionist is usually live within a few days. Website and marketing timelines depend on your plan and how much we&apos;re building — we&apos;ll give you a clear schedule in your quote.</p></details>
-              <details><summary>What does it cost me to find out?</summary><p>Nothing. We start with a free 15-minute call and a demo using your real business scenario, so you can see and hear it before you commit to anything.</p></details>
+              <details open><summary>Do I have to take everything, or can I start with one service?</summary><p>Start wherever your biggest leak is. Lots of shops start with just the receptionist, or just the Authority Plan. They add on later. The plans are built so the pieces work on their own and work better together.</p></details>
+              <details><summary>Do I have to change my phone number?</summary><p>No. You keep your existing number. You just forward the calls you can&apos;t answer to Biggify. So the calls you&apos;d miss get caught. And you still take every call you can.</p></details>
+              <details><summary>Will the receptionist sound like a robot?</summary><p>No. Biggify uses a natural AI voice. It greets callers and answers common questions. It books the job like a great front desk would. Call <a className="link" href={RECEPTIONIST_TEL}>{RECEPTIONIST_DISPLAY}</a> right now and hear it. Or try it on your own calls with the <a className="link" href="/tools/trial">free 30-day trial</a>.</p></details>
+              <details><summary>Do I own my website and domain?</summary><p>Yes. Your domain stays in your name and the site is yours. We build it, host it, and keep it updated while you&apos;re with us. But it belongs to your business, not to us.</p></details>
+              <details><summary>How does the text survey work?</summary><p>After a call, the customer gets a short text with a few quick questions. Then you have the address, the issue and the best time before you call back. Customers can reply STOP at any time to opt out.</p></details>
+              <details><summary>What do the reports actually show me?</summary><p>On the Authority Plan, you get a monthly recap. It shows your rankings, profile activity and reviews. On the Domination System, you see the whole path. Where each call came from, which ones got booked, and which ones closed. You see marketing turn into money.</p></details>
+              <details><summary>How fast can I get set up?</summary><p>The receptionist is usually live within a few days. Website and marketing timing depends on your plan and how much we build. We&apos;ll give you a clear schedule in your quote.</p></details>
+              <details><summary>What does it cost me to find out?</summary><p>Nothing. We start with a free 15-minute call and a demo built on your real business. You see and hear it before you commit to anything.</p></details>
             </div>
           </div>
         </section>
@@ -642,7 +642,7 @@ export default function LandingPage() {
               <div className="contact-copy rv">
                 <span className="eyebrow light">Free 15-minute call</span>
                 <h2>Let&apos;s find <span className="serif-accent">your leak</span></h2>
-                <p>Book a free 15-minute call. We&apos;ll look at how you&apos;re showing up online, tell you honestly where the jobs are slipping, and quote a plan that fits — or call our receptionist right now and hear it for yourself.</p>
+                <p>Book a free 15-minute call. We&apos;ll look at how you show up online. We&apos;ll tell you straight where the jobs are slipping. Then we&apos;ll quote a plan that fits. Or call our receptionist right now and hear it yourself.</p>
                 <div className="contact-ways">
                   <a className="way" href={RECEPTIONIST_TEL}><span className="way-ico" aria-hidden="true"><I id="phone" /></span><span><small>Call our receptionist</small><b>{RECEPTIONIST_DISPLAY}</b></span></a>
                   <a className="way" href="mailto:gobiggify@gmail.com"><span className="way-ico" aria-hidden="true"><I id="msg" /></span><span><small>Or email us</small><b>gobiggify@gmail.com</b></span></a>

@@ -1,8 +1,8 @@
 ---
 {
   "title": "5 questions to ask any marketing agency (free checklist)",
-  "description": "A printable checklist for trade owners: the 5 questions to ask any marketing agency before you sign, what a good answer looks like, and the red flags.",
-  "summary": "Ask any marketing agency these 5 questions before you sign: Who owns my stuff? Can you show me real results? What happens if I leave? Will you tell me what you did each month, in plain words? Do you stand behind your work? The big test is one question: \"If I leave, does all of it come with me?\"",
+  "description": "A checklist to print. The 5 questions to ask any marketing agency before you sign. What a good answer looks like, and the red flags.",
+  "summary": "Ask any marketing agency these 5 questions before you sign: Who owns my stuff? Can you show me real results? What happens if I leave? Will you tell me what you did each month, in plain words? Do you stand behind your work? The big test is one question. \"If I leave, does all of it come with me?\"",
   "chip": "Free checklist",
   "crumb": "5 questions for any agency",
   "seoTitle": "5 questions to ask any marketing agency (checklist)",
@@ -15,7 +15,7 @@
   ],
   "related": ["/videos/agency-trust", "/guides/questions-before-you-sign", "/guides/who-owns-your-stuff", "/videos/seo-calls"],
   "faq": [
-    ["What's the most important question to ask a marketing agency?", "\"If I leave, does all of it come with me?\" Your website, domain, Google profile and phone number should be in your name, and you should be able to log in to each one yourself."],
+    ["What's the most important question to ask a marketing agency?", "\"If I leave, does all of it come with me?\" Your website, domain, Google profile and phone number should be in your name. You should be able to log in to each one yourself."],
     ["Can a marketing agency promise #1 on Google?", "No one can promise that. Google picks, not them. Ask for real call numbers and real reviews instead."]
   ]
 }
@@ -86,12 +86,12 @@ Ask them: "What did you do for me last month?"
 - It's in writing.
 :::
 
-Mine is simple: **300% ROI in 4 months, or I work for free until you get it.** Or prepay 6 months: if I don't get you 300% ROI by then, you get all your money back, and I work for free until you do.
+Mine is simple. **300% ROI in 4 months, or I work for free until you get it.** Or you can prepay 6 months. If I don't get you 300% ROI by then, you get all your money back. And I work for free until you do.
 
 >! **Red flag** "There are no promises in marketing" and nothing else.
 
 ## How I answer these myself {#me}
 
-My clients own their own stuff. If a client ever leaves, I hand over the site and move their number to them. Ask me every one of these questions too.
+My clients own their own stuff. If a client ever leaves, I hand over the site. And I move their number to them. Ask me every one of these questions too.
 
 Questions? Call or text me, Wyatt, at [(941) 401-8288](tel:+19414018288).

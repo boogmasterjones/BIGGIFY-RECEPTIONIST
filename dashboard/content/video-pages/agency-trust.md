@@ -1,8 +1,8 @@
 ---
 {
   "title": "How I make sure a marketing agency is trustworthy",
-  "description": "The 5 things I check before I'd trust any marketing agency, the exact question to ask for each, and how I hold my own business to the same rules.",
-  "summary": "Before I'd trust any marketing agency, I check five things: who owns my stuff (website, domain, Google profile and phone number should be in my name), can they show real results (calls and reviews, not \"number one on Google\"), what happens if I leave, do they tell me in plain words what they did each month, and do they stand behind it. I hold myself to the same rules. My clients own their own stuff.",
+  "description": "The 5 things I check before I'd trust a marketing agency. The question to ask for each. And how I hold my own business to the same rules.",
+  "summary": "Before I'd trust a marketing agency, I check five things. Who owns my stuff? My website, domain, Google profile and phone number should be in my name. Can they show real results? I mean calls and reviews, not \"number one on Google.\" What happens if I leave? Do they tell me in plain words what they did each month? Do they stand behind it? I hold myself to the same rules. My clients own their own stuff.",
   "chip": "Choosing a marketer",
   "crumb": "Is the agency trustworthy?",
   "topic": "marketer",
@@ -10,12 +10,12 @@
   "scripts": ["agency-trust-long", "agency-trust-short-first-question", "agency-trust-short-number-one"],
   "video": "agency-trust-long",
   "cardTitle": "How I check if a marketing agency is trustworthy",
-  "card": "The 5 things I check, the exact question for each, and the rules I hold my own business to.",
-  "resource": { "href": "/guides/agency-checklist", "label": "Get the free checklist", "text": "**Free: the 5 questions to ask any marketing agency,** as a checklist you can print and take to the meeting." },
+  "card": "The 5 things I check and the question to ask for each. Plus the rules I hold my own business to.",
+  "resource": { "href": "/guides/agency-checklist", "label": "Get the free checklist", "text": "**Free: the 5 questions to ask any marketing agency.** It's a checklist you can print and take to the meeting." },
   "next": [
     "**Print the free checklist** before your next meeting with any marketer.",
     "**Ask: \"If I leave, does all of it come with me?\"** Listen for a short, clear yes.",
-    "**Check you can log in** to your domain, website, Google profile and phone account yourself, today."
+    "**Check you can log in yourself, today.** Try your domain, website, Google profile and phone account."
   ],
   "related": ["/guides/agency-checklist", "/videos/website-ownership", "/videos/one-per-town", "/videos/seo-calls", "/guides/questions-before-you-sign"],
   "faq": [
@@ -35,7 +35,7 @@ A friend of mine got burned by a marketing guy. That's why I check these five th
 
 My site. My domain. My Google profile. My phone number. All of it should be in my name. Not theirs.
 
-My phone number is how customers find me. If I leave, I want to take it all with me, not start over from zero.
+My phone number is how customers find me. If I leave, I want to take it all with me. I don't want to start over from zero.
 
 :::text Ask them
 "If I leave, does all of it come with me?"
@@ -83,10 +83,10 @@ In plain words I get. If I can't tell what I'm paying for, that's a red flag.
 
 What happens if it doesn't work? Get it in writing.
 
-Mine is simple: **300% ROI in 4 months, or I work for free until you get it.** Or prepay 6 months: if I don't get you 300% ROI by then, you get all your money back, and I work for free until you do.
+Mine is simple. **300% ROI in 4 months, or I work for free until you get it.** Or you can prepay 6 months. If I don't get you 300% ROI by then, you get all your money back. And I work for free until you do.
 
 ## I hold myself to the same rules {#me}
 
 My clients own their own stuff. If they ever leave, I hand over the site. And I move their number to them.
 
-That's the "if I leave, does all of it come with me?" test, and I want my answer to be yes.
+That's the "if I leave, does all of it come with me?" test. I want my answer to be yes.

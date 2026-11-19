@@ -3,7 +3,7 @@
   "title": "How a contractor I work with got $16,000 in new jobs in 3 months",
   "seoTitle": "Rock Solid Tile: $16,000 in new jobs in 3 months",
   "description": "Rock Solid Tile in Port Charlotte: Google calls tripled and $16,000 in jobs in 3 months. What I do for Matt, and what I'd do for any trade.",
-  "summary": "In three months, my tile client Rock Solid Tile in Port Charlotte, Florida brought in $16,000 in jobs, and his Google calls tripled. Matt lays tile. I do the rest: his website, his Google profile with posts and real job photos, review asks after each job, Facebook and Instagram, and his own business line. It's one real client, not a promise for yours.",
+  "summary": "My tile client is Rock Solid Tile in Port Charlotte, Florida. In three months, he brought in $16,000 in jobs. And his Google calls tripled. Matt lays tile. I do the rest. His website. His Google profile, with posts and real job photos. Review asks after each job. Facebook and Instagram. And his own business line. It's one real client, not a promise for yours.",
   "chip": "Case study",
   "crumb": "Rock Solid Tile",
   "topic": "marketer",

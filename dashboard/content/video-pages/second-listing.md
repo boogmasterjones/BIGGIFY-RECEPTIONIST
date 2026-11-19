@@ -3,7 +3,7 @@
   "title": "A client's Google reviews were on a second listing: how I check for one",
   "seoTitle": "Reviews on a second Google listing? How I check",
   "description": "A client's real reviews were sitting on a second Google listing nobody had claimed. The 1-minute check I now do for every client, and what happens next.",
-  "summary": "A client had real Google reviews, but his profile showed none. They were on a second listing nobody had claimed, with his old address and old phone number. Now I check every client for this: search the business name on Google Maps, then the phone number, then any old address. If a second listing turns up, it gets merged with the real one once Google has verified the real profile.",
+  "summary": "A client had real Google reviews, but his profile showed none. They were on a second listing nobody had claimed. It had his old address and old phone number. Now I check every client for this. I search the business name on Google Maps. Then the phone number, then any old address. Say a second listing turns up. Once Google has checked the real profile, the two get merged.",
   "chip": "Duplicate listings",
   "crumb": "A second listing",
   "topic": "google",
@@ -12,7 +12,7 @@
   "video": "second-listing-short",
   "cardTitle": "Your reviews might be on a second Google listing",
   "card": "A client's reviews were on an unclaimed second listing. The 1-minute check I now do for every client.",
-  "resource": { "href": "/tools/xray", "label": "Get my free X-Ray", "text": "**Free: a Google Profile X-Ray.** A second pair of eyes on your profile, next to the top three near you, with the three fixes that matter most." },
+  "resource": { "href": "/tools/xray", "label": "Get my free X-Ray", "text": "**Free: a Google Profile X-Ray.** A second pair of eyes on your profile, next to the top three near you. Plus the three fixes that matter most." },
   "next": [
     "**Search your business name** on Google Maps.",
     "**Search your phone number,** and any old phone numbers.",
@@ -20,7 +20,7 @@
   ],
   "related": ["/videos/google-changes", "/videos/reviews-164", "/videos/phone-stopped", "/guides/reviews-disappeared"],
   "faq": [
-    ["Why do I have two Google listings?", "I don't always know the cause. Old info, like an old address or old phone number, is often how a second listing starts."],
+    ["Why do I have two Google listings?", "I don't always know the cause. Old info is often how a second listing starts. Like an old address or old phone number."],
     ["Can I get my reviews moved to my real profile?", "Google can merge duplicate listings. In my client's case, Google has to verify his real profile first. Then I ask Google to merge them. Check Google's current help page on duplicate listings for the steps."]
   ]
 }
@@ -54,4 +54,4 @@ For the first client, the fix isn't done yet. Here's the order:
 
 Google changes its steps for this now and then. So check [Google's own help pages](https://support.google.com/business/) for duplicate listings before you start.
 
-> **Don't make a third one** If you find a second listing, don't make yet another profile to "start fresh". That only adds to the mess.
+> **Don't make a third one** Found a second listing? Don't make yet another profile to "start fresh." That only adds to the mess.

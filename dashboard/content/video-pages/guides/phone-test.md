@@ -1,13 +1,13 @@
 ---
 {
   "title": "The 1-minute phone test: what your customers hear when they call",
-  "description": "A free checklist for trade owners: call your own business from another phone, let it ring out, and test the call buttons on Google and your site.",
-  "summary": "Grab a second phone and call your own business like a customer would. Let it ring all the way out and listen to what they hear. Then tap the call button on your Google profile and on your website, and make sure each one rings the right number. If a call rings out, a lot of people won't leave a message. They call the next shop.",
+  "description": "A free checklist for trade owners. Call your own business from another phone and let it ring out. Test the call buttons on Google and your site.",
+  "summary": "Grab a second phone and call your own business like a customer would. Let it ring all the way out and listen to what they hear. Then tap the call button on your Google profile and on your website. Make sure each one rings the right number. If a call rings out, a lot of people won't leave a message. They call the next shop.",
   "chip": "Free checklist",
   "crumb": "The 1-minute phone test",
   "seoTitle": "The 1-minute phone test for trade businesses",
-  "card": "Call yourself like a customer, let it ring out, and test the call buttons on Google and your site.",
-  "resource": { "href": "/tools/missed-calls", "label": "Open the free calculator", "text": "**Found calls that ring out?** Put the calls you miss each week in my free calculator and see what they could cost you in a year." },
+  "card": "Call yourself like a customer and let it ring out. Test the call buttons on Google and your site.",
+  "resource": { "href": "/tools/missed-calls", "label": "Open the free calculator", "text": "**Found calls that ring out?** Put the calls you miss each week in my free calculator. See what they could cost you in a year." },
   "next": [
     "**Do the test now** with a second phone, or ask a friend to call you.",
     "**Do it again after hours,** like a customer calling at 7 at night.",
@@ -15,7 +15,7 @@
   ],
   "related": ["/videos/personal-cell", "/videos/calls-100", "/videos/form-test", "/videos/phone-stopped", "/guides/missed-calls-competitors"],
   "faq": [
-    ["How do I test my business phone line?", "Call it from another phone like a customer would. Count the rings, let it ring all the way out, and listen to what they hear. Then tap the call buttons on your Google profile and website to make sure they ring the right number."],
+    ["How do I test my business phone line?", "Call it from another phone like a customer would. Count the rings. Let it ring all the way out, and listen to what they hear. Then tap the call buttons on your Google profile and website. Make sure they ring the right number."],
     ["What happens when a customer's call rings out?", "A lot of people won't leave a message. They call the next shop."]
   ]
 }
@@ -51,4 +51,4 @@ Call again at 7 at night, or on a Sunday. Some customers can only call after wor
 
 If your Google profile says you're open, someone should pick up. If you show closed, some people will just call the next shop.
 
-> **How my clients' lines work** My clients get a business line that rings the owner first. If he can't pick up, my AI receptionist answers, gets the caller's name, number and what they need, and texts it to him. See [how it works](/videos/calls-100).
+> **How my clients' lines work** My clients' line rings the owner first. If he can't pick up, my AI receptionist answers. It gets the caller's name, number and what they need. Then it texts it to him. See [how it works](/videos/calls-100).

@@ -2,8 +2,8 @@
 {
   "title": "The big shop has 2,000 reviews. Here's the fight I pick instead",
   "seoTitle": "Up against 2,000 reviews? The fight I pick instead",
-  "description": "When a client is up against shops with thousands of Google reviews, I don't chase the count. I aim them at one job in one town. Here's how.",
-  "summary": "When the big shops on a search have hundreds or thousands of reviews, I don't try to out-review them this year. I aim my client at one job in one town they really serve, like drain line cleaning in one town, with a website page for it. And they keep asking every customer for a review the whole time.",
+  "description": "Some clients are up against shops with thousands of Google reviews. I don't chase the count. I aim them at one job in one town. Here's how.",
+  "summary": "Sometimes the big shops on a search have hundreds or thousands of reviews. I don't try to out-review them this year. I aim my client at one job in one town they really serve. Like drain line cleaning in one town, with a website page for it. And they keep asking every customer for a review the whole time.",
   "chip": "Picking your fight",
   "crumb": "The fight I pick",
   "topic": "reviews",
@@ -11,7 +11,7 @@
   "scripts": ["reviews-needed-short-big-shop"],
   "video": "reviews-needed-short-big-shop",
   "card": "Up against shops with thousands of reviews? I aim my client at one job in one town instead. Here's how to pick yours.",
-  "resource": { "href": "/tools/xray", "label": "Get my free X-Ray", "text": "**Free: a Google Profile X-Ray.** I put your profile next to the top three near you, so you can see which fight is worth picking." },
+  "resource": { "href": "/tools/xray", "label": "Get my free X-Ray", "text": "**Free: a Google Profile X-Ray.** I put your profile next to the top three near you. Then you can see which fight is worth picking." },
   "next": [
     "**Pick one job** you want more of. One you make good money on.",
     "**Pick one town** you really serve, where the big shops are weaker.",
@@ -19,7 +19,7 @@
   ],
   "related": ["/videos/reviews-needed", "/videos/google-likes-me", "/videos/fake-address", "/tools/website-playbook"],
   "faq": [
-    ["Can a small shop beat a big one with way more reviews?", "Not head-on on the busiest search, at least not fast. I aim small clients at one job in one town they really serve, where the big shops aren't as strong, and keep asking every customer for reviews."]
+    ["Can a small shop beat a big one with way more reviews?", "Not head-on on the busiest search, at least not fast. I aim small clients at one job in one town they really serve. The big shops aren't as strong there. And they keep asking every customer for reviews."]
   ]
 }
 ---
