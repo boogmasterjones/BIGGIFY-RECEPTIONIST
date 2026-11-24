@@ -57,7 +57,7 @@ window.BIGGIFY_VIDEO_PAGES = {
     "reviews-needed-short-big-shop": { "id": "", "uploaded": "", "title": "The Big Shop Has 2,000 Reviews. Here's the Fight I Pick Instead." },
     "rst-16k-long": { "id": "", "uploaded": "", "title": "How a Contractor I Work With Got $16,000 in New Jobs in 3 Months" },
     "rst-16k-short-first-change": { "id": "", "uploaded": "", "title": "His Google Calls Tripled. Here's the First Thing I Changed." },
-    "rst-16k-short-promise": { "id": "", "uploaded": "", "title": "Why My Promise Is 300% ROI in 3 Months or You Don't Pay" },
+    "rst-16k-short-promise": { "id": "", "uploaded": "", "title": "The Promise I Make to Every Trade Owner" },
     "rst-16k-short-result": { "id": "", "uploaded": "", "title": "$16,000 in New Jobs in 3 Months. He Didn't Lift a Finger." },
     "second-listing-short": { "id": "", "uploaded": "", "title": "A Client's Reviews Were on a Second Google Listing. He Had No Idea." },
     "seo-calls-short": { "id": "", "uploaded": "", "title": "\"We Can Get You to Page One of Google.\" Here's What I Think of These Calls." },

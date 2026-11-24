@@ -2,7 +2,7 @@
 {
   "title": "The 3 numbers I track to know if marketing works",
   "description": "Marketing reports are full of clicks and views. I only track three numbers. Calls, jobs booked from those calls, and the money they bring.",
-  "summary": "Most marketing reports are full of clicks and views. I only care about three numbers. Calls, jobs booked from those calls, and the money from those jobs. My clients get their own line, so I count the calls. They log the jobs, so I see the money. That's why my promise is simple. 300% ROI in 6 months, or 100% of your money back. And I work for free until you hit your goal.",
+  "summary": "Most marketing reports are full of clicks and views. I only care about three numbers. Calls, jobs booked from those calls, and the money from those jobs. My clients get their own line, so I count the calls. They log the jobs, so I see the money. That's why my promise is simple. 300% ROI in 8 months, or your money back. Plus I work for free until you hit 300% ROI.",
   "chip": "Marketing math",
   "crumb": "The 3 numbers",
   "topic": "marketer",
@@ -48,6 +48,6 @@ You can do it yourself with a notebook. Every call, did it become a job, and wha
 
 ## My promise {#promise}
 
-That's why my promise is simple. **300% ROI in 6 months, or 100% of your money back. And I work for free until you hit your goal.**
+That's why my promise is simple. **300% ROI in 8 months, or your money back. Plus I work for free until you hit 300% ROI.**
 
 I can only promise that because I'm watching the numbers that matter.

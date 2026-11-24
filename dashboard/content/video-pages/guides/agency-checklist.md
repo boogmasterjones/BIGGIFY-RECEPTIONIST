@@ -86,7 +86,7 @@ Ask them: "What did you do for me last month?"
 - It's in writing.
 :::
 
-Mine is simple. **300% ROI in 6 months, or 100% of your money back. And I work for free until you hit your goal.**
+Mine is simple. **300% ROI in 8 months, or your money back. Plus I work for free until you hit 300% ROI.**
 
 >! **Red flag** "There are no promises in marketing" and nothing else.
 

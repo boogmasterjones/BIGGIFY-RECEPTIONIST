@@ -457,7 +457,7 @@ export function build({ write = true, config } = {}) {
     const crumbList = p.kind === "video" ? [["Biggify", "/"], ["Videos", "/videos"], [p.crumb || p.chip, p.path]] : [["Biggify", "/"], ["Guides", "/guides"], [p.crumb || p.chip, p.path]];
     const minutes = Math.max(2, Math.round((wordCount(body.html) + wordCount(faqHtml)) / 200));
 
-    const dfy = p.dfy || "We build websites and run Google profiles, review requests and social posts for local trades. An AI receptionist catches the calls you miss. My promise is simple. 300% ROI in 6 months, or 100% of your money back. And I work for free until you hit your goal.";
+    const dfy = p.dfy || "We build websites and run Google profiles, review requests and social posts for local trades. An AI receptionist catches the calls you miss. My promise is simple. 300% ROI in 8 months, or your money back. Plus I work for free until you hit 300% ROI.";
     const html = `${head({
       title: pageTitle(p.seoTitle || p.title, p.file),
       description: p.description,
