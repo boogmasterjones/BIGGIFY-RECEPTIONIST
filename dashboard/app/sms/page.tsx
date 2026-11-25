@@ -67,7 +67,7 @@ export default function SmsPage() {
           </li>
           <li className={LI}>
             Reply <strong>HELP</strong>, or email{' '}
-            <a href="mailto:gobiggify@gmail.com" className="text-[#CF0000]">gobiggify@gmail.com</a>.
+            <a href="mailto:hi@gobiggify.com" className="text-[#CF0000]">hi@gobiggify.com</a>.
           </li>
           <li className={LI}>Message frequency varies. Message and data rates may apply. Consent is not a condition of any purchase.</li>
         </ul>

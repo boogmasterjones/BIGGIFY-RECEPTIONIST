@@ -30,7 +30,7 @@ export default function SmsOptInPage() {
         </p>
         <OptInForm />
         <p className="text-[14px] text-[#6b7390] mt-8">
-          Questions? Email <a href="mailto:gobiggify@gmail.com" className="text-[#CF0000]">gobiggify@gmail.com</a>. Read our{' '}
+          Questions? Email <a href="mailto:hi@gobiggify.com" className="text-[#CF0000]">hi@gobiggify.com</a>. Read our{' '}
           <Link href="/privacy" className="text-[#CF0000]">Privacy Policy</Link> and <Link href="/terms" className="text-[#CF0000]">Terms of Service</Link>.
         </p>
       </div>

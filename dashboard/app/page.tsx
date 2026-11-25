@@ -620,7 +620,7 @@ export default function LandingPage() {
             <div className="section-head rv">
               <span className="eyebrow">FAQ</span>
               <h2>Questions, <span className="serif-accent">answered</span></h2>
-              <p>Something else? <a className="link" href="#contact">Book a free 15-minute call</a> or email <a className="link" href="mailto:gobiggify@gmail.com">gobiggify@gmail.com</a>.</p>
+              <p>Something else? <a className="link" href="#contact">Book a free 15-minute call</a> or email <a className="link" href="mailto:hi@gobiggify.com">hi@gobiggify.com</a>.</p>
             </div>
             <div className="faq rv">
               <details open><summary>Do I have to take everything, or can I start with one service?</summary><p>Start wherever your biggest leak is. Lots of shops start with just the receptionist, or just the Authority Plan. They add on later. The plans are built so the pieces work on their own and work better together.</p></details>
@@ -645,7 +645,7 @@ export default function LandingPage() {
                 <p>Book a free 15-minute call. We&apos;ll look at how you show up online. We&apos;ll tell you straight where the jobs are slipping. Then we&apos;ll quote a plan that fits. Or call our receptionist right now and hear it yourself.</p>
                 <div className="contact-ways">
                   <a className="way" href={RECEPTIONIST_TEL}><span className="way-ico" aria-hidden="true"><I id="phone" /></span><span><small>Call our receptionist</small><b>{RECEPTIONIST_DISPLAY}</b></span></a>
-                  <a className="way" href="mailto:gobiggify@gmail.com"><span className="way-ico" aria-hidden="true"><I id="msg" /></span><span><small>Or email us</small><b>gobiggify@gmail.com</b></span></a>
+                  <a className="way" href="mailto:hi@gobiggify.com"><span className="way-ico" aria-hidden="true"><I id="msg" /></span><span><small>Or email us</small><b>hi@gobiggify.com</b></span></a>
                 </div>
               </div>
               <div className="cal-card rv">
@@ -695,7 +695,7 @@ export default function LandingPage() {
                 <a href="/privacy">Privacy Policy</a>
                 <a href="/terms">Terms</a>
                 <a href="/sms">Text Messaging</a>
-                <a href="mailto:gobiggify@gmail.com">Contact</a>
+                <a href="mailto:hi@gobiggify.com">Contact</a>
               </div>
             </div>
           </div>

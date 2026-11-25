@@ -45,7 +45,7 @@ export default function TermsPage() {
           </li>
           <li className={LI}>
             Reply <strong>HELP</strong> for help, or email{' '}
-            <a href="mailto:gobiggify@gmail.com" className="text-[#CF0000]">gobiggify@gmail.com</a>.
+            <a href="mailto:hi@gobiggify.com" className="text-[#CF0000]">hi@gobiggify.com</a>.
           </li>
           <li className={LI}>Carriers are not liable for delayed or undelivered messages.</li>
         </ul>
@@ -75,7 +75,7 @@ export default function TermsPage() {
         <p className={P}>
           BIGGIFY LLC (Biggify)
           <br />
-          Email: <a href="mailto:gobiggify@gmail.com" className="text-[#CF0000]">gobiggify@gmail.com</a>
+          Email: <a href="mailto:hi@gobiggify.com" className="text-[#CF0000]">hi@gobiggify.com</a>
         </p>
 
         <Link href="/" className="inline-block mt-8 text-[#CF0000] font-bold">← Back to Biggify</Link>

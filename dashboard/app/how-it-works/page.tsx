@@ -487,7 +487,7 @@ export default function HowItWorksPage() {
               <a href="/how-it-works">How it works</a>
               <a href="/#faq">FAQ</a>
               <a href="/privacy">Privacy Policy</a>
-              <a href="mailto:gobiggify@gmail.com">Contact</a>
+              <a href="mailto:hi@gobiggify.com">Contact</a>
             </div>
           </div>
           <div className="foot-bot">

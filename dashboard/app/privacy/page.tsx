@@ -54,7 +54,7 @@ export default function PrivacyPage() {
         </p>
         <ul className="pl-5 mb-3 space-y-1.5">
           <li className="text-[16px] text-[#2a3049]">Reply <strong>STOP</strong> at any time to opt out and stop receiving messages.</li>
-          <li className="text-[16px] text-[#2a3049]">Reply <strong>HELP</strong> for assistance, or contact us at <a href="mailto:gobiggify@gmail.com" className="text-[#CF0000]">gobiggify@gmail.com</a>.</li>
+          <li className="text-[16px] text-[#2a3049]">Reply <strong>HELP</strong> for assistance, or contact us at <a href="mailto:hi@gobiggify.com" className="text-[#CF0000]">hi@gobiggify.com</a>.</li>
           <li className="text-[16px] text-[#2a3049]">Carriers are not liable for delayed or undelivered messages.</li>
         </ul>
 
@@ -81,14 +81,14 @@ export default function PrivacyPage() {
         <h2 className="text-[21px] tracking-tight mt-9 mb-2.5 font-bold">Your choices</h2>
         <p className="text-[16px] text-[#2a3049] mb-3 leading-relaxed">
           You may opt out of texts at any time (reply STOP), and you may request access to or deletion of your information by emailing{' '}
-          <a href="mailto:gobiggify@gmail.com" className="text-[#CF0000]">gobiggify@gmail.com</a>.
+          <a href="mailto:hi@gobiggify.com" className="text-[#CF0000]">hi@gobiggify.com</a>.
         </p>
 
         <h2 className="text-[21px] tracking-tight mt-9 mb-2.5 font-bold">Contact us</h2>
         <p className="text-[16px] text-[#2a3049] mb-3 leading-relaxed">
           Biggify — a service of BIGGIFY LLC
           <br />
-          Email: <a href="mailto:gobiggify@gmail.com" className="text-[#CF0000]">gobiggify@gmail.com</a>
+          Email: <a href="mailto:hi@gobiggify.com" className="text-[#CF0000]">hi@gobiggify.com</a>
         </p>
 
         <Link href="/" className="inline-block mt-8 text-[#CF0000] font-bold">← Back to Biggify</Link>

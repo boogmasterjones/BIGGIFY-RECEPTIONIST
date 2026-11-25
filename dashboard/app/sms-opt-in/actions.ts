@@ -27,7 +27,7 @@ export async function submitOptIn(form: FormData): Promise<OptInResult> {
   const h = await headers();
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return { ok: false, error: 'The form is not connected yet. Email gobiggify@gmail.com and we will add you by hand.' };
+  if (!url || !key) return { ok: false, error: 'The form is not connected yet. Email hi@gobiggify.com and we will add you by hand.' };
   const supabase = createClient(url, key, { auth: { persistSession: false } });
   const { error } = await supabase.from('sms_consents').insert({
     phone,
@@ -40,6 +40,6 @@ export async function submitOptIn(form: FormData): Promise<OptInResult> {
     ip: (h.get('x-forwarded-for') ?? '').split(',')[0].trim() || null,
     user_agent: (h.get('user-agent') ?? '').slice(0, 300) || null,
   });
-  if (error) return { ok: false, error: 'Something went wrong saving your request. Email gobiggify@gmail.com and we will add you by hand.' };
+  if (error) return { ok: false, error: 'Something went wrong saving your request. Email hi@gobiggify.com and we will add you by hand.' };
   return { ok: true, consented: consent };
 }
